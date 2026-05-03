@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Little Farm</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --soil: #8B5E3C;
+    --soil-light: #A0714F;
+    --soil-dark: #6B4226;
+    --grass: #5A8A3C;
+    --sky: #87CEEB;
+    --gold: #F5C518;
+    --gold-dark: #D4A017;
+    --panel: #FDF6E3;
+    --panel-border: #C8A96E;
+    --text: #3B2A1A;
+    --text-light: #7A5C3A;
+    --green-grow: #4CAF50;
+    --red: #E74C3C;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(180deg, #87CEEB 0%, #B0E0A0 60%, #7AB648 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    color: var(--text);
+  }
+
+  h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.8rem;
+    color: #fff;
+    text-shadow: 3px 3px 0px var(--soil-dark), 0 0 20px rgba(0,0,0,0.2);
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+
+  /* ---- CURRENCY ---- */
+  #hud {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--panel);
+    border: 3px solid var(--panel-border);
+    border-radius: 40px;
+    padding: 8px 22px;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  #hud .coin-icon { font-size: 1.5rem; }
+  #gold-display {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    color: var(--gold-dark);
+  }
+
+  /* ---- MAIN LAYOUT ---- */
+  #game-area {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* ---- FARM GRID ---- */
+  #farm-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #farm-label {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: #fff;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+  }
+
+  #farm-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    gap: 6px;
+    background: var(--soil-dark);
+    padding: 10px;
+    border-radius: 14px;
+    border: 4px solid var(--soil-dark);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  }
+
+  .plot {
+    width: 100px;
+    height: 100px;
+    background: var(--soil);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s, transform 0.1s;
+    border: 2px solid var(--soil-dark);
+    overflow: hidden;
+  }
+  .plot:hover { background: var(--soil-light); transform: scale(1.04); }
+  .plot.empty::after {
+    content: '+';
+    font-size: 2rem;
+    color: rgba(255,255,255,0.25);
+    font-weight: bold;
+  }
+  .plot.planted .crop-emoji {
+    font-size: 2.2rem;
+    animation: sway 2s ease-in-out infinite;
+  }
+  .plot.ready .crop-emoji { animation: bounce 0.6s ease-in-out infinite alternate; }
+  .plot.ready { background: #6B9E3C; border-color: var(--green-grow); cursor: pointer; }
+  .plot.ready::before {
+    content: '✨';
+    position: absolute;
+    top: 4px; right: 4px;
+    font-size: 0.9rem;
+    animation: spin 1.5s linear infinite;
+  }
+
+  @keyframes sway {
+    0%,100% { transform: rotate(-4deg); }
+    50% { transform: rotate(4deg); }
+  }
+  @keyframes bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-6px); }
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* progress bar inside plot */
+  .progress-wrap {
+    position: absolute;
+    bottom: 6px;
+    left: 8px; right: 8px;
+    height: 6px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--green-grow);
+    border-radius: 3px;
+    transition: width 0.5s linear;
+  }
+  .plot-name {
+    font-size: 0.6rem;
+    color: rgba(255,255,255,0.7);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+  .time-label {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.85);
+    font-weight: 700;
+    position: absolute;
+    bottom: 16px;
+  }
+
+  /* ---- FALLEN CROPS ---- */
+  #floor-area {
+    min-height: 70px;
+    width: 328px;
+    background: rgba(0,0,0,0.08);
+    border-radius: 12px;
+    border: 2px dashed rgba(255,255,255,0.3);
+    padding: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    position: relative;
+  }
+  #floor-label {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.6);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    background: transparent;
+  }
+
+  .fallen-crop {
+    font-size: 2rem;
+    cursor: grab;
+    filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.3));
+    transition: transform 0.15s;
+    user-select: none;
+    position: relative;
+    animation: fall-in 0.4s cubic-bezier(.175,.885,.32,1.275);
+  }
+  .fallen-crop:hover { transform: scale(1.25); }
+  .fallen-crop:active { cursor: grabbing; }
+
+  @keyframes fall-in {
+    from { transform: translateY(-30px) scale(0.5); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+  }
+
+  /* ---- RIGHT PANEL ---- */
+  #right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 200px;
+  }
+
+  /* ---- MARKET ---- */
+  #market-box {
+    background: var(--panel);
+    border: 3px solid var(--panel-border);
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  }
+  #market-box h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    text-align: center;
+    color: var(--soil-dark);
+  }
+
+  #sell-zone {
+    width: 100%;
+    height: 80px;
+    border: 3px dashed var(--panel-border);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    font-weight: 600;
+    transition: background 0.2s, border-color 0.2s;
+    text-align: center;
+    padding: 8px;
+  }
+  #sell-zone.drag-over {
+    background: #E8F5E9;
+    border-color: var(--green-grow);
+    color: var(--green-grow);
+  }
+
+  #sell-log {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    min-height: 20px;
+    text-align: center;
+    font-weight: 600;
+  }
+  .sell-flash {
+    animation: flash-green 1s ease forwards;
+  }
+  @keyframes flash-green {
+    0% { color: var(--green-grow); transform: scale(1.1); }
+    100% { color: var(--text-light); transform: scale(1); }
+  }
+
+  /* ---- SEED SHOP ---- */
+  #seed-shop {
+    background: var(--panel);
+    border: 3px solid var(--panel-border);
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  }
+  #seed-shop h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    text-align: center;
+    color: var(--soil-dark);
+  }
+
+  .seed-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 6px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    background: #FFF8E7;
+    border: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .seed-item:hover { border-color: var(--gold); background: #FFF3CC; }
+  .seed-item.selected { border-color: var(--gold-dark); background: #FFF0AA; box-shadow: 0 0 0 2px var(--gold); }
+  .seed-item.cant-afford { opacity: 0.45; cursor: not-allowed; }
+
+  .seed-left { display: flex; align-items: center; gap: 6px; }
+  .seed-emoji { font-size: 1.4rem; }
+  .seed-info { font-size: 0.72rem; }
+  .seed-name { font-weight: 700; display: block; }
+  .seed-time { color: var(--text-light); }
+  .seed-cost {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--gold-dark);
+    white-space: nowrap;
+  }
+
+  #selected-seed-label {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--text-light);
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  /* ---- FLOATING COIN ---- */
+  .coin-pop {
+    position: fixed;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: var(--gold-dark);
+    pointer-events: none;
+    animation: coin-float 1.2s ease forwards;
+    z-index: 999;
+    text-shadow: 1px 1px 0 #fff;
+  }
+  @keyframes coin-float {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+  }
+</style>
+</head>
+<body>
+
+<h1>🌾 Little Farm</h1>
+
+<div id="hud">
+  <span class="coin-icon">🪙</span>
+  <span id="gold-display">0</span>
+</div>
+
+<div id="game-area">
+  <!-- Left: farm grid + floor -->
+  <div id="farm-section">
+    <div id="farm-label">Your Farm</div>
+    <div id="farm-grid"></div>
+    <div id="floor-area">
+      <span id="floor-label">Ground — drag crops to market →</span>
+    </div>
+  </div>
+
+  <!-- Right: market + shop -->
+  <div id="right-panel">
+    <div id="market-box">
+      <h2>🏪 Market</h2>
+      <div id="sell-zone">Drop crop here to sell</div>
+      <div id="sell-log"></div>
+    </div>
+
+    <div id="seed-shop">
+      <h2>🛒 Seeds</h2>
+      <div id="seed-list"></div>
+      <div id="selected-seed-label">Select a seed, then click a plot</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== DATA =====================
+const SEEDS = {
+  potato: {
+    name: 'Potato',
+    emoji: '🥔',
+    growTime: 15,   // seconds
+    buyCost: 2,
+    sellPrice: 6,
+  },
+  carrot: {
+    name: 'Carrot',
+    emoji: '🥕',
+    growTime: 30,
+    buyCost: 4,
+    sellPrice: 12,
+  },
+  wheat: {
+    name: 'Wheat',
+    emoji: '🌾',
+    growTime: 60,
+    buyCost: 8,
+    sellPrice: 25,
+  },
+};
+
+// ===================== STATE =====================
+let gold = 10;
+let selectedSeed = null;
+// plots[i] = null | { type, plantedAt }
+let plots = Array(9).fill(null);
+// fallenCrops array for floor
+let fallenCrops = []; // { id, type }
+let nextCropId = 0;
+
+// ===================== SAVE/LOAD =====================
+function saveGame() {
+  localStorage.setItem('littleFarm', JSON.stringify({ gold, plots, fallenCrops, nextCropId }));
+}
+function loadGame() {
+  const raw = localStorage.getItem('littleFarm');
+  if (!raw) return;
+  try {
+    const d = JSON.parse(raw);
+    gold = d.gold ?? 10;
+    plots = d.plots ?? Array(9).fill(null);
+    fallenCrops = d.fallenCrops ?? [];
+    nextCropId = d.nextCropId ?? 0;
+  } catch(e) {}
+}
+
+// ===================== RENDER =====================
+function updateGold() {
+  document.getElementById('gold-display').textContent = gold;
+}
+
+function renderGrid() {
+  const grid = document.getElementById('farm-grid');
+  grid.innerHTML = '';
+  const now = Date.now();
+
+  plots.forEach((plot, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'plot';
+
+    if (!plot) {
+      cell.classList.add('empty');
+      cell.title = selectedSeed ? `Plant ${SEEDS[selectedSeed].name}` : 'Select a seed first';
+      cell.addEventListener('click', () => onPlotClick(i));
+    } else {
+      cell.classList.add('planted');
+      const seed = SEEDS[plot.type];
+      const elapsed = (now - plot.plantedAt) / 1000;
+      const progress = Math.min(elapsed / seed.growTime, 1);
+      const done = progress >= 1;
+
+      const emoji = document.createElement('div');
+      emoji.className = 'crop-emoji';
+      emoji.textContent = seed.emoji;
+      cell.appendChild(emoji);
+
+      if (!done) {
+        const timeLeft = Math.ceil(seed.growTime - elapsed);
+        const tl = document.createElement('div');
+        tl.className = 'time-label';
+        tl.textContent = formatTime(timeLeft);
+        cell.appendChild(tl);
+
+        const pw = document.createElement('div');
+        pw.className = 'progress-wrap';
+        const pb = document.createElement('div');
+        pb.className = 'progress-bar';
+        pb.style.width = (progress * 100) + '%';
+        pw.appendChild(pb);
+        cell.appendChild(pw);
+      } else {
+        cell.classList.add('ready');
+        cell.title = 'Click to harvest!';
+        cell.addEventListener('click', () => onHarvest(i));
+      }
+
+      const nm = document.createElement('div');
+      nm.className = 'plot-name';
+      nm.textContent = seed.name;
+      cell.appendChild(nm);
+    }
+
+    grid.appendChild(cell);
+  });
+}
+
+function renderFloor() {
+  const area = document.getElementById('floor-area');
+  // keep label
+  area.innerHTML = '<span id="floor-label">Ground — drag crops to market →</span>';
+
+  fallenCrops.forEach(fc => {
+    const el = document.createElement('div');
+    el.className = 'fallen-crop';
+    el.textContent = SEEDS[fc.type].emoji;
+    el.title = `${SEEDS[fc.type].name} — drag to market`;
+    el.setAttribute('draggable', 'true');
+    el.dataset.cropId = fc.id;
+
+    el.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('cropId', fc.id);
+      e.dataTransfer.setData('cropType', fc.type);
+      el.style.opacity = '0.5';
+    });
+    el.addEventListener('dragend', () => { el.style.opacity = '1'; });
+
+    area.appendChild(el);
+  });
+}
+
+function renderShop() {
+  const list = document.getElementById('seed-list');
+  list.innerHTML = '';
+  Object.entries(SEEDS).forEach(([key, seed]) => {
+    const item = document.createElement('div');
+    item.className = 'seed-item';
+    if (selectedSeed === key) item.classList.add('selected');
+    if (gold < seed.buyCost) item.classList.add('cant-afford');
+
+    item.innerHTML = `
+      <div class="seed-left">
+        <span class="seed-emoji">${seed.emoji}</span>
+        <div class="seed-info">
+          <span class="seed-name">${seed.name}</span>
+          <span class="seed-time">⏱ ${formatTime(seed.growTime)}</span>
+        </div>
+      </div>
+      <div class="seed-cost">🪙${seed.buyCost}<br><small style="color:#888;font-size:0.65rem">→🪙${seed.sellPrice}</small></div>
+    `;
+    item.addEventListener('click', () => {
+      if (gold < seed.buyCost) return;
+      selectedSeed = selectedSeed === key ? null : key;
+      renderShop();
+      document.getElementById('selected-seed-label').textContent =
+        selectedSeed ? `Click a plot to plant ${SEEDS[selectedSeed].name}` : 'Select a seed, then click a plot';
+    });
+    list.appendChild(item);
+  });
+}
+
+function renderAll() {
+  updateGold();
+  renderGrid();
+  renderFloor();
+  renderShop();
+}
+
+// ===================== INTERACTIONS =====================
+function onPlotClick(i) {
+  if (plots[i]) return;
+  if (!selectedSeed) return;
+  const seed = SEEDS[selectedSeed];
+  if (gold < seed.buyCost) return;
+
+  gold -= seed.buyCost;
+  plots[i] = { type: selectedSeed, plantedAt: Date.now() };
+  saveGame();
+  renderAll();
+}
+
+function onHarvest(i) {
+  const plot = plots[i];
+  if (!plot) return;
+  const now = Date.now();
+  const seed = SEEDS[plot.type];
+  const elapsed = (now - plot.plantedAt) / 1000;
+  if (elapsed < seed.growTime) return;
+
+  // crop falls to floor
+  fallenCrops.push({ id: nextCropId++, type: plot.type });
+  plots[i] = null;
+  saveGame();
+  renderAll();
+}
+
+// ===================== SELL ZONE =====================
+const sellZone = document.getElementById('sell-zone');
+const sellLog = document.getElementById('sell-log');
+
+sellZone.addEventListener('dragover', e => {
+  e.preventDefault();
+  sellZone.classList.add('drag-over');
+});
+sellZone.addEventListener('dragleave', () => {
+  sellZone.classList.remove('drag-over');
+});
+sellZone.addEventListener('drop', e => {
+  e.preventDefault();
+  sellZone.classList.remove('drag-over');
+  const id = parseInt(e.dataTransfer.getData('cropId'));
+  const type = e.dataTransfer.getData('cropType');
+  const seed = SEEDS[type];
+  if (!seed) return;
+
+  const idx = fallenCrops.findIndex(fc => fc.id === id);
+  if (idx === -1) return;
+
+  fallenCrops.splice(idx, 1);
+  gold += seed.sellPrice;
+
+  // floating coin
+  spawnCoinPop(e.clientX, e.clientY, `+🪙${seed.sellPrice}`);
+
+  // log
+  sellLog.textContent = `Sold ${seed.name} for 🪙${seed.sellPrice}!`;
+  sellLog.className = '';
+  void sellLog.offsetWidth;
+  sellLog.className = 'sell-flash';
+
+  saveGame();
+  renderAll();
+});
+
+function spawnCoinPop(x, y, text) {
+  const el = document.createElement('div');
+  el.className = 'coin-pop';
+  el.textContent = text;
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1200);
+}
+
+// ===================== HELPERS =====================
+function formatTime(seconds) {
+  if (seconds <= 0) return 'Ready!';
+  if (seconds < 60) return `${Math.ceil(seconds)}s`;
+  return `${Math.floor(seconds/60)}m ${Math.ceil(seconds%60)}s`;
+}
+
+// ===================== TICK =====================
+function tick() {
+  renderGrid(); // re-render timers/readiness
+}
+
+// ===================== INIT =====================
+loadGame();
+renderAll();
+setInterval(tick, 1000);
+setInterval(saveGame, 10000);
+</script>
+</body>
+</html>
