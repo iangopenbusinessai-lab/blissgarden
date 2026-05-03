@@ -8,7 +8,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  --pw: 172px;
+  --pw: 220px;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
@@ -16,6 +16,52 @@ body {
   font-family: system-ui, sans-serif;
   user-select: none;
   -webkit-user-select: none;
+}
+
+/* ── CLOUDS ── */
+#clouds {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+.cloud {
+  position: absolute;
+  background: #fff;
+  border-radius: 60px;
+  opacity: 0.78;
+  animation: cloudDrift linear infinite;
+}
+.cloud::before, .cloud::after {
+  content: '';
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+}
+/* cloud 1 */
+.cl1 { width:130px; height:42px; top:7%;  animation-duration:88s;  animation-delay:-22s; }
+.cl1::before { width:72px; height:72px; top:-38px; left:14px; }
+.cl1::after  { width:52px; height:52px; top:-26px; left:60px; }
+/* cloud 2 */
+.cl2 { width:90px;  height:30px; top:20%; animation-duration:130s; animation-delay:-70s; }
+.cl2::before { width:52px; height:52px; top:-28px; left:10px; }
+.cl2::after  { width:36px; height:36px; top:-18px; left:44px; }
+/* cloud 3 */
+.cl3 { width:170px; height:54px; top:11%; animation-duration:105s; animation-delay:-45s; }
+.cl3::before { width:88px; height:88px; top:-50px; left:24px; }
+.cl3::after  { width:66px; height:66px; top:-36px; left:84px; }
+/* cloud 4 */
+.cl4 { width:110px; height:36px; top:26%; animation-duration:75s;  animation-delay:-58s; }
+.cl4::before { width:62px; height:62px; top:-34px; left:12px; }
+.cl4::after  { width:44px; height:44px; top:-22px; left:52px; }
+/* cloud 5 */
+.cl5 { width:150px; height:48px; top:5%;  animation-duration:155s; animation-delay:-105s; }
+.cl5::before { width:80px; height:80px; top:-44px; left:20px; }
+.cl5::after  { width:58px; height:58px; top:-30px; left:74px; }
+@keyframes cloudDrift {
+  from { transform: translateX(-280px); }
+  to   { transform: translateX(calc(100vw + 280px)); }
 }
 
 /* ── TOP BAR ── */
@@ -33,7 +79,7 @@ body {
   display: flex;
   align-items: center;
   gap: 5px;
-  background: rgba(0,0,0,0.18);
+  background: rgba(0,0,0,0.2);
   border-radius: 20px;
   padding: 4px 12px 4px 8px;
   color: #fff;
@@ -51,26 +97,28 @@ body {
   z-index: 200;
   display: flex;
   flex-direction: row;
-  transition: width 0.25s ease;
+  transition: width 0.22s ease;
   overflow: hidden;
 }
+#panel.resizing { transition: none !important; }
 
-/* Left-edge toggle bar */
+/* Resize / toggle bar on left edge */
 #panel-tab {
   width: 24px;
   min-width: 24px;
   background: #6e4626;
-  cursor: pointer;
+  cursor: ew-resize;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.55);
   font-size: 13px;
   flex-shrink: 0;
+  z-index: 1;
 }
-#panel-tab:hover { background: #613e20; }
+#panel-tab:hover { background: #623e20; }
 
-/* Scrollable content */
+/* Scrollable content column */
 #panel-content {
   flex: 1;
   overflow-y: auto;
@@ -78,54 +126,78 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  padding-top: 44px; /* clear topbar */
 }
 
-/* Shop / Upgrades tab bar */
-#panel-tabs {
-  display: flex;
-  margin-top: 44px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  flex-shrink: 0;
-}
-.ptab {
-  flex: 1;
-  padding: 9px 0;
-  text-align: center;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  color: rgba(255,255,255,0.4);
-  cursor: pointer;
-  text-transform: uppercase;
-}
-.ptab.active {
-  color: #fff;
-  border-bottom: 2px solid rgba(255,255,255,0.75);
-  margin-bottom: -1px;
-}
-.ptab:hover:not(.active) { color: rgba(255,255,255,0.65); }
-
-/* Panel labels */
+/* Section labels */
 .panel-label {
   color: rgba(255,255,255,0.45);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 2.5px;
   text-transform: uppercase;
-  padding: 11px 13px 5px;
+  padding: 12px 12px 5px;
 }
 .panel-divider {
   height: 1px;
   background: rgba(255,255,255,0.1);
-  margin: 8px 0 4px;
+  margin: 10px 0 2px;
 }
 
-/* Shop seed rows */
+/* ── UPGRADE CARDS ── */
+.upgrade-card {
+  margin: 4px 10px;
+  background: rgba(0,0,0,0.15);
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #fff;
+}
+.upgrade-card.bought { opacity: 0.45; }
+.ug-name {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ug-desc {
+  font-size: 10px;
+  opacity: 0.6;
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+.ug-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.ug-cost { font-size: 11px; opacity: 0.8; }
+.ug-btn {
+  background: #5A8A3C;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ug-btn:hover:not(:disabled) { background: #4a7a2c; }
+.ug-btn:disabled {
+  background: rgba(0,0,0,0.22);
+  color: rgba(255,255,255,0.35);
+  cursor: default;
+}
+
+/* ── SHOP SEED ROWS ── */
 .seed-row {
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 9px 13px;
+  padding: 9px 12px;
   cursor: grab;
   color: #fff;
 }
@@ -136,12 +208,12 @@ body {
 .seed-row .sr-name { font-size: 12px; font-weight: 700; }
 .seed-row .sr-meta { font-size: 10px; opacity: 0.6; margin-top: 1px; }
 
-/* Inventory icon grid */
+/* ── INVENTORY ICON GRID ── */
 #inv-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 9px 13px;
+  padding: 8px 12px 14px;
 }
 .inv-icon {
   position: relative;
@@ -158,8 +230,7 @@ body {
 .inv-icon:active { cursor: grabbing; }
 .inv-badge {
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: -5px; right: -5px;
   background: #b03020;
   color: #fff;
   font-size: 9px;
@@ -171,14 +242,13 @@ body {
   line-height: 13px;
   pointer-events: none;
 }
-/* Tooltip */
 .inv-icon::after {
   content: attr(data-name);
   position: absolute;
   bottom: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0,0,0,0.78);
+  background: rgba(0,0,0,0.8);
   color: #fff;
   font-size: 11px;
   padding: 3px 8px;
@@ -190,20 +260,11 @@ body {
   z-index: 999;
 }
 .inv-icon:hover::after { opacity: 1; }
-
 #inv-empty {
   color: rgba(255,255,255,0.28);
   font-size: 11px;
   font-style: italic;
-  padding: 6px 13px;
-}
-
-/* Upgrades */
-.coming-soon {
-  color: rgba(255,255,255,0.28);
-  font-size: 11px;
-  font-style: italic;
-  padding: 14px 13px;
+  padding: 6px 12px;
 }
 
 /* Panel drop highlight */
@@ -212,14 +273,14 @@ body {
 /* ── GAME AREA ── */
 #game-area {
   position: fixed;
-  top: 44px;
-  left: 0;
+  top: 44px; left: 0;
   right: var(--pw);
   bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: right 0.25s ease;
+  transition: right 0.22s ease;
+  z-index: 10;
 }
 
 /* Green grass patch */
@@ -227,9 +288,11 @@ body {
   background: #5A8A3C;
   border-radius: 10px;
   padding: 22px;
+  position: relative;
+  z-index: 2;
 }
 
-/* Farm grid — individual outlined tiles, close together */
+/* Farm grid */
 #farm-grid {
   display: grid;
   grid-template-columns: repeat(3, 100px);
@@ -237,10 +300,17 @@ body {
   gap: 3px;
 }
 
+/* Tile with dirt texture */
 .tile {
   width: 100px;
   height: 100px;
-  background: #8B5E3C;
+  background-color: #8B5E3C;
+  background-image:
+    radial-gradient(rgba(0,0,0,0.13) 1px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+    radial-gradient(rgba(0,0,0,0.07) 1px, transparent 1px);
+  background-size: 9px 9px, 14px 14px, 6px 6px;
+  background-position: 0 0, 5px 5px, 2px 7px;
   border: 2px solid #5A8A3C;
   border-radius: 6px;
   position: relative;
@@ -251,91 +321,112 @@ body {
   cursor: default;
 }
 
-/* Ready — green pulse on border */
-.tile.ready {
-  animation: gpulse 1.1s ease-in-out infinite;
-}
+/* Ready pulse */
+.tile.ready { animation: gpulse 1.1s ease-in-out infinite; }
 @keyframes gpulse {
   0%, 100% { border-color: #5A8A3C; box-shadow: none; }
-  50%       { border-color: #7FD160; box-shadow: 0 0 6px rgba(127,209,96,0.45); }
+  50%       { border-color: #7FD160; box-shadow: 0 0 7px rgba(127,209,96,0.5); }
 }
 
-/* Drop target when dragging seed */
-.tile.drop-hi { background: #a07040; }
+/* Tile drop highlight */
+.tile.drop-hi { background-color: #a07040; }
 
-.tile .t-icon {
-  font-size: 36px;
-  line-height: 1;
-  pointer-events: none;
-}
-.tile .t-timer {
-  font-size: 11px;
-  color: rgba(255,255,255,0.85);
-  font-weight: 700;
-  margin-top: 3px;
-  pointer-events: none;
-}
+.tile .t-icon  { font-size: 36px; line-height: 1; pointer-events: none; }
+.tile .t-timer { font-size: 11px; color: rgba(255,255,255,0.85); font-weight: 700; margin-top: 3px; pointer-events: none; }
 
-/* Floating X for selected non-ready tile */
+/* Floating X */
 .tile .t-xbtn {
   position: absolute;
-  top: -13px;
-  left: 50%;
+  top: -13px; left: 50%;
   transform: translateX(-50%);
-  width: 22px;
-  height: 22px;
+  width: 22px; height: 22px;
   background: rgba(180,35,35,0.9);
   color: #fff;
   border-radius: 50%;
   font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   z-index: 10;
 }
 
-/* ── SELL BOX ── */
+/* ── SELL BOX (wooden crate) ── */
 #sell-box {
   position: fixed;
   bottom: 0;
   left: calc((100vw - var(--pw)) / 2);
   transform: translateX(-50%);
-  background: #8B6343;
-  border-radius: 0;
   z-index: 250;
-  min-width: 190px;
-  padding: 7px 14px 10px;
+  min-width: 200px;
+  height: 84px;
+  /* Wood plank appearance */
+  background-color: #8B6343;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 17px,
+    rgba(0,0,0,0.22) 17px,
+    rgba(0,0,0,0.22) 19px
+  );
+  border: 2px solid #5a3d20;
+  border-bottom: none;
+  border-radius: 0;
+  /* SELL text centering */
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  transition: left 0.25s ease;
-}
-#sell-queue-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-  min-height: 22px;
   align-items: center;
+  justify-content: center;
 }
-.sq-icon { font-size: 17px; line-height: 1; }
-#sell-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: #fff;
-}
-#sell-label {
-  font-size: 11px;
+#sell-box.drop-hi { background-color: #a07848; }
+
+/* SELL text — always absolutely centered */
+#sell-center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   text-transform: uppercase;
+  color: #f5e6ce;
+  white-space: nowrap;
+  pointer-events: none;
 }
+
+/* Queue icons at top */
+#sell-queue-row {
+  position: absolute;
+  top: 6px; left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  max-width: 92%;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  pointer-events: none;
+}
+.sq-icon { font-size: 16px; line-height: 1; }
+
+/* Timer at bottom-right */
 #sell-cd {
-  font-size: 11px;
-  color: rgba(255,255,255,0.55);
+  position: absolute;
+  bottom: 7px; right: 10px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.5);
+  pointer-events: none;
 }
-#sell-box.drop-hi { background: #a07848; }
+
+/* ── LOOSE CROPS ── */
+.loose-crop {
+  position: fixed;
+  font-size: 30px;
+  line-height: 1;
+  cursor: grab;
+  z-index: 50;
+  transform: translate(-50%, -50%);
+  pointer-events: all;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+.loose-crop:active { cursor: grabbing; }
 
 /* ── DRAG GHOST ── */
 #ghost {
@@ -369,6 +460,15 @@ body {
 </head>
 <body>
 
+<!-- CLOUDS (decorative) -->
+<div id="clouds">
+  <div class="cloud cl1"></div>
+  <div class="cloud cl2"></div>
+  <div class="cloud cl3"></div>
+  <div class="cloud cl4"></div>
+  <div class="cloud cl5"></div>
+</div>
+
 <!-- TOP BAR -->
 <div id="topbar">
   <div id="coins">🪙 <span id="coin-count">10</span></div>
@@ -376,53 +476,44 @@ body {
 
 <!-- RIGHT PANEL -->
 <div id="panel">
-  <!-- Left-edge toggle bar -->
   <div id="panel-tab"><span id="panel-arrow">›</span></div>
-
-  <!-- Scrollable content -->
   <div id="panel-content">
 
-    <!-- Tab bar -->
-    <div id="panel-tabs">
-      <div class="ptab active" data-view="shop">Shop</div>
-      <div class="ptab" data-view="upgrades">Upgrades</div>
+    <!-- UPGRADES -->
+    <div class="panel-label">Upgrades</div>
+    <div id="upgrades-list"></div>
+
+    <div class="panel-divider"></div>
+
+    <!-- SHOP -->
+    <div class="panel-label">Seeds</div>
+    <div class="seed-row" data-seed="potato">
+      <span class="sr-icon">🌱</span>
+      <div class="sr-info">
+        <span class="sr-name">Potato</span>
+        <span class="sr-meta">🪙2 · 15s</span>
+      </div>
+    </div>
+    <div class="seed-row" data-seed="carrot">
+      <span class="sr-icon">🌿</span>
+      <div class="sr-info">
+        <span class="sr-name">Carrot</span>
+        <span class="sr-meta">🪙4 · 30s</span>
+      </div>
+    </div>
+    <div class="seed-row" data-seed="wheat">
+      <span class="sr-icon">🌾</span>
+      <div class="sr-info">
+        <span class="sr-name">Wheat</span>
+        <span class="sr-meta">🪙8 · 60s</span>
+      </div>
     </div>
 
-    <!-- SHOP + INVENTORY VIEW -->
-    <div id="view-shop">
-      <div class="panel-label">Seeds</div>
-      <div class="seed-row" data-seed="potato">
-        <span class="sr-icon">🌱</span>
-        <div class="sr-info">
-          <span class="sr-name">Potato</span>
-          <span class="sr-meta">🪙2 · 15s</span>
-        </div>
-      </div>
-      <div class="seed-row" data-seed="carrot">
-        <span class="sr-icon">🌿</span>
-        <div class="sr-info">
-          <span class="sr-name">Carrot</span>
-          <span class="sr-meta">🪙4 · 30s</span>
-        </div>
-      </div>
-      <div class="seed-row" data-seed="wheat">
-        <span class="sr-icon">🌾</span>
-        <div class="sr-info">
-          <span class="sr-name">Wheat</span>
-          <span class="sr-meta">🪙8 · 60s</span>
-        </div>
-      </div>
+    <div class="panel-divider"></div>
 
-      <div class="panel-divider"></div>
-      <div class="panel-label">Inventory</div>
-      <div id="inv-grid"></div>
-    </div>
-
-    <!-- UPGRADES VIEW -->
-    <div id="view-upgrades" style="display:none">
-      <div class="panel-label">Upgrades</div>
-      <div class="coming-soon">Coming soon...</div>
-    </div>
+    <!-- INVENTORY -->
+    <div class="panel-label">Inventory</div>
+    <div id="inv-grid"></div>
 
   </div>
 </div>
@@ -437,10 +528,8 @@ body {
 <!-- SELL BOX -->
 <div id="sell-box">
   <div id="sell-queue-row"></div>
-  <div id="sell-foot">
-    <span id="sell-label">SELL</span>
-    <span id="sell-cd"></span>
-  </div>
+  <div id="sell-center">SELL</div>
+  <span id="sell-cd"></span>
 </div>
 
 <!-- DRAG GHOST -->
@@ -448,13 +537,25 @@ body {
 
 <script>
 // ════════════════════════════════════
-// DATA
+// SEED DATA
 // ════════════════════════════════════
 const SEEDS = {
   potato: { name: 'Potato', icon: '🥔', cost: 2,  grow: 15, sell: 6  },
   carrot: { name: 'Carrot', icon: '🥕', cost: 4,  grow: 30, sell: 12 },
   wheat:  { name: 'Wheat',  icon: '🌾', cost: 8,  grow: 60, sell: 25 },
 };
+
+// ════════════════════════════════════
+// UPGRADE DATA
+// ════════════════════════════════════
+const UPGRADES = [
+  { id: 'quickRoots',    name: 'Quick Roots',      desc: 'Crops grow 25% faster',                    cost: 15,  type: 'speed', mult: 0.75 },
+  { id: 'goldenHarvest', name: 'Golden Harvest',   desc: 'Crops sell for 50% more',                  cost: 50,  type: 'value', mult: 1.50 },
+  { id: 'fertilizerI',   name: 'Fertilizer I',     desc: 'Crops grow 40% faster (stacks)',           cost: 100, type: 'speed', mult: 0.60 },
+  { id: 'marketEye',     name: 'Market Eye',       desc: 'Crops sell for 75% more (stacks)',         cost: 200, type: 'value', mult: 1.75 },
+  { id: 'fertilizerII',  name: 'Fertilizer II',    desc: 'Crops grow 60% faster (stacks)',           cost: 350, type: 'speed', mult: 0.40 },
+  { id: 'merchantTouch', name: "Merchant's Touch", desc: 'Crops sell for 120% more (stacks)',        cost: 600, type: 'value', mult: 2.20 },
+];
 
 // ════════════════════════════════════
 // STATE
@@ -464,11 +565,14 @@ let state = {
   tiles:      Array(9).fill(null), // null | { seed, plantedAt }
   inventory:  {},                  // { seedKey: count }
   sellQueue:  [],                  // seed keys FIFO
-  sellNextAt: 0,                   // timestamp of next auto-sell
+  sellNextAt: 0,
+  upgrades:   {},                  // { upgradeId: true }
+  loose:      [],                  // [{ seed, id, x, y }]
 };
-let nextId = 0;
+let nextId       = 0;
 let selectedTile = null;
 let panelExpanded = true;
+let panelWidth    = 220;
 
 // ════════════════════════════════════
 // DRAG STATE
@@ -508,12 +612,22 @@ function hit(x, y, el) {
 function tileEls() { return document.querySelectorAll('.tile'); }
 
 // ════════════════════════════════════
+// PANEL RESIZE STATE
+// ════════════════════════════════════
+let resizing      = false;
+let resizeStartX  = 0;
+let resizeStartW  = 0;
+let resizeMoved   = false;
+
+// ════════════════════════════════════
 // SAVE / LOAD
 // ════════════════════════════════════
-const KEY = 'blissfarm4';
+const KEY = 'blissfarm5';
 
 function save() {
-  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded }));
+  localStorage.setItem(KEY, JSON.stringify({
+    ...state, nextId, panelExpanded, panelWidth
+  }));
 }
 
 function load() {
@@ -525,16 +639,35 @@ function load() {
     state.inventory  = d.inventory  ?? {};
     state.sellQueue  = d.sellQueue  ?? [];
     state.sellNextAt = d.sellNextAt ?? 0;
+    state.upgrades   = d.upgrades   ?? {};
+    state.loose      = d.loose      ?? [];
     nextId           = d.nextId     ?? 0;
     panelExpanded    = d.panelExpanded ?? true;
+    panelWidth       = d.panelWidth    ?? 220;
   } catch (_) {}
+}
+
+// ════════════════════════════════════
+// UPGRADE MULTIPLIERS
+// ════════════════════════════════════
+function getGrowMult() {
+  let m = 1;
+  UPGRADES.forEach(u => { if (u.type === 'speed' && state.upgrades[u.id]) m *= u.mult; });
+  return m;
+}
+
+function getSellMult() {
+  let m = 1;
+  UPGRADES.forEach(u => { if (u.type === 'value' && state.upgrades[u.id]) m *= u.mult; });
+  return m;
 }
 
 // ════════════════════════════════════
 // HELPERS
 // ════════════════════════════════════
 function remSec(td) {
-  return Math.max(0, SEEDS[td.seed].grow - (Date.now() - td.plantedAt) / 1000);
+  const growTime = SEEDS[td.seed].grow * getGrowMult();
+  return Math.max(0, growTime - (Date.now() - td.plantedAt) / 1000);
 }
 function isReady(td) { return remSec(td) <= 0; }
 function fmt(s)      { return Math.ceil(s) + 's'; }
@@ -544,6 +677,7 @@ function fmt(s)      { return Math.ceil(s) + 's'; }
 // ════════════════════════════════════
 function updateCoins() {
   document.getElementById('coin-count').textContent = state.coins;
+  renderUpgrades(); // refresh buy-button states on coin change
 }
 
 // ════════════════════════════════════
@@ -643,13 +777,46 @@ function addInventory(seed) {
 }
 
 // ════════════════════════════════════
+// UPGRADES RENDER
+// ════════════════════════════════════
+function renderUpgrades() {
+  const container = document.getElementById('upgrades-list');
+  container.innerHTML = '';
+  UPGRADES.forEach(u => {
+    const bought     = !!state.upgrades[u.id];
+    const canAfford  = state.coins >= u.cost && !bought;
+
+    const card = document.createElement('div');
+    card.className = 'upgrade-card' + (bought ? ' bought' : '');
+    card.innerHTML = `
+      <div class="ug-name">${u.name}</div>
+      <div class="ug-desc">${u.desc}</div>
+      <div class="ug-bottom">
+        <span class="ug-cost">🪙${u.cost}</span>
+        <button class="ug-btn" ${bought || !canAfford ? 'disabled' : ''}>${bought ? 'Owned' : 'Buy'}</button>
+      </div>`;
+
+    if (!bought) {
+      card.querySelector('.ug-btn').addEventListener('click', e => {
+        e.stopPropagation();
+        if (state.upgrades[u.id] || state.coins < u.cost) return;
+        state.coins -= u.cost;
+        state.upgrades[u.id] = true;
+        updateCoins();
+        renderAllTiles();
+        save();
+      });
+    }
+    container.appendChild(card);
+  });
+}
+
+// ════════════════════════════════════
 // SELL BOX QUEUE
 // ════════════════════════════════════
 function addToSellQueue(seed) {
   state.sellQueue.push(seed);
-  if (state.sellQueue.length === 1) {
-    state.sellNextAt = Date.now() + 10000;
-  }
+  if (state.sellQueue.length === 1) state.sellNextAt = Date.now() + 10000;
   renderSellBox();
   save();
 }
@@ -668,10 +835,7 @@ function renderSellBox() {
 
 function updateSellTimer() {
   const cd = document.getElementById('sell-cd');
-  if (!state.sellQueue.length || !state.sellNextAt) {
-    cd.textContent = '';
-    return;
-  }
+  if (!state.sellQueue.length || !state.sellNextAt) { cd.textContent = ''; return; }
   const rem = Math.max(0, Math.ceil((state.sellNextAt - Date.now()) / 1000));
   cd.textContent = rem + 's';
 }
@@ -679,18 +843,53 @@ function updateSellTimer() {
 function tickSellBox() {
   if (!state.sellQueue.length) return;
   if (Date.now() >= state.sellNextAt) {
-    const seed = state.sellQueue.shift();
-    state.coins += SEEDS[seed].sell;
+    const seed  = state.sellQueue.shift();
+    const coins = Math.round(SEEDS[seed].sell * getSellMult());
+    state.coins += coins;
     updateCoins();
     state.sellNextAt = state.sellQueue.length ? Date.now() + 10000 : 0;
     const sb = document.getElementById('sell-box');
     const r  = sb.getBoundingClientRect();
-    showPop('+🪙' + SEEDS[seed].sell, r.left + r.width / 2, r.top - 6);
+    showPop('+🪙' + coins, r.left + r.width / 2, r.top - 6);
     renderSellBox();
     save();
   } else {
     updateSellTimer();
   }
+}
+
+// ════════════════════════════════════
+// LOOSE CROPS
+// ════════════════════════════════════
+function dropLoose(seed, x, y) {
+  state.loose.push({ seed, id: nextId++, x, y });
+  renderLoose();
+  save();
+}
+
+function renderLoose() {
+  document.querySelectorAll('.loose-crop').forEach(el => el.remove());
+  state.loose.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'loose-crop';
+    el.textContent = SEEDS[item.seed].icon;
+    el.style.left = item.x + 'px';
+    el.style.top  = item.y + 'px';
+    el.dataset.id = item.id;
+    el.addEventListener('mousedown', e => {
+      e.stopPropagation();
+      const id = parseInt(el.dataset.id);
+      const i  = state.loose.findIndex(g => g.id === id);
+      if (i === -1) return;
+      const s = state.loose[i].seed;
+      state.loose.splice(i, 1);
+      renderLoose();
+      save();
+      startDrag(s, 'loose');
+      moveGhost(e.clientX, e.clientY);
+    });
+    document.body.appendChild(el);
+  });
 }
 
 // ════════════════════════════════════
@@ -724,7 +923,6 @@ function onTileDown(e) {
     return;
   }
 
-  // non-ready: toggle selection
   e.stopPropagation();
   if (selectedTile === idx) {
     deselect();
@@ -747,37 +945,42 @@ document.querySelectorAll('.seed-row').forEach(row => {
 });
 
 // ════════════════════════════════════
-// PANEL TOGGLE
+// PANEL TOGGLE & RESIZE
 // ════════════════════════════════════
 function applyPanelState() {
-  document.body.style.setProperty('--pw', panelExpanded ? '172px' : '24px');
+  const w = panelExpanded ? panelWidth + 'px' : '24px';
+  document.body.style.setProperty('--pw', w);
   document.getElementById('panel-arrow').textContent = panelExpanded ? '›' : '‹';
 }
 
-document.getElementById('panel-tab').addEventListener('click', () => {
-  panelExpanded = !panelExpanded;
-  applyPanelState();
-  save();
-});
+const panelTabEl = document.getElementById('panel-tab');
+const panelEl    = document.getElementById('panel');
 
-// ════════════════════════════════════
-// PANEL TABS (Shop / Upgrades)
-// ════════════════════════════════════
-document.querySelectorAll('.ptab').forEach(tab => {
-  tab.addEventListener('click', e => {
-    e.stopPropagation();
-    document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    const v = tab.dataset.view;
-    document.getElementById('view-shop').style.display     = v === 'shop'     ? '' : 'none';
-    document.getElementById('view-upgrades').style.display = v === 'upgrades' ? '' : 'none';
-  });
+panelTabEl.addEventListener('mousedown', e => {
+  resizing     = true;
+  resizeStartX = e.clientX;
+  resizeStartW = panelWidth;
+  resizeMoved  = false;
+  panelEl.classList.add('resizing');
+  e.preventDefault();
+  e.stopPropagation();
 });
 
 // ════════════════════════════════════
 // GLOBAL MOUSE EVENTS
 // ════════════════════════════════════
 document.addEventListener('mousemove', e => {
+  // Panel resize
+  if (resizing) {
+    const dx = resizeStartX - e.clientX; // drag left = wider panel
+    if (Math.abs(dx) > 4) resizeMoved = true;
+    if (resizeMoved && panelExpanded) {
+      panelWidth = Math.max(160, Math.min(400, resizeStartW + dx));
+      document.body.style.setProperty('--pw', panelWidth + 'px');
+    }
+    return; // don't process drag while resizing
+  }
+
   if (!drag) return;
   moveGhost(e.clientX, e.clientY);
   clearHighlights();
@@ -800,6 +1003,19 @@ document.addEventListener('mousemove', e => {
 });
 
 document.addEventListener('mouseup', e => {
+  // Panel resize end
+  if (resizing) {
+    resizing = false;
+    panelEl.classList.remove('resizing');
+    if (!resizeMoved) {
+      // click (no drag) → toggle
+      panelExpanded = !panelExpanded;
+      applyPanelState();
+    }
+    save();
+    return;
+  }
+
   if (!drag) return;
 
   const { seed, source } = drag;
@@ -807,7 +1023,9 @@ document.addEventListener('mouseup', e => {
   const sellBox = document.getElementById('sell-box');
 
   if (source === 'shop') {
+    let planted = false;
     tileEls().forEach(t => {
+      if (planted) return;
       const i = parseInt(t.dataset.idx);
       if (!state.tiles[i] && hit(e.clientX, e.clientY, t)) {
         const cost = SEEDS[seed].cost;
@@ -818,10 +1036,12 @@ document.addEventListener('mouseup', e => {
           renderTile(i);
           save();
         }
+        planted = true;
       }
     });
+    // seed from shop that misses a tile → disappears (not a world item)
   } else {
-    // crop from tile / inventory — sell queue, inventory, or inventory fallback
+    // crop from tile / loose / inventory
     if (hit(e.clientX, e.clientY, sellBox)) {
       addToSellQueue(seed);
     } else if (panelExpanded && hit(e.clientX, e.clientY, panel)) {
@@ -829,10 +1049,8 @@ document.addEventListener('mouseup', e => {
       renderInventory();
       save();
     } else {
-      // no ground strip — goes to inventory as fallback
-      addInventory(seed);
-      renderInventory();
-      save();
+      // drop as loose crop at release position
+      dropLoose(seed, e.clientX, e.clientY);
     }
   }
 
@@ -841,7 +1059,7 @@ document.addEventListener('mouseup', e => {
 
 // Click background to deselect
 document.addEventListener('mousedown', () => {
-  if (!drag) deselect();
+  if (!drag && !resizing) deselect();
 });
 
 // ════════════════════════════════════
@@ -873,7 +1091,9 @@ load();
 buildGrid();
 renderAllTiles();
 renderInventory();
+renderUpgrades();
 renderSellBox();
+renderLoose();
 updateCoins();
 applyPanelState();
 </script>
