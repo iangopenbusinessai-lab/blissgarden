@@ -159,6 +159,21 @@ body {
 /* ── CROW ── */
 .crow-anim { position:fixed; font-size:30px; z-index:9990; pointer-events:none; animation:crowFly 3s linear forwards; left:-60px; }
 @keyframes crowFly { from{left:-60px} to{left:calc(100vw + 60px)} }
+
+/* ── FERTILIZED TILE ── */
+.tile.tile-fertilized { background-color:#6e3d18; }
+
+/* ── TILE CONTEXT MENU ── */
+#tile-menu { position:fixed; z-index:500; background:#5e3018; border:2px solid #3d2010; border-radius:6px; padding:5px; display:none; min-width:148px; }
+.tmenu-btn { display:block; width:100%; background:rgba(0,0,0,.18); border:none; border-radius:4px; color:#f5e6ce; font-size:11px; font-weight:700; padding:6px 10px; cursor:pointer; text-align:left; white-space:nowrap; margin-bottom:3px; }
+.tmenu-btn:last-child { margin-bottom:0; }
+.tmenu-btn:hover { background:rgba(0,0,0,.35); }
+
+/* ── IRON CRANK ── */
+#crank-box.iron #crank-svg { filter:drop-shadow(0 3px 7px rgba(0,0,0,.55)) grayscale(.9) brightness(.72); }
+#crank-box.iron #crank-svg:hover { filter:drop-shadow(0 3px 9px rgba(0,0,0,.65)) grayscale(.9) brightness(.88); }
+#crank-box.iron #crank-svg:active { filter:drop-shadow(0 1px 3px rgba(0,0,0,.4)) grayscale(.9) brightness(.55); }
+#crank-box.iron #crank-label { color:#b0bcc8; }
 </style>
 </head>
 <body>
@@ -244,6 +259,7 @@ body {
 
 <div id="log-panel"><div id="log-inner"></div></div>
 <div id="mode-ind"></div>
+<div id="tile-menu"></div>
 <div id="ghost"></div>
 
 <script>
@@ -252,13 +268,13 @@ body {
 // ══════════════════════════════
 const SEEDS = {
   potato:    { name:'Potato',        icon:'🥔', seedIcon:'🌰', cost:2,   grow:15,  sell:6    },
-  carrot:    { name:'Carrot',        icon:'🥕', seedIcon:'🌱', cost:4,   grow:30,  sell:12   },
-  wheat:     { name:'Wheat',         icon:'🌾', seedIcon:'🌾', cost:8,   grow:60,  sell:25   },
-  sunflower: { name:'Sunflower',     icon:'🌻', seedIcon:'🌻', cost:15,  grow:90,  sell:45   },
-  pumpkin:   { name:'Pumpkin',       icon:'🎃', seedIcon:'🎃', cost:30,  grow:180, sell:90   },
-  chard:     { name:'Rainbow Chard', icon:'🌈', seedIcon:'🌿', cost:60,  grow:120, sell:200  },
-  moonbloom: { name:'Moonbloom',     icon:'🌕', seedIcon:'🌑', cost:120, grow:300, sell:520  },
-  starfruit: { name:'Starfruit',     icon:'⭐', seedIcon:'💫', cost:250, grow:600, sell:1100 },
+  carrot:    { name:'Carrot',        icon:'🥕', seedIcon:'🌱', cost:4,   grow:45,   sell:12   },
+  wheat:     { name:'Wheat',         icon:'🌾', seedIcon:'🌾', cost:8,   grow:90,   sell:25   },
+  sunflower: { name:'Sunflower',     icon:'🌻', seedIcon:'🌻', cost:15,  grow:180,  sell:45   },
+  pumpkin:   { name:'Pumpkin',       icon:'🎃', seedIcon:'🎃', cost:30,  grow:480,  sell:90   },
+  chard:     { name:'Rainbow Chard', icon:'🌈', seedIcon:'🌿', cost:60,  grow:1200, sell:200  },
+  moonbloom: { name:'Moonbloom',     icon:'🌕', seedIcon:'🌑', cost:120, grow:2700, sell:520  },
+  starfruit: { name:'Starfruit',     icon:'⭐', seedIcon:'💫', cost:250, grow:7200, sell:1100 },
 };
 
 // ══════════════════════════════
@@ -278,7 +294,7 @@ const UPGRADES = [
   { id:'swiftMarketIII', name:'Swift Market III',      desc:'Sell box 60% faster (stacks)',                  cost:500,  type:'sellSpeed',    mult:0.40, chain:'swiftMarketII' },
   { id:'fertilizerIII',  name:'Fertilizer III',        desc:'Crops grow 75% faster (stacks)',                cost:600,  type:'speed',        mult:0.25, chain:'fertilizerII' },
   { id:'marketMastery',  name:'Market Mastery',        desc:'Crops sell 150% more (stacks)',                 cost:800,  type:'value',        mult:2.50, chain:'merchantTouch' },
-  { id:'crankUpI',       name:'Crank Upgrade I',       desc:'Crank click: 1.025× instead of 1.015×', cost:750, type:'crankUpI',              chain:'windUpCrank'  },
+  { id:'crankUpI',       name:'Iron Crank',             desc:'Reinforce the crank with iron. Each pull is now 1.025× more powerful.', cost:750, type:'crankUpI', chain:'windUpCrank'  },
   { id:'swiftMarketIV',  name:'Swift Market IV',       desc:'Sell box 70% faster (stacks)',                  cost:900,  type:'sellSpeed',    mult:0.30, chain:'swiftMarketIII' },
   { id:'fertilizerIV',   name:'Fertilizer IV',         desc:'Crops grow 85% faster (stacks)',                cost:1200, type:'speed',        mult:0.15, chain:'fertilizerIII' },
   { id:'expandBottom',   name:'Bottom Row Expansion',  desc:'Adds bottom row (→ 4×4)',             cost:1500, type:'expandBottom',            chain:'expandPlot'   },
@@ -309,6 +325,7 @@ let state = {
   tilesWatered: {},
   fertCharges: 0,
   weeds: {},
+  fertilizedTiles: {},
   firstWeedEver: false,
   firstCrowEver: false,
 };
@@ -352,8 +369,8 @@ let resizing = false, resizeStartX = 0, resizeStartW = 0, resizeMoved = false;
 // ══════════════════════════════
 // SAVE / LOAD
 // ══════════════════════════════
-const KEY = 'blissfarm8';
-const KEY_OLD = 'blissfarm7';
+const KEY = 'blissfarm9';
+const KEY_OLD = 'blissfarm8';
 
 function save() {
   localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth }));
@@ -393,9 +410,10 @@ function load() {
     state.wellRefillAt   = d.wellRefillAt   ?? 0;
     state.tilesWatered   = d.tilesWatered   ?? {};
     state.fertCharges    = d.fertCharges    ?? 0;
-    state.weeds          = d.weeds          ?? {};
-    state.firstWeedEver  = d.firstWeedEver  ?? false;
-    state.firstCrowEver  = d.firstCrowEver  ?? false;
+    state.weeds            = d.weeds            ?? {};
+    state.fertilizedTiles  = d.fertilizedTiles  ?? {};
+    state.firstWeedEver    = d.firstWeedEver    ?? false;
+    state.firstCrowEver    = d.firstCrowEver    ?? false;
     nextId               = d.nextId         ?? 0;
     panelExpanded        = d.panelExpanded  ?? true;
     panelWidth           = d.panelWidth     ?? 220;
@@ -433,9 +451,11 @@ function getCrankClickMult() {
 function waterFactor(idx) {
   return (idx !== undefined && state.tilesWatered && state.tilesWatered[idx]) ? 0.75 : 1.0;
 }
+function fertFactor(idx) {
+  return (idx !== undefined && state.fertilizedTiles && state.fertilizedTiles[idx]) ? 0.75 : 1.0;
+}
 function remSec(td, idx) {
-  const fertB = td.fertBonus || 1.0;
-  const gt = SEEDS[td.seed].grow * getGrowMult() * waterFactor(idx) * fertB;
+  const gt = SEEDS[td.seed].grow * getGrowMult() * waterFactor(idx) * fertFactor(idx);
   return Math.max(0, gt - (Date.now() - td.plantedAt) / 1000);
 }
 function isReady(td, idx) { return remSec(td, idx) <= 0; }
@@ -530,10 +550,10 @@ function adjustGrowTimes(oldMult, newMult) {
     const td = state.tiles[i];
     if (!td) continue;
     const wf = waterFactor(i);
-    const fertB = td.fertBonus || 1.0;
+    const ff = fertFactor(i);
     const base = SEEDS[td.seed].grow;
-    const oldGT = base * oldMult * wf * fertB;
-    const newGT = base * newMult * wf * fertB;
+    const oldGT = base * oldMult * wf * ff;
+    const newGT = base * newMult * wf * ff;
     if (oldGT <= 0) continue;
     const elapsed     = (now - td.plantedAt) / 1000;
     const oldRem      = Math.max(0, oldGT - elapsed);
@@ -584,14 +604,17 @@ function renderTile(idx) {
     return;
   }
 
-  const td        = state.tiles[idx];
-  const isCaged   = state.cages && state.cages.includes(idx);
-  const isWatered = !!(state.tilesWatered && state.tilesWatered[idx]);
+  const td           = state.tiles[idx];
+  const isCaged      = state.cages && state.cages.includes(idx);
+  const isWatered    = !!(state.tilesWatered && state.tilesWatered[idx]);
+  const isFertilized = !!(state.fertilizedTiles && state.fertilizedTiles[idx]);
 
-  if (isCaged) el.classList.add('tile-caged');
+  if (isCaged)      el.classList.add('tile-caged');
+  if (isFertilized) el.classList.add('tile-fertilized');
 
   if (!td) {
-    if (isCaged) { const c = mk('div','t-cage-icon'); c.textContent='🔒'; el.appendChild(c); }
+    if (isCaged)      { const c = mk('div','t-cage-icon'); c.textContent='🔒'; el.appendChild(c); }
+    if (isFertilized) { const f = mk('div','t-fert-icon'); f.textContent='🌿'; el.appendChild(f); }
     return;
   }
 
@@ -610,7 +633,6 @@ function renderTile(idx) {
     const timer = mk('div','t-timer'); timer.textContent = fmt(remSec(td, idx)); el.appendChild(timer);
     if (isWatered && !td.drowned) { const w = mk('div','t-water-icon'); w.textContent='💧'; el.appendChild(w); }
     if (td.drowned) { const d = mk('div','t-drown-icon'); d.textContent='💀'; el.appendChild(d); }
-    if (td.fertBonus && td.fertBonus > 1.0) { const f = mk('div','t-fert-icon'); f.textContent='🌿'; el.appendChild(f); }
 
     if (selectedTile === idx) {
       const xb = mk('div','t-xbtn'); xb.textContent = '✕';
@@ -635,6 +657,7 @@ function renderTile(idx) {
     }
   }
 
+  if (isFertilized) { const f = mk('div','t-fert-icon'); f.textContent='🌿'; el.appendChild(f); }
   if (isCaged) { const c = mk('div','t-cage-icon'); c.textContent='🔒'; el.appendChild(c); }
 }
 
@@ -741,7 +764,7 @@ function renderItems() {
   const fertCharges = state.fertCharges || 0;
   const fertCard = mk('div','upgrade-card');
   const isFertMode = itemMode === 'fertilizer';
-  fertCard.innerHTML = `<div class="ug-name">🌿 Common Fertilizer${fertCharges>0?` <span style="opacity:.6;font-size:10px">(${fertCharges} charge${fertCharges!==1?'s':''})</span>`:''}</div><div class="ug-desc">Apply to a growing crop for +25% grow speed boost.</div><div class="ug-bottom"><span class="ug-cost">🪙500</span><div style="display:flex;gap:4px"><button class="ug-btn fert-buy-btn"${state.coins<500?' disabled':''}>Buy</button>${fertCharges>0?`<button class="ug-btn fert-use-btn${isFertMode?' active':''}">Use</button>`:''}</div></div>`;
+  fertCard.innerHTML = `<div class="ug-name">🌿 Common Fertilizer${fertCharges>0?` <span style="opacity:.6;font-size:10px">(${fertCharges} charge${fertCharges!==1?'s':''})</span>`:''}</div><div class="ug-desc">Permanently fertilize a tile. All crops grown there are 25% faster.</div><div class="ug-bottom"><span class="ug-cost">🪙500</span><div style="display:flex;gap:4px"><button class="ug-btn fert-buy-btn"${state.coins<500?' disabled':''}>Buy</button>${fertCharges>0?`<button class="ug-btn fert-use-btn${isFertMode?' active':''}">Use</button>`:''}</div></div>`;
   fertCard.querySelector('.fert-buy-btn').addEventListener('click', e => {
     e.stopPropagation();
     if (state.coins < 500) return;
@@ -899,6 +922,7 @@ function updateCrankDisplay() {
   if (!state.upgrades.windUpCrank) { box.style.display = 'none'; return; }
   box.style.display = 'flex';
   document.getElementById('crank-label').textContent = '⚙️ ' + crankMult.toFixed(2) + 'x';
+  box.classList.toggle('iron', !!state.upgrades.crankUpI);
   positionCrank();
 }
 
@@ -968,7 +992,7 @@ function applyWater(idx) {
     drownTile(idx);
     return;
   }
-  const baseGT   = SEEDS[td.seed].grow * getGrowMult();
+  const baseGT   = SEEDS[td.seed].grow * getGrowMult() * fertFactor(idx);
   const newGT    = baseGT * 0.75;
   const elapsed  = (Date.now() - td.plantedAt) / 1000;
   const oldRem   = Math.max(0, baseGT - elapsed);
@@ -989,9 +1013,9 @@ function drownTile(idx) {
   if (!td) return;
   const growMult = getGrowMult();
   const base = SEEDS[td.seed].grow;
-  const fertB = td.fertBonus || 1.0;
-  const currentGT = base * growMult * fertB * 0.75; // was watered
-  const drownedGT = base * growMult * fertB;         // normal speed
+  const ff = fertFactor(idx);
+  const currentGT = base * growMult * ff * 0.75; // was watered
+  const drownedGT = base * growMult * ff;         // fertilized speed (water removed)
   const elapsed = (Date.now() - td.plantedAt) / 1000;
   const currentRem = Math.max(0, currentGT - elapsed);
   const newRem = currentRem * (drownedGT / currentGT);
@@ -1016,7 +1040,7 @@ function updateModeIndicator() {
   document.body.style.cursor = 'crosshair';
   if (itemMode === 'water')      el.textContent = '💧 Click a growing crop to water it (ESC to cancel)';
   if (itemMode === 'cage')       el.textContent = '🔒 Click a tile to place a cage (ESC to cancel)';
-  if (itemMode === 'fertilizer') el.textContent = '🌿 Click a growing crop to fertilize it (ESC to cancel)';
+  if (itemMode === 'fertilizer') el.textContent = '🌿 Click a tile to fertilize it (ESC to cancel)';
 }
 
 document.addEventListener('keydown', e => {
@@ -1157,6 +1181,48 @@ function deselect() {
 }
 
 // ══════════════════════════════
+// TILE CONTEXT MENU
+// ══════════════════════════════
+function showTileMenu(idx, x, y) {
+  const isCaged = state.cages && state.cages.includes(idx);
+  const isFert  = !!(state.fertilizedTiles && state.fertilizedTiles[idx]);
+  if (!isCaged && !isFert) return;
+  const menu = document.getElementById('tile-menu');
+  menu.innerHTML = '';
+  if (isCaged) {
+    const btn = mk('button');
+    btn.className = 'tmenu-btn';
+    btn.textContent = '🔓 Remove Cage';
+    btn.addEventListener('mousedown', e => {
+      e.stopPropagation();
+      const ci = state.cages.indexOf(idx);
+      if (ci !== -1) { state.cages.splice(ci, 1); state.cageCount = (state.cageCount||0) + 1; }
+      renderTile(idx); renderItems();
+      log('🔒 Cage removed, returned to inventory');
+      save(); hideTileMenu();
+    });
+    menu.appendChild(btn);
+  }
+  if (isFert) {
+    const btn = mk('button');
+    btn.className = 'tmenu-btn';
+    btn.textContent = '🌿 Remove Fertilizer';
+    btn.addEventListener('mousedown', e => {
+      e.stopPropagation();
+      delete state.fertilizedTiles[idx];
+      renderTile(idx); save(); hideTileMenu();
+    });
+    menu.appendChild(btn);
+  }
+  menu.style.left = Math.min(x, window.innerWidth  - 170) + 'px';
+  menu.style.top  = Math.min(y, window.innerHeight - 90)  + 'px';
+  menu.style.display = 'block';
+}
+function hideTileMenu() {
+  document.getElementById('tile-menu').style.display = 'none';
+}
+
+// ══════════════════════════════
 // TILE INTERACTION
 // ══════════════════════════════
 function onTileDown(e) {
@@ -1193,18 +1259,37 @@ function onTileDown(e) {
   }
   if (itemMode === 'fertilizer') {
     e.stopPropagation();
-    if (td && !isReady(td, idx) && state.fertCharges > 0) {
-      td.fertBonus = (td.fertBonus || 1.0) * 1.25;
+    const alreadyFert = !!(state.fertilizedTiles && state.fertilizedTiles[idx]);
+    if (state.fertCharges > 0 && !alreadyFert) {
+      if (!state.fertilizedTiles) state.fertilizedTiles = {};
+      state.fertilizedTiles[idx] = true;
       state.fertCharges--;
-      const cropName = SEEDS[td.seed].name;
-      log(`🌿 Fertilizer applied to ${cropName}`);
+      // If a crop is actively growing, proportionally speed it up
+      if (td && !isReady(td, idx)) {
+        const growMult = getGrowMult();
+        const wf = waterFactor(idx);
+        const base = SEEDS[td.seed].grow;
+        const oldGT = base * growMult * wf;
+        const newGT = oldGT * 0.75;
+        const elapsed = (Date.now() - td.plantedAt) / 1000;
+        const oldRem = Math.max(0, oldGT - elapsed);
+        const newRem = oldRem * 0.75;
+        td.plantedAt = Date.now() - (newGT - newRem) * 1000;
+      }
+      log(`🌿 Plot fertilized — all future crops here grow faster`);
       renderTile(idx); renderItems(); save();
     }
     itemMode = null; updateModeIndicator();
     return;
   }
 
-  if (!td) { deselect(); return; }
+  if (!td) {
+    deselect();
+    const _caged = state.cages && state.cages.includes(idx);
+    const _fert  = !!(state.fertilizedTiles && state.fertilizedTiles[idx]);
+    if (_caged || _fert) showTileMenu(idx, e.clientX + 4, e.clientY + 4);
+    return;
+  }
 
   if (isReady(td, idx)) {
     e.stopPropagation();
@@ -1310,7 +1395,7 @@ document.addEventListener('mouseup', e => {
   endDrag();
 });
 
-document.addEventListener('mousedown', () => { if (!drag && !resizing) deselect(); });
+document.addEventListener('mousedown', () => { if (!drag && !resizing) deselect(); hideTileMenu(); });
 window.addEventListener('resize', () => {
   if (state.upgrades.windUpCrank) positionCrank();
 });
