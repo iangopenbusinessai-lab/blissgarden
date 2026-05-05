@@ -40,6 +40,7 @@ body {
 /* ── TOP BAR ── */
 #topbar { position:fixed; top:0; left:0; right:0; height:44px; z-index:300; display:flex; align-items:center; padding:0 12px; pointer-events:none; }
 #coins { display:flex; align-items:center; gap:5px; background:rgba(0,0,0,.2); border-radius:20px; padding:4px 12px 4px 8px; color:#fff; font-size:15px; font-weight:700; pointer-events:all; }
+#stage-display { position:fixed; top:0; left:50%; transform:translateX(-50%); height:44px; z-index:300; display:flex; align-items:center; color:rgba(255,255,255,.82); font-size:12px; font-weight:600; letter-spacing:.3px; pointer-events:none; white-space:nowrap; }
 
 /* ── WORLD BANNER ── */
 .world-banner { position:fixed; top:44px; left:0; right:var(--pw); z-index:290; pointer-events:none; background:rgba(0,0,0,0.72); color:#fff; font-size:14px; font-weight:700; text-align:center; padding:8px 16px; animation:bannerFade 4s forwards; }
@@ -67,13 +68,15 @@ body {
 .ug-btn.active { background:#3a6aac; }
 
 /* ── SEED ROWS ── */
-.seed-row { display:flex; align-items:center; gap:9px; padding:9px 12px; cursor:grab; color:#fff; }
+.seed-row { display:flex; align-items:center; gap:9px; padding:9px 12px; color:#fff; }
 .seed-row:hover { background:rgba(0,0,0,.12); }
-.seed-row:active { cursor:grabbing; }
 .seed-row .sr-icon { font-size:19px; line-height:1; }
-.seed-row .sr-info { display:flex; flex-direction:column; }
+.seed-row .sr-info { display:flex; flex-direction:column; flex:1; min-width:0; }
 .seed-row .sr-name { font-size:12px; font-weight:700; }
 .seed-row .sr-meta { font-size:10px; opacity:.6; margin-top:1px; }
+.seed-buy-btn { background:#5A8A3C; color:#fff; border:none; border-radius:4px; padding:3px 9px; font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; flex-shrink:0; }
+.seed-buy-btn:hover:not(:disabled) { background:#4a7a2c; }
+.seed-buy-btn:disabled { background:rgba(0,0,0,.22); color:rgba(255,255,255,.35); cursor:default; }
 
 /* ── INVENTORY ── */
 #inv-grid { display:flex; flex-wrap:wrap; gap:8px; padding:8px 12px 14px; }
@@ -84,6 +87,23 @@ body {
 .inv-icon:hover::after { opacity:1; }
 #inv-empty { color:rgba(255,255,255,.28); font-size:11px; font-style:italic; padding:6px 12px; }
 #panel.drop-hi { background:#7a5030; }
+
+/* ── SEED INVENTORY SLOTS ── */
+.inv-seed-slot { display:flex; flex-direction:column; align-items:center; gap:3px; }
+.inv-seed-icon { position:relative; width:42px; height:42px; background:rgba(0,0,0,.2); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:22px; cursor:grab; border:1px solid rgba(255,255,255,.1); }
+.inv-seed-icon:active { cursor:grabbing; }
+.inv-seed-icon::after { content:attr(data-name); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:rgba(0,0,0,.8); color:#fff; font-size:11px; padding:3px 8px; border-radius:4px; white-space:nowrap; pointer-events:none; opacity:0; transition:opacity .15s; z-index:999; }
+.inv-seed-icon:hover::after { opacity:1; }
+.inv-seed-sell { background:#5A6A2C; color:#fff; border:none; border-radius:4px; padding:2px 5px; font-size:9px; font-weight:700; cursor:pointer; white-space:nowrap; width:42px; text-align:center; }
+.inv-seed-sell:hover { background:#4a5a1c; }
+
+/* ── BAG INVENTORY SLOTS ── */
+.inv-bag-slot { display:flex; flex-direction:column; align-items:center; gap:3px; }
+.inv-bag-icon { position:relative; width:42px; height:42px; background:rgba(80,50,20,.4); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:22px; cursor:pointer; border:1px solid rgba(255,200,100,.25); }
+.inv-bag-icon::after { content:attr(data-name); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:rgba(0,0,0,.8); color:#fff; font-size:11px; padding:3px 8px; border-radius:4px; white-space:nowrap; pointer-events:none; opacity:0; transition:opacity .15s; z-index:999; }
+.inv-bag-icon:hover::after { opacity:1; }
+.inv-bag-open { background:#8B6020; color:#fff; border:none; border-radius:4px; padding:2px 5px; font-size:9px; font-weight:700; cursor:pointer; white-space:nowrap; width:42px; text-align:center; }
+.inv-bag-open:hover { background:#7a5010; }
 
 /* ── GAME AREA ── */
 #game-area { position:fixed; top:44px; left:0; right:var(--pw); bottom:0; display:flex; align-items:center; justify-content:center; transition:right .22s ease; z-index:10; }
@@ -116,6 +136,12 @@ body {
 #sell-box.drop-hi { background-color:#a07848; }
 #sell-box.iron { background-color:#3a424e; background-image:radial-gradient(circle at 8px 8px,#4a5460 5px,transparent 6px),radial-gradient(circle at calc(100% - 8px) 8px,#4a5460 5px,transparent 6px),radial-gradient(circle at 8px calc(100% - 8px),#4a5460 5px,transparent 6px),radial-gradient(circle at calc(100% - 8px) calc(100% - 8px),#4a5460 5px,transparent 6px),repeating-linear-gradient(to bottom,transparent 0,transparent 17px,rgba(0,0,0,.3) 17px,rgba(0,0,0,.3) 19px); border-color:#252c38; }
 #sell-box.iron #sell-center { color:#a8bcc8; text-shadow:0 1px 3px rgba(0,0,0,.6); }
+#sell-box.steel { background-color:#2e3a4a; background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 17px,rgba(0,0,0,.3) 17px,rgba(0,0,0,.3) 19px),radial-gradient(circle at 30% 30%,rgba(100,130,160,.15) 0,transparent 70%); border-color:#1a2530; }
+#sell-box.steel #sell-center { color:#8ab8d0; text-shadow:0 1px 3px rgba(0,0,0,.6); }
+#sell-box.titanium { background-color:#2a3060; background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 17px,rgba(0,0,0,.25) 17px,rgba(0,0,0,.25) 19px),linear-gradient(135deg,rgba(80,100,180,.15) 0,transparent 50%,rgba(80,100,180,.1) 100%); border-color:#1a2050; }
+#sell-box.titanium #sell-center { color:#7ab0f0; text-shadow:0 1px 4px rgba(50,80,200,.5); }
+#sell-box.diamond { background-color:#1a2850; background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 17px,rgba(0,0,0,.2) 17px,rgba(0,0,0,.2) 19px),radial-gradient(circle at 50% 50%,rgba(80,160,255,.12) 0,transparent 70%); border-color:#0a30a0; box-shadow:0 0 18px rgba(80,160,255,.25); }
+#sell-box.diamond #sell-center { color:#60c8ff; text-shadow:0 0 8px rgba(80,160,255,.7); }
 #sell-center { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:13px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#f5e6ce; white-space:nowrap; pointer-events:none; }
 #sell-queue-row { position:absolute; top:6px; left:50%; transform:translateX(-50%); display:flex; gap:2px; align-items:center; max-width:92%; flex-wrap:nowrap; overflow:hidden; }
 .sq-icon { font-size:16px; line-height:1; cursor:grab; }
@@ -128,6 +154,22 @@ body {
 #crank-svg { cursor:pointer; display:block; filter:drop-shadow(0 3px 6px rgba(0,0,0,.4)); transform-origin:30px 30px; transition:filter .1s; }
 #crank-svg:hover { filter:drop-shadow(0 3px 8px rgba(0,0,0,.55)) brightness(1.12); }
 #crank-svg:active { filter:drop-shadow(0 1px 3px rgba(0,0,0,.35)) brightness(.88); }
+#crank-box.iron #crank-svg { filter:drop-shadow(0 3px 7px rgba(0,0,0,.55)) grayscale(.9) brightness(.72); }
+#crank-box.iron #crank-svg:hover { filter:drop-shadow(0 3px 9px rgba(0,0,0,.65)) grayscale(.9) brightness(.88); }
+#crank-box.iron #crank-svg:active { filter:drop-shadow(0 1px 3px rgba(0,0,0,.4)) grayscale(.9) brightness(.55); }
+#crank-box.iron #crank-label { color:#b0bcc8; }
+#crank-box.steel #crank-svg { filter:drop-shadow(0 3px 7px rgba(0,0,0,.65)) grayscale(.8) brightness(.55); }
+#crank-box.steel #crank-svg:hover { filter:drop-shadow(0 3px 9px rgba(0,0,0,.7)) grayscale(.8) brightness(.7); }
+#crank-box.steel #crank-svg:active { filter:drop-shadow(0 1px 3px rgba(0,0,0,.5)) grayscale(.8) brightness(.4); }
+#crank-box.steel #crank-label { color:#8a9aaa; }
+#crank-box.titanium #crank-svg { filter:drop-shadow(0 3px 9px rgba(70,100,200,.45)) hue-rotate(200deg) saturate(1.3) brightness(.75); }
+#crank-box.titanium #crank-svg:hover { filter:drop-shadow(0 3px 11px rgba(70,100,200,.6)) hue-rotate(200deg) saturate(1.5) brightness(.9); }
+#crank-box.titanium #crank-svg:active { filter:drop-shadow(0 1px 4px rgba(70,100,200,.3)) hue-rotate(200deg) saturate(1.2) brightness(.6); }
+#crank-box.titanium #crank-label { color:#90b0d8; }
+#crank-box.diamond #crank-svg { filter:drop-shadow(0 4px 14px rgba(80,160,255,.65)) hue-rotate(210deg) saturate(2.2) brightness(1.15); }
+#crank-box.diamond #crank-svg:hover { filter:drop-shadow(0 4px 18px rgba(80,160,255,.85)) hue-rotate(210deg) saturate(2.5) brightness(1.3); }
+#crank-box.diamond #crank-svg:active { filter:drop-shadow(0 2px 6px rgba(80,160,255,.4)) hue-rotate(210deg) saturate(2) brightness(.9); }
+#crank-box.diamond #crank-label { color:#70c0ff; }
 
 /* ── WELL ── */
 #well { position:fixed; bottom:20px; right:calc(var(--pw) + 20px); z-index:240; display:none; flex-direction:column; align-items:center; gap:4px; transition:right .22s ease; }
@@ -161,7 +203,9 @@ body {
 @keyframes crowFly { from{left:-60px} to{left:calc(100vw + 60px)} }
 
 /* ── FERTILIZED TILE ── */
-.tile.tile-fertilized { background-color:#6e3d18; }
+.tile.tile-fertilized  { background-color:#6e3d18; }
+.tile.tile-ufertilized { background-color:#4a2e0a; }
+.tile .t-ufert-icon { position:absolute; top:2px; right:3px; font-size:11px; opacity:.85; pointer-events:none; }
 
 /* ── TILE CONTEXT MENU ── */
 #tile-menu { position:fixed; z-index:500; background:#5e3018; border:2px solid #3d2010; border-radius:6px; padding:5px; display:none; min-width:148px; }
@@ -169,11 +213,14 @@ body {
 .tmenu-btn:last-child { margin-bottom:0; }
 .tmenu-btn:hover { background:rgba(0,0,0,.35); }
 
-/* ── IRON CRANK ── */
-#crank-box.iron #crank-svg { filter:drop-shadow(0 3px 7px rgba(0,0,0,.55)) grayscale(.9) brightness(.72); }
-#crank-box.iron #crank-svg:hover { filter:drop-shadow(0 3px 9px rgba(0,0,0,.65)) grayscale(.9) brightness(.88); }
-#crank-box.iron #crank-svg:active { filter:drop-shadow(0 1px 3px rgba(0,0,0,.4)) grayscale(.9) brightness(.55); }
-#crank-box.iron #crank-label { color:#b0bcc8; }
+/* ── SETTINGS ── */
+#settings-btn { position:fixed; top:7px; right:calc(var(--pw) + 8px); z-index:310; width:30px; height:30px; background:rgba(0,0,0,.2); border:none; border-radius:50%; color:#fff; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .15s; pointer-events:all; }
+#settings-btn:hover { background:rgba(0,0,0,.38); }
+#settings-backdrop { position:fixed; inset:0; z-index:900; background:rgba(0,0,0,.55); display:none; }
+#settings-panel { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:901; background:#6B4432; border:2px solid #3d2010; border-radius:10px; padding:22px 26px 20px; min-width:220px; color:#fff; display:none; }
+#settings-panel h2 { font-size:15px; font-weight:700; margin-bottom:18px; letter-spacing:.5px; }
+#reset-btn { width:100%; background:#b03020; color:#fff; border:none; border-radius:6px; padding:9px 0; font-size:13px; font-weight:700; cursor:pointer; }
+#reset-btn:hover { background:#922010; }
 </style>
 </head>
 <body>
@@ -186,12 +233,23 @@ body {
 <div id="topbar">
   <div id="coins">🪙 <span id="coin-count">10</span></div>
 </div>
+<div id="stage-display"></div>
+
+<button id="settings-btn" title="Settings">⚙️</button>
+<div id="settings-backdrop"></div>
+<div id="settings-panel">
+  <h2>Settings</h2>
+  <button id="reset-btn">Reset Data</button>
+</div>
 
 <div id="panel">
   <div id="panel-tab"><span id="panel-arrow">›</span></div>
   <div id="panel-content">
     <div class="panel-label">Seeds</div>
     <div id="seeds-list"></div>
+    <div class="panel-divider"></div>
+    <div class="panel-label">Seed Bags 🎒</div>
+    <div id="bags-list"></div>
     <div class="panel-divider"></div>
     <div class="panel-label">Items</div>
     <div id="items-list"></div>
@@ -267,40 +325,104 @@ body {
 // SEED DATA
 // ══════════════════════════════
 const SEEDS = {
-  potato:    { name:'Potato',        icon:'🥔', seedIcon:'🌰', cost:2,   grow:15,  sell:6    },
-  carrot:    { name:'Carrot',        icon:'🥕', seedIcon:'🌱', cost:4,   grow:45,   sell:12   },
-  wheat:     { name:'Wheat',         icon:'🌾', seedIcon:'🌾', cost:8,   grow:90,   sell:25   },
-  sunflower: { name:'Sunflower',     icon:'🌻', seedIcon:'🌻', cost:15,  grow:180,  sell:45   },
-  pumpkin:   { name:'Pumpkin',       icon:'🎃', seedIcon:'🎃', cost:30,  grow:480,  sell:90   },
-  chard:     { name:'Rainbow Chard', icon:'🌈', seedIcon:'🌿', cost:60,  grow:1200, sell:200  },
-  moonbloom: { name:'Moonbloom',     icon:'🌕', seedIcon:'🌑', cost:120, grow:2700, sell:520  },
-  starfruit: { name:'Starfruit',     icon:'⭐', seedIcon:'💫', cost:250, grow:7200, sell:1100 },
+  // Basic shop seeds
+  potato:     { name:'Potato',        icon:'🥔', seedIcon:'🌰', cost:2,   grow:15,     sell:6      },
+  carrot:     { name:'Carrot',        icon:'🥕', seedIcon:'🌱', cost:4,   grow:45,     sell:12     },
+  wheat:      { name:'Wheat',         icon:'🌾', seedIcon:'🌾', cost:8,   grow:90,     sell:25     },
+  sunflower:  { name:'Sunflower',     icon:'🌻', seedIcon:'🌻', cost:15,  grow:180,    sell:45     },
+  // Bag-only seeds
+  pumpkin:    { name:'Pumpkin',       icon:'🎃', seedIcon:'🎃', grow:480,    sell:200    },
+  chard:      { name:'Rainbow Chard', icon:'🌈', seedIcon:'🌿', grow:1200,   sell:600    },
+  moonbloom:  { name:'Moonbloom',     icon:'🌕', seedIcon:'🌑', grow:2700,   sell:1800   },
+  starfruit:  { name:'Starfruit',     icon:'⭐', seedIcon:'💫', grow:7200,   sell:5500   },
+  thornvine:  { name:'Thornvine',     icon:'🌿', seedIcon:'🌱', grow:14400,  sell:13000  },
+  glowshroom: { name:'Glowshroom',    icon:'🍄', seedIcon:'🍄', grow:28800,  sell:30000  },
+  voidbloom:  { name:'Voidbloom',     icon:'🌑', seedIcon:'🔮', grow:57600,  sell:80000  },
+  aetherfern: { name:'Aetherfern',    icon:'🌀', seedIcon:'🌀', grow:115200, sell:220000 },
+  solarspike: { name:'Solarspike',    icon:'☀️', seedIcon:'✨', grow:230400, sell:650000 },
+};
+
+const BASIC_SEEDS = ['potato','carrot','wheat','sunflower'];
+
+// ══════════════════════════════
+// SEED BAGS
+// ══════════════════════════════
+const SEED_BAGS = [
+  { id:'fieldBag',     name:'Field Bag',     icon:'🎒', cost:25,
+    seeds:['pumpkin','chard','moonbloom'],         odds:[0.70,0.20,0.10] },
+  { id:'forestBag',    name:'Forest Bag',    icon:'🌲', cost:120,
+    seeds:['starfruit','thornvine','glowshroom'],  odds:[0.65,0.22,0.13] },
+  { id:'celestialBag', name:'Celestial Bag', icon:'✨', cost:600,
+    seeds:['voidbloom','aetherfern','solarspike'], odds:[0.68,0.20,0.12] },
+];
+
+// ══════════════════════════════
+// SEED SELL PRICES
+// ══════════════════════════════
+const SEED_SELL_PRICES = {
+  potato:1, carrot:2, wheat:4, sunflower:7,
+  pumpkin:4, chard:20, moonbloom:20, starfruit:20,
+  thornvine:20, glowshroom:20,
+  voidbloom:100, aetherfern:100, solarspike:100,
 };
 
 // ══════════════════════════════
 // UPGRADE DATA
 // ══════════════════════════════
 const UPGRADES = [
-  { id:'quickRoots',     name:'Quick Roots',          desc:'Crops grow 25% faster',                         cost:15,   type:'speed',        mult:0.75, chain:null           },
-  { id:'goldenHarvest',  name:'Golden Harvest',        desc:'Crops sell for 50% more',                       cost:40,   type:'value',        mult:1.50, chain:null           },
-  { id:'swiftMarketI',   name:'Swift Market I',        desc:'Sell box 25% faster',                           cost:60,   type:'sellSpeed',    mult:0.75, chain:null           },
-  { id:'fertilizerI',    name:'Fertilizer I',          desc:'Crops grow 40% faster (stacks)',                cost:90,   type:'speed',        mult:0.60, chain:'quickRoots'   },
-  { id:'marketEye',      name:'Market Eye',            desc:'Crops sell 75% more (stacks)',                  cost:150,  type:'value',        mult:1.75, chain:'goldenHarvest' },
-  { id:'swiftMarketII',  name:'Swift Market II',       desc:'Sell box 40% faster (stacks)',                  cost:200,  type:'sellSpeed',    mult:0.60, chain:'swiftMarketI' },
-  { id:'fertilizerII',   name:'Fertilizer II',         desc:'Crops grow 60% faster (stacks)',                cost:280,  type:'speed',        mult:0.40, chain:'fertilizerI'  },
-  { id:'windUpCrank',    name:'Wind-Up Crank',         desc:'Click crank to boost sell speed',               cost:300,  type:'crank',                   chain:null           },
-  { id:'merchantTouch',  name:"Merchant's Touch",      desc:'Crops sell 120% more (stacks)',                 cost:400,  type:'value',        mult:2.20, chain:'marketEye'    },
-  { id:'expandPlot',     name:'Expand Plot',           desc:'Adds column of 3 tiles (→ 4×3)',     cost:400,  type:'expand',                  chain:null           },
-  { id:'swiftMarketIII', name:'Swift Market III',      desc:'Sell box 60% faster (stacks)',                  cost:500,  type:'sellSpeed',    mult:0.40, chain:'swiftMarketII' },
-  { id:'fertilizerIII',  name:'Fertilizer III',        desc:'Crops grow 75% faster (stacks)',                cost:600,  type:'speed',        mult:0.25, chain:'fertilizerII' },
-  { id:'marketMastery',  name:'Market Mastery',        desc:'Crops sell 150% more (stacks)',                 cost:800,  type:'value',        mult:2.50, chain:'merchantTouch' },
-  { id:'crankUpI',       name:'Iron Crank',             desc:'Reinforce the crank with iron. Each pull is now 1.025× more powerful.', cost:750, type:'crankUpI', chain:'windUpCrank'  },
-  { id:'swiftMarketIV',  name:'Swift Market IV',       desc:'Sell box 70% faster (stacks)',                  cost:900,  type:'sellSpeed',    mult:0.30, chain:'swiftMarketIII' },
-  { id:'fertilizerIV',   name:'Fertilizer IV',         desc:'Crops grow 85% faster (stacks)',                cost:1200, type:'speed',        mult:0.15, chain:'fertilizerIII' },
-  { id:'expandBottom',   name:'Bottom Row Expansion',  desc:'Adds bottom row (→ 4×4)',             cost:1500, type:'expandBottom',            chain:'expandPlot'   },
-  { id:'marketPinnacle', name:'Market Pinnacle',       desc:'Crops sell 200% more (stacks)',                 cost:1800, type:'value',        mult:3.00, chain:'marketMastery' },
-  { id:'swiftMarketV',   name:'Swift Market V',        desc:'Sell box 80% faster (stacks)',                  cost:2000, type:'sellSpeed',    mult:0.20, chain:'swiftMarketIV' },
-  { id:'ironSellBox',    name:'Iron Sell Box',         desc:'Sells 2 items per interval. Metal crate.',     cost:5000, type:'ironSellBox',             chain:null           },
+  // ── SPEED CHAIN ──
+  { id:'quickRoots',     name:'Quick Roots',            desc:'Crops grow 25% faster',                              cost:15,      type:'speed',          mult:0.75,  chain:null              },
+  { id:'fertilizerI',    name:'Fertilizer I',            desc:'Crops grow 40% faster (stacks)',                     cost:90,      type:'speed',          mult:0.60,  chain:'quickRoots'      },
+  { id:'fertilizerII',   name:'Fertilizer II',           desc:'Crops grow 55% faster (stacks)',                     cost:280,     type:'speed',          mult:0.45,  chain:'fertilizerI'     },
+  { id:'fertilizerIII',  name:'Fertilizer III',          desc:'Crops grow 70% faster (stacks)',                     cost:600,     type:'speed',          mult:0.30,  chain:'fertilizerII'    },
+  { id:'fertilizerIV',   name:'Fertilizer IV',           desc:'Crops grow 80% faster (stacks)',                     cost:1200,    type:'speed',          mult:0.20,  chain:'fertilizerIII'   },
+  { id:'fertilizerV',    name:'Fertilizer V',            desc:'Crops grow 90% faster (stacks)',                     cost:3000,    type:'speed',          mult:0.10,  chain:'fertilizerIV'    },
+  { id:'fertilizerVI',   name:'Fertilizer VI',           desc:'Crops grow 95% faster (stacks)',                     cost:8000,    type:'speed',          mult:0.05,  chain:'fertilizerV'     },
+  { id:'fertilizerVII',  name:'Fertilizer VII',          desc:'Crops grow 97% faster (stacks)',                     cost:25000,   type:'speed',          mult:0.03,  chain:'fertilizerVI'    },
+  { id:'fertilizerVIII', name:'Fertilizer VIII',         desc:'Crops grow 98.5% faster (stacks)',                   cost:80000,   type:'speed',          mult:0.015, chain:'fertilizerVII'   },
+  { id:'fertilizerIX',   name:'Fertilizer IX',           desc:'Crops grow 99% faster (stacks)',                     cost:300000,  type:'speed',          mult:0.01,  chain:'fertilizerVIII'  },
+  { id:'fertilizerX',    name:'Fertilizer X',            desc:'Crops grow 99.5% faster (stacks)',                   cost:1000000, type:'speed',          mult:0.005, chain:'fertilizerIX'    },
+  // ── VALUE CHAIN ──
+  { id:'goldenHarvest',  name:'Golden Harvest',          desc:'Crops sell for 50% more',                            cost:40,      type:'value',          mult:1.50,  chain:null              },
+  { id:'marketEye',      name:'Market Eye',              desc:'Crops sell 75% more (stacks)',                       cost:150,     type:'value',          mult:1.75,  chain:'goldenHarvest'   },
+  { id:'merchantTouch',  name:"Merchant's Touch",        desc:'Crops sell 120% more (stacks)',                      cost:400,     type:'value',          mult:2.20,  chain:'marketEye'       },
+  { id:'marketMastery',  name:'Market Mastery',          desc:'Crops sell 180% more (stacks)',                      cost:800,     type:'value',          mult:2.80,  chain:'merchantTouch'   },
+  { id:'marketPinnacle', name:'Market Pinnacle',         desc:'Crops sell 250% more (stacks)',                      cost:1800,    type:'value',          mult:3.50,  chain:'marketMastery'   },
+  { id:'goldenEmpire',   name:'Golden Empire',           desc:'Crops sell 400% more (stacks)',                      cost:5000,    type:'value',          mult:5.00,  chain:'marketPinnacle'  },
+  { id:'diamondTrade',   name:'Diamond Trade',           desc:'Crops sell 600% more (stacks)',                      cost:15000,   type:'value',          mult:7.00,  chain:'goldenEmpire'    },
+  { id:'platinumExchange',name:'Platinum Exchange',      desc:'Crops sell 900% more (stacks)',                      cost:50000,   type:'value',          mult:10.00, chain:'diamondTrade'    },
+  { id:'celestialMarket',name:'Celestial Market',        desc:'Crops sell 1400% more (stacks)',                     cost:150000,  type:'value',          mult:15.00, chain:'platinumExchange'},
+  { id:'infiniteHarvest',name:'Infinite Harvest',        desc:'Crops sell 2000% more (stacks)',                     cost:500000,  type:'value',          mult:21.00, chain:'celestialMarket' },
+  { id:'godlyYield',     name:'Godly Yield',             desc:'Crops sell 3500% more (stacks)',                     cost:2000000, type:'value',          mult:36.00, chain:'infiniteHarvest' },
+  // ── SELL SPEED CHAIN ──
+  { id:'swiftMarketI',   name:'Swift Market I',          desc:'Sell interval 25% faster',                           cost:60,      type:'sellSpeed',      mult:0.75,  chain:null              },
+  { id:'swiftMarketII',  name:'Swift Market II',         desc:'Sell interval 35% faster (stacks)',                  cost:200,     type:'sellSpeed',      mult:0.65,  chain:'swiftMarketI'    },
+  { id:'swiftMarketIII', name:'Swift Market III',        desc:'Sell interval 45% faster (stacks)',                  cost:500,     type:'sellSpeed',      mult:0.55,  chain:'swiftMarketII'   },
+  { id:'swiftMarketIV',  name:'Swift Market IV',         desc:'Sell interval 55% faster (stacks)',                  cost:900,     type:'sellSpeed',      mult:0.45,  chain:'swiftMarketIII'  },
+  { id:'swiftMarketV',   name:'Swift Market V',          desc:'Sell interval 65% faster (stacks)',                  cost:2000,    type:'sellSpeed',      mult:0.35,  chain:'swiftMarketIV'   },
+  { id:'swiftMarketVI',  name:'Swift Market VI',         desc:'Sell interval 72% faster (stacks)',                  cost:6000,    type:'sellSpeed',      mult:0.28,  chain:'swiftMarketV'    },
+  { id:'swiftMarketVII', name:'Swift Market VII',        desc:'Sell interval 78% faster (stacks)',                  cost:18000,   type:'sellSpeed',      mult:0.22,  chain:'swiftMarketVI'   },
+  { id:'swiftMarketVIII',name:'Swift Market VIII',       desc:'Sell interval 83% faster (stacks)',                  cost:60000,   type:'sellSpeed',      mult:0.17,  chain:'swiftMarketVII'  },
+  { id:'swiftMarketIX',  name:'Swift Market IX',         desc:'Sell interval 87% faster (stacks)',                  cost:200000,  type:'sellSpeed',      mult:0.13,  chain:'swiftMarketVIII' },
+  { id:'swiftMarketX',   name:'Swift Market X',          desc:'Sell interval 90% faster (stacks)',                  cost:700000,  type:'sellSpeed',      mult:0.10,  chain:'swiftMarketIX'   },
+  // ── PLOT EXPANSIONS ──
+  { id:'expandPlot',     name:'Expand Plot',             desc:'Adds a column of 3 tiles (→ 4×3)',                   cost:400,     type:'expand',                     chain:null              },
+  { id:'expandBottom',   name:'Bottom Row Expansion',    desc:'Adds a bottom row (→ 4×4)',                          cost:1500,    type:'expandBottom',               chain:'expandPlot'      },
+  { id:'expand2ndCol',   name:'Second Column Expansion', desc:'Adds a column (→ 5×4)',                              cost:8000,    type:'expand2ndCol',               chain:'expandBottom'    },
+  { id:'expand2ndRow',   name:'Second Row Expansion',    desc:'Adds a row (→ 5×5)',                                 cost:25000,   type:'expand2ndRow',               chain:'expand2ndCol'    },
+  { id:'expand3rdCol',   name:'Third Column Expansion',  desc:'Adds a column (→ 6×5)',                              cost:100000,  type:'expand3rdCol',               chain:'expand2ndRow'    },
+  { id:'expand3rdRow',   name:'Third Row Expansion',     desc:'Adds a row (→ 6×6)',                                 cost:400000,  type:'expand3rdRow',               chain:'expand3rdCol'    },
+  // ── CRANK CHAIN ──
+  { id:'windUpCrank',    name:'Wind-Up Crank',           desc:'Click crank to boost sell speed. 1.015× per click.', cost:300,    type:'crank',                      chain:null              },
+  { id:'ironCrank',      name:'Iron Crank',              desc:'Iron reinforcement. 1.025× per click.',              cost:750,     type:'crankUp',                    chain:'windUpCrank'     },
+  { id:'steelCrank',     name:'Steel Crank',             desc:'Darker steel body. 1.040× per click.',              cost:5000,    type:'crankUp',                    chain:'ironCrank'       },
+  { id:'titaniumCrank',  name:'Titanium Crank',          desc:'Blue-grey shimmer. 1.060× per click.',              cost:30000,   type:'crankUp',                    chain:'steelCrank'      },
+  { id:'diamondCrank',   name:'Diamond Crank',           desc:'Blue sparkle. 1.085× per click.',                   cost:150000,  type:'crankUp',                    chain:'titaniumCrank'   },
+  // ── SELL BOX CHAIN ──
+  { id:'ironSellBox',    name:'Iron Sell Box',           desc:'Sells 2 items per interval. Iron crate.',            cost:5000,    type:'ironSellBox',                chain:null              },
+  { id:'steelSellBox',   name:'Steel Sell Box',          desc:'Sells 3 items per interval. Reinforced steel.',      cost:20000,   type:'steelSellBox',               chain:'ironSellBox'     },
+  { id:'titaniumSellBox',name:'Titanium Sell Box',       desc:'Sells 5 items per interval. Titanium alloy.',        cost:100000,  type:'titaniumSellBox',            chain:'steelSellBox'    },
+  { id:'diamondSellBox', name:'Diamond Sell Box',        desc:'Sells 8 items per interval. Diamond-lined.',         cost:500000,  type:'diamondSellBox',             chain:'titaniumSellBox' },
 ];
 
 // ══════════════════════════════
@@ -311,12 +433,18 @@ let state = {
   milestones: {}, mature: false,
   tiles: Array(9).fill(null),
   inventory: {},
+  seedInventory: {},
+  bagInventory: {},
   sellQueue: [],
   sellNextAt: 0,
   upgrades: {},
   loose: [],
   expanded: false,
   expandedBottom: false,
+  expand2ndCol: false,
+  expand2ndRow: false,
+  expand3rdCol: false,
+  expand3rdRow: false,
   items: {},
   cageCount: 0,
   cages: [],
@@ -324,19 +452,18 @@ let state = {
   wellRefillAt: 0,
   tilesWatered: {},
   fertCharges: 0,
+  uncommonFertCharges: 0,
   weeds: {},
   fertilizedTiles: {},
+  uncommonFertilizedTiles: {},
   firstWeedEver: false,
   firstCrowEver: false,
 };
 let nextId = 0, selectedTile = null, panelExpanded = true, panelWidth = 220;
 let crankMult = 1.0, crankAngle = 0;
-let itemMode = null; // null | 'water' | 'cage' | 'fertilizer'
 let lastCrowCheck = 0;
 let lastWeedCheck = 0;
 const WEED_CLICKS = 20;
-
-// Track growing→ready transitions for 50ms loop
 let prevReadyState = {};
 
 // ══════════════════════════════
@@ -347,7 +474,14 @@ const ghost = document.getElementById('ghost');
 
 function startDrag(seed, source, bonus = 1.0, drowned = false) {
   drag = { seed, source, bonus, drowned };
-  ghost.textContent = SEEDS[seed].icon;
+  ghost.textContent = source === 'seedInventory' ? SEEDS[seed].seedIcon : SEEDS[seed].icon;
+  ghost.style.display = 'block';
+  deselect();
+}
+const ITEM_ICONS = { water:'💧', cage:'🔒', fertilizer:'🌿', uncommonFert:'⚗️' };
+function startItemDrag(itemType) {
+  drag = { itemType, source: 'item', seed: null, bonus: 1, drowned: false };
+  ghost.textContent = ITEM_ICONS[itemType] || '❓';
   ghost.style.display = 'block';
   deselect();
 }
@@ -369,8 +503,8 @@ let resizing = false, resizeStartX = 0, resizeStartW = 0, resizeMoved = false;
 // ══════════════════════════════
 // SAVE / LOAD
 // ══════════════════════════════
-const KEY = 'blissfarm9';
-const KEY_OLD = 'blissfarm8';
+const KEY     = 'blissfarm10';
+const KEY_OLD = 'blissfarm9';
 
 function save() {
   localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth }));
@@ -379,44 +513,52 @@ function save() {
 function load() {
   try {
     let raw = localStorage.getItem(KEY);
-    if (!raw) raw = localStorage.getItem(KEY_OLD); // fallback migration
+    if (!raw) raw = localStorage.getItem(KEY_OLD);
     const d = JSON.parse(raw || 'null');
     if (!d) return;
-    state.coins          = d.coins          ?? 10;
-    state.coinsEarned    = d.coinsEarned    ?? 0;
-    state.gameStartTime  = d.gameStartTime  ?? Date.now();
-    state.milestones     = d.milestones     ?? {};
-    state.mature         = d.mature         ?? false;
-    state.tiles          = d.tiles          ?? Array(9).fill(null);
-    state.inventory      = d.inventory      ?? {};
-    // migrate sellQueue: string[] → [{seed,bonus}], add drowned flag
-    state.sellQueue      = (d.sellQueue || []).map(item => {
+    state.coins           = d.coins           ?? 10;
+    state.coinsEarned     = d.coinsEarned     ?? 0;
+    state.gameStartTime   = d.gameStartTime   ?? Date.now();
+    state.milestones      = d.milestones      ?? {};
+    state.mature          = d.mature          ?? false;
+    state.tiles           = d.tiles           ?? Array(9).fill(null);
+    state.inventory       = d.inventory       ?? {};
+    state.seedInventory   = d.seedInventory   ?? {};
+    state.bagInventory    = d.bagInventory    ?? {};
+    state.sellQueue       = (d.sellQueue || []).map(item => {
       if (typeof item === 'string') return { seed: item, bonus: 1, drowned: false };
       return { seed: item.seed, bonus: item.bonus ?? 1, drowned: item.drowned ?? false };
     });
-    state.sellNextAt     = d.sellNextAt     ?? 0;
-    state.upgrades       = d.upgrades       ?? {};
-    // migrate loose items: add drowned flag
-    state.loose          = (d.loose || []).map(item => ({
+    state.sellNextAt      = d.sellNextAt      ?? 0;
+    state.upgrades        = d.upgrades        ?? {};
+    // Migrate old crankUpI → ironCrank
+    if (state.upgrades.crankUpI && !state.upgrades.ironCrank) state.upgrades.ironCrank = true;
+    state.loose           = (d.loose || []).map(item => ({
       seed: item.seed, id: item.id, x: item.x, y: item.y,
       bonus: item.bonus ?? 1.0, drowned: item.drowned ?? false
     }));
-    state.expanded       = d.expanded       ?? false;
-    state.expandedBottom = d.expandedBottom ?? false;
-    state.items          = d.items          ?? {};
-    state.cageCount      = d.cageCount      ?? 0;
-    state.cages          = d.cages          ?? [];
-    state.wellFull       = d.wellFull       ?? true;
-    state.wellRefillAt   = d.wellRefillAt   ?? 0;
-    state.tilesWatered   = d.tilesWatered   ?? {};
-    state.fertCharges    = d.fertCharges    ?? 0;
-    state.weeds            = d.weeds            ?? {};
-    state.fertilizedTiles  = d.fertilizedTiles  ?? {};
-    state.firstWeedEver    = d.firstWeedEver    ?? false;
-    state.firstCrowEver    = d.firstCrowEver    ?? false;
-    nextId               = d.nextId         ?? 0;
-    panelExpanded        = d.panelExpanded  ?? true;
-    panelWidth           = d.panelWidth     ?? 220;
+    state.expanded        = d.expanded        ?? false;
+    state.expandedBottom  = d.expandedBottom  ?? false;
+    state.expand2ndCol    = d.expand2ndCol    ?? false;
+    state.expand2ndRow    = d.expand2ndRow    ?? false;
+    state.expand3rdCol    = d.expand3rdCol    ?? false;
+    state.expand3rdRow    = d.expand3rdRow    ?? false;
+    state.items           = d.items           ?? {};
+    state.cageCount       = d.cageCount       ?? 0;
+    state.cages           = d.cages           ?? [];
+    state.wellFull        = d.wellFull        ?? true;
+    state.wellRefillAt    = d.wellRefillAt    ?? 0;
+    state.tilesWatered    = d.tilesWatered    ?? {};
+    state.fertCharges            = d.fertCharges            ?? 0;
+    state.uncommonFertCharges    = d.uncommonFertCharges    ?? 0;
+    state.weeds                  = d.weeds                  ?? {};
+    state.fertilizedTiles        = d.fertilizedTiles        ?? {};
+    state.uncommonFertilizedTiles= d.uncommonFertilizedTiles?? {};
+    state.firstWeedEver   = d.firstWeedEver   ?? false;
+    state.firstCrowEver   = d.firstCrowEver   ?? false;
+    nextId                = d.nextId          ?? 0;
+    panelExpanded         = d.panelExpanded   ?? true;
+    panelWidth            = d.panelWidth      ?? 220;
   } catch (_) {}
 }
 
@@ -442,7 +584,18 @@ function getSellInterval() {
   return 10000 * getSellSpeedMult() / crankMult;
 }
 function getCrankClickMult() {
-  return state.upgrades.crankUpI ? 1.025 : 1.015;
+  if (state.upgrades.diamondCrank)  return 1.085;
+  if (state.upgrades.titaniumCrank) return 1.060;
+  if (state.upgrades.steelCrank)    return 1.040;
+  if (state.upgrades.ironCrank)     return 1.025;
+  return 1.015;
+}
+function getSellAtOnce() {
+  if (state.upgrades.diamondSellBox)  return 8;
+  if (state.upgrades.titaniumSellBox) return 5;
+  if (state.upgrades.steelSellBox)    return 3;
+  if (state.upgrades.ironSellBox)     return 2;
+  return 1;
 }
 
 // ══════════════════════════════
@@ -452,7 +605,10 @@ function waterFactor(idx) {
   return (idx !== undefined && state.tilesWatered && state.tilesWatered[idx]) ? 0.75 : 1.0;
 }
 function fertFactor(idx) {
-  return (idx !== undefined && state.fertilizedTiles && state.fertilizedTiles[idx]) ? 0.75 : 1.0;
+  let f = 1.0;
+  if (idx !== undefined && state.fertilizedTiles && state.fertilizedTiles[idx])         f *= 0.75;
+  if (idx !== undefined && state.uncommonFertilizedTiles && state.uncommonFertilizedTiles[idx]) f *= 0.60;
+  return f;
 }
 function remSec(td, idx) {
   const gt = SEEDS[td.seed].grow * getGrowMult() * waterFactor(idx) * fertFactor(idx);
@@ -462,7 +618,9 @@ function isReady(td, idx) { return remSec(td, idx) <= 0; }
 function fmt(s) {
   if (s <= 0) return '0s';
   if (s < 1)  return s.toFixed(1) + 's';
-  return Math.ceil(s) + 's';
+  if (s < 60) return Math.ceil(s) + 's';
+  if (s < 3600) { const m = Math.floor(s/60), sec = Math.ceil(s%60); return `${m}m${sec>0?' '+sec+'s':''}`; }
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60); return `${h}h${m>0?' '+m+'m':''}`;
 }
 function fmtElapsed(ms) {
   const s = Math.floor(ms / 1000);
@@ -506,11 +664,30 @@ function showBanner(text) {
 // ══════════════════════════════
 const MILESTONE_VALS = [100, 1000, 10000, 100000, 1000000];
 
+const STAGES = [
+  { stage: 0, name: 'Birth',      threshold: 0    },
+  { stage: 1, name: 'Real World', threshold: 1000 },
+];
+
+function getCurrentStage() {
+  let current = STAGES[0];
+  for (const s of STAGES) {
+    if ((state.coinsEarned || 0) >= s.threshold) current = s;
+  }
+  return current;
+}
+
+function updateStageDisplay() {
+  const s = getCurrentStage();
+  document.getElementById('stage-display').textContent = `Stage ${s.stage}: ${s.name}`;
+}
+
 function addCoins(amount) {
   state.coins += amount;
   state.coinsEarned = (state.coinsEarned || 0) + amount;
   checkMilestones();
   checkMaturity();
+  updateStageDisplay();
   updateCoins();
 }
 
@@ -539,6 +716,7 @@ function updateCoins() {
   renderUpgrades();
   renderItems();
   renderSeeds();
+  renderSeedBags();
 }
 
 // ══════════════════════════════
@@ -555,28 +733,37 @@ function adjustGrowTimes(oldMult, newMult) {
     const oldGT = base * oldMult * wf * ff;
     const newGT = base * newMult * wf * ff;
     if (oldGT <= 0) continue;
-    const elapsed     = (now - td.plantedAt) / 1000;
-    const oldRem      = Math.max(0, oldGT - elapsed);
-    const newRem      = oldRem * (newGT / oldGT);
-    td.plantedAt      = now - (newGT - newRem) * 1000;
+    const elapsed = (now - td.plantedAt) / 1000;
+    const oldRem  = Math.max(0, oldGT - elapsed);
+    const newRem  = oldRem * (newGT / oldGT);
+    td.plantedAt  = now - (newGT - newRem) * 1000;
   }
 }
 
 // ══════════════════════════════
 // GRID
 // ══════════════════════════════
+function getGridDims() {
+  let cols = 3, rows = 3;
+  if (state.expanded)       cols = 4;
+  if (state.expandedBottom) rows = 4;
+  if (state.expand2ndCol)   cols = 5;
+  if (state.expand2ndRow)   rows = 5;
+  if (state.expand3rdCol)   cols = 6;
+  if (state.expand3rdRow)   rows = 6;
+  return { cols, rows };
+}
+
 function tileCount() {
-  if (state.expandedBottom) return 16;
-  if (state.expanded) return 12;
-  return 9;
+  const { cols, rows } = getGridDims();
+  return cols * rows;
 }
 
 function buildGrid() {
   const grid = document.getElementById('farm-grid');
-  const cols = (state.expanded || state.expandedBottom) ? 4 : 3;
-  const rows = state.expandedBottom ? 4 : 3;
+  const { cols, rows } = getGridDims();
   grid.style.gridTemplateColumns = `repeat(${cols}, 100px)`;
-  grid.style.gridTemplateRows = `repeat(${rows}, 100px)`;
+  grid.style.gridTemplateRows    = `repeat(${rows}, 100px)`;
   while (state.tiles.length < tileCount()) state.tiles.push(null);
   grid.innerHTML = '';
   for (let i = 0; i < tileCount(); i++) {
@@ -596,7 +783,6 @@ function renderTile(idx) {
   el.innerHTML = '';
   el.className = 'tile';
 
-  // Weed check — takes priority
   if (state.weeds && state.weeds[idx] !== undefined) {
     el.classList.add('tile-weed');
     const wIcon = mk('div','t-weed-icon'); wIcon.textContent = '🌿'; el.appendChild(wIcon);
@@ -604,24 +790,26 @@ function renderTile(idx) {
     return;
   }
 
-  const td           = state.tiles[idx];
-  const isCaged      = state.cages && state.cages.includes(idx);
-  const isWatered    = !!(state.tilesWatered && state.tilesWatered[idx]);
-  const isFertilized = !!(state.fertilizedTiles && state.fertilizedTiles[idx]);
+  const td             = state.tiles[idx];
+  const isCaged        = state.cages && state.cages.includes(idx);
+  const isWatered      = !!(state.tilesWatered && state.tilesWatered[idx]);
+  const isFertilized   = !!(state.fertilizedTiles && state.fertilizedTiles[idx]);
+  const isUFertilized  = !!(state.uncommonFertilizedTiles && state.uncommonFertilizedTiles[idx]);
 
-  if (isCaged)      el.classList.add('tile-caged');
-  if (isFertilized) el.classList.add('tile-fertilized');
+  if (isCaged)       el.classList.add('tile-caged');
+  if (isUFertilized) el.classList.add('tile-ufertilized');
+  else if (isFertilized) el.classList.add('tile-fertilized');
 
   if (!td) {
-    if (isCaged)      { const c = mk('div','t-cage-icon'); c.textContent='🔒'; el.appendChild(c); }
-    if (isFertilized) { const f = mk('div','t-fert-icon'); f.textContent='🌿'; el.appendChild(f); }
+    if (isCaged)       { const c = mk('div','t-cage-icon');  c.textContent='🔒'; el.appendChild(c); }
+    if (isUFertilized) { const f = mk('div','t-ufert-icon'); f.textContent='⚗️'; el.appendChild(f); }
+    else if (isFertilized) { const f = mk('div','t-fert-icon'); f.textContent='🌿'; el.appendChild(f); }
     return;
   }
 
   const rdy = isReady(td, idx);
   if (rdy) {
     el.classList.add('ready');
-    // Only show watered border when NOT ready
   } else {
     if (isWatered) el.classList.add('tile-watered');
     if (td.drowned) el.classList.add('tile-drowned');
@@ -657,13 +845,89 @@ function renderTile(idx) {
     }
   }
 
-  if (isFertilized) { const f = mk('div','t-fert-icon'); f.textContent='🌿'; el.appendChild(f); }
-  if (isCaged) { const c = mk('div','t-cage-icon'); c.textContent='🔒'; el.appendChild(c); }
+  if (isUFertilized)   { const f = mk('div','t-ufert-icon'); f.textContent='⚗️'; el.appendChild(f); }
+  else if (isFertilized) { const f = mk('div','t-fert-icon'); f.textContent='🌿'; el.appendChild(f); }
+  if (isCaged)         { const c = mk('div','t-cage-icon'); c.textContent='🔒'; el.appendChild(c); }
 }
 
 function mk(tag, cls) { const el = document.createElement(tag); if (cls) el.className = cls; return el; }
-
 function renderAllTiles() { for (let i = 0; i < tileCount(); i++) renderTile(i); }
+
+// ══════════════════════════════
+// SEED SHOP
+// ══════════════════════════════
+function renderSeeds() {
+  const container = document.getElementById('seeds-list');
+  container.innerHTML = '';
+  BASIC_SEEDS.forEach(key => {
+    const seed = SEEDS[key];
+    const gt = seed.grow * getGrowMult();
+    const canAfford = state.coins >= seed.cost;
+    const row = mk('div','seed-row');
+    row.innerHTML = `<span class="sr-icon">${seed.seedIcon}</span><div class="sr-info"><span class="sr-name">${seed.name}</span><span class="sr-meta">🪙${seed.cost} · ${fmt(gt)} · sells 🪙${seed.sell}</span></div>`;
+    const btn = mk('button','seed-buy-btn');
+    btn.textContent = 'Buy';
+    btn.disabled = !canAfford;
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (state.coins < seed.cost) return;
+      state.coins -= seed.cost;
+      if (!state.seedInventory) state.seedInventory = {};
+      state.seedInventory[key] = (state.seedInventory[key] || 0) + 1;
+      updateCoins(); renderInventory(); save();
+      log(`🌱 Bought ${seed.name} seed`);
+    });
+    row.appendChild(btn);
+    container.appendChild(row);
+  });
+}
+
+// ══════════════════════════════
+// SEED BAGS SHOP
+// ══════════════════════════════
+function renderSeedBags() {
+  const container = document.getElementById('bags-list');
+  container.innerHTML = '';
+  SEED_BAGS.forEach(bag => {
+    const canAfford = state.coins >= bag.cost;
+    const card = mk('div','upgrade-card');
+    const desc = bag.seeds.map((s,i) => `${SEEDS[s].seedIcon} ${SEEDS[s].name} ${Math.round(bag.odds[i]*100)}%`).join(' · ');
+    card.innerHTML = `<div class="ug-name">${bag.icon} ${bag.name}</div><div class="ug-desc">Opens for 3 seeds: ${desc}</div><div class="ug-bottom"><span class="ug-cost">🪙${bag.cost}</span><button class="ug-btn"${canAfford?'':' disabled'}>Buy</button></div>`;
+    card.querySelector('.ug-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      if (state.coins < bag.cost) return;
+      state.coins -= bag.cost;
+      if (!state.bagInventory) state.bagInventory = {};
+      state.bagInventory[bag.id] = (state.bagInventory[bag.id] || 0) + 1;
+      updateCoins(); renderInventory(); save();
+      log(`🎒 Bought ${bag.name}`);
+    });
+    container.appendChild(card);
+  });
+}
+
+// ══════════════════════════════
+// OPEN BAG
+// ══════════════════════════════
+function openBag(bag) {
+  if (!state.bagInventory) state.bagInventory = {};
+  if ((state.bagInventory[bag.id] || 0) < 1) return;
+  state.bagInventory[bag.id]--;
+  if (!state.seedInventory) state.seedInventory = {};
+  const received = [];
+  for (let i = 0; i < 3; i++) {
+    const roll = Math.random();
+    let cum = 0, chosen = bag.seeds[bag.seeds.length - 1];
+    for (let j = 0; j < bag.seeds.length; j++) {
+      cum += bag.odds[j];
+      if (roll < cum) { chosen = bag.seeds[j]; break; }
+    }
+    state.seedInventory[chosen] = (state.seedInventory[chosen] || 0) + 1;
+    received.push(SEEDS[chosen].seedIcon + ' ' + SEEDS[chosen].name);
+  }
+  log(`🎒 ${bag.name} opened: ${received.join(', ')}`);
+  renderInventory(); save();
+}
 
 // ══════════════════════════════
 // INVENTORY
@@ -671,40 +935,141 @@ function renderAllTiles() { for (let i = 0; i < tileCount(); i++) renderTile(i);
 function renderInventory() {
   const grid = document.getElementById('inv-grid');
   grid.innerHTML = '';
-  const keys = Object.keys(state.inventory).filter(k => (state.inventory[k]||0) > 0);
-  if (!keys.length) {
-    const e = mk('div'); e.id = 'inv-empty'; e.textContent = 'Empty'; grid.appendChild(e); return;
+  let count = 0;
+
+  // ── Usable Items ──
+  function makeItemSlot(icon, tooltip, itemType, onDown) {
+    const el = mk('div','inv-icon');
+    el.dataset.name = tooltip;
+    el.style.cursor = 'grab';
+    el.innerHTML = `<span style="pointer-events:none">${icon}</span>`;
+    el.addEventListener('mousedown', e => { e.stopPropagation(); onDown(e); });
+    return el;
   }
-  keys.forEach(k => {
-    const el = mk('div','inv-icon'); el.dataset.name = SEEDS[k].name;
-    el.innerHTML = `<span style="pointer-events:none">${SEEDS[k].icon}</span><span class="inv-badge">${state.inventory[k]}</span>`;
+
+  // Water charge
+  if (state.items && state.items.wateringCan && state.wellFull) {
+    count++;
+    const el = makeItemSlot('💧', 'Water charge — drag onto growing crop', 'water', e => {
+      startItemDrag('water'); moveGhost(e.clientX, e.clientY);
+      state.wellFull = false; renderInventory(); renderItems();
+    });
+    grid.appendChild(el);
+  }
+
+  // Cages
+  const cageHeld = state.cageCount || 0;
+  if (cageHeld > 0) {
+    count++;
+    const el = makeItemSlot('🔒', 'Cage — drag onto a tile to place', 'cage', e => {
+      state.cageCount--; renderInventory(); renderItems();
+      startItemDrag('cage'); moveGhost(e.clientX, e.clientY);
+    });
+    el.innerHTML = `<span style="pointer-events:none">🔒</span><span class="inv-badge">${cageHeld}</span>`;
+    grid.appendChild(el);
+  }
+
+  // Common Fertilizer
+  const fertHeld = state.fertCharges || 0;
+  if (fertHeld > 0) {
+    count++;
+    const el = makeItemSlot('🌿', 'Common Fertilizer — drag onto a tile', 'fertilizer', e => {
+      state.fertCharges--; renderInventory(); renderItems();
+      startItemDrag('fertilizer'); moveGhost(e.clientX, e.clientY);
+    });
+    el.innerHTML = `<span style="pointer-events:none">🌿</span><span class="inv-badge">${fertHeld}</span>`;
+    grid.appendChild(el);
+  }
+
+  // Uncommon Fertilizer
+  const ufertHeld = state.uncommonFertCharges || 0;
+  if (ufertHeld > 0) {
+    count++;
+    const el = makeItemSlot('⚗️', 'Uncommon Fertilizer — drag onto a tile', 'uncommonFert', e => {
+      state.uncommonFertCharges--; renderInventory(); renderItems();
+      startItemDrag('uncommonFert'); moveGhost(e.clientX, e.clientY);
+    });
+    el.innerHTML = `<span style="pointer-events:none">⚗️</span><span class="inv-badge">${ufertHeld}</span>`;
+    grid.appendChild(el);
+  }
+
+  // Bags
+  SEED_BAGS.forEach(bag => {
+    const qty = (state.bagInventory || {})[bag.id] || 0;
+    if (qty <= 0) return;
+    count++;
+    const slot = mk('div','inv-bag-slot');
+    const icon = mk('div','inv-bag-icon');
+    icon.dataset.name = `${bag.name} — click to open`;
+    icon.innerHTML = `<span style="pointer-events:none">${bag.icon}</span><span class="inv-badge">${qty}</span>`;
+    const openBtn = mk('button','inv-bag-open');
+    openBtn.textContent = 'Open';
+    openBtn.addEventListener('click', e => { e.stopPropagation(); openBag(bag); });
+    slot.appendChild(icon);
+    slot.appendChild(openBtn);
+    grid.appendChild(slot);
+  });
+
+  // Seeds
+  const seedInv = state.seedInventory || {};
+  Object.entries(seedInv).forEach(([key, qty]) => {
+    if (qty <= 0 || !SEEDS[key]) return;
+    count++;
+    const seed = SEEDS[key];
+    const slot = mk('div','inv-seed-slot');
+    const icon = mk('div','inv-seed-icon');
+    icon.dataset.name = `${seed.name} seed — drag to plant`;
+    icon.innerHTML = `<span style="pointer-events:none">${seed.seedIcon}</span><span class="inv-badge">${qty}</span>`;
+    icon.addEventListener('mousedown', e => {
+      e.stopPropagation();
+      if ((state.seedInventory[key] || 0) < 1) return;
+      state.seedInventory[key]--;
+      if (state.seedInventory[key] <= 0) delete state.seedInventory[key];
+      renderInventory(); save();
+      startDrag(key, 'seedInventory'); moveGhost(e.clientX, e.clientY);
+    });
+    const sellBtn = mk('button','inv-seed-sell');
+    const price = SEED_SELL_PRICES[key] || 0;
+    sellBtn.textContent = `Sell 🪙${price}`;
+    sellBtn.title = `Sell ${seed.name} seed for 🪙${price}`;
+    sellBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if ((state.seedInventory[key] || 0) < 1) return;
+      state.seedInventory[key]--;
+      if (state.seedInventory[key] <= 0) delete state.seedInventory[key];
+      addCoins(price);
+      log(`🌱 Sold ${seed.name} seed for 🪙${price}`);
+      renderInventory(); save();
+    });
+    slot.appendChild(icon);
+    slot.appendChild(sellBtn);
+    grid.appendChild(slot);
+  });
+
+  // Harvested crops
+  Object.entries(state.inventory).forEach(([key, qty]) => {
+    if (qty <= 0 || !SEEDS[key]) return;
+    count++;
+    const el = mk('div','inv-icon');
+    el.dataset.name = SEEDS[key].name;
+    el.innerHTML = `<span style="pointer-events:none">${SEEDS[key].icon}</span><span class="inv-badge">${qty}</span>`;
     el.addEventListener('mousedown', e => {
       e.stopPropagation();
-      if ((state.inventory[k]||0) < 1) return;
-      state.inventory[k]--;
-      if (state.inventory[k] <= 0) delete state.inventory[k];
+      if ((state.inventory[key] || 0) < 1) return;
+      state.inventory[key]--;
+      if (state.inventory[key] <= 0) delete state.inventory[key];
       renderInventory(); save();
-      startDrag(k, 'inventory'); moveGhost(e.clientX, e.clientY);
+      startDrag(key, 'inventory'); moveGhost(e.clientX, e.clientY);
     });
     grid.appendChild(el);
   });
-}
-function addInventory(seed) { state.inventory[seed] = (state.inventory[seed]||0) + 1; }
 
-// ══════════════════════════════
-// SEEDS (shop)
-// ══════════════════════════════
-function renderSeeds() {
-  const container = document.getElementById('seeds-list');
-  container.innerHTML = '';
-  Object.entries(SEEDS).forEach(([key, seed]) => {
-    const gt = seed.grow * getGrowMult();
-    const row = mk('div','seed-row'); row.dataset.seed = key;
-    row.innerHTML = `<span class="sr-icon">${seed.seedIcon}</span><div class="sr-info"><span class="sr-name">${seed.name}</span><span class="sr-meta">🪙${seed.cost} · ${fmt(gt)}</span></div>`;
-    row.addEventListener('mousedown', e => { e.stopPropagation(); startDrag(key,'shop'); moveGhost(e.clientX,e.clientY); });
-    container.appendChild(row);
-  });
+  if (count === 0) {
+    const e = mk('div'); e.id = 'inv-empty'; e.textContent = 'Empty'; grid.appendChild(e);
+  }
 }
+
+function addInventory(seed) { state.inventory[seed] = (state.inventory[seed] || 0) + 1; }
 
 // ══════════════════════════════
 // ITEMS
@@ -713,18 +1078,18 @@ function renderItems() {
   const container = document.getElementById('items-list');
   container.innerHTML = '';
 
-  // — Watering Can —
+  // Watering Can
   const wcOwned = !!(state.items && state.items.wateringCan);
   const wcCard  = mk('div','upgrade-card' + (wcOwned ? ' bought' : ''));
   let wcStatus  = '';
   if (wcOwned) {
-    if (state.wellFull) wcStatus = ' <span style="color:#6cf;font-size:10px">● Ready</span>';
+    if (state.wellFull) wcStatus = ' <span style="color:#6cf;font-size:10px">● Charge ready in inventory</span>';
     else {
       const rem = Math.max(0,(state.wellRefillAt - Date.now())/1000);
       wcStatus = ` <span style="opacity:.5;font-size:10px">Refills in ${fmt(rem)}</span>`;
     }
   }
-  wcCard.innerHTML = `<div class="ug-name">💧 Watering Can</div><div class="ug-desc">Waters a tile: +25% speed &amp; +25% sell value. Refills 20s.${wcStatus}</div><div class="ug-bottom"><span class="ug-cost">🪙100</span><button class="ug-btn"${wcOwned||state.coins<100?' disabled':''}>${wcOwned?'Owned':'Buy'}</button></div>`;
+  wcCard.innerHTML = `<div class="ug-name">💧 Watering Can</div><div class="ug-desc">Drag charge from inventory onto a growing crop. +25% speed &amp; value. Refills 20s.${wcStatus}</div><div class="ug-bottom"><span class="ug-cost">🪙100</span><button class="ug-btn"${wcOwned||state.coins<100?' disabled':''}>${wcOwned?'Owned':'Buy'}</button></div>`;
   if (!wcOwned) {
     wcCard.querySelector('.ug-btn').addEventListener('click', e => {
       e.stopPropagation();
@@ -735,50 +1100,43 @@ function renderItems() {
       state.wellFull = true;
       document.getElementById('well').style.display = 'flex';
       updateWell();
-      updateCoins(); save();
+      updateCoins(); renderInventory(); save();
     });
   }
   container.appendChild(wcCard);
 
-  // — Cage —
-  const cageCount = state.cageCount || 0;
-  const cageCard  = mk('div','upgrade-card');
-  const isPlacing = itemMode === 'cage';
-  cageCard.innerHTML = `<div class="ug-name">🔒 Cage${cageCount>0?` <span style="opacity:.6;font-size:10px">(${cageCount} held)</span>`:''}</div><div class="ug-desc">75% crow resistance on a tile. Stays until removed.</div><div class="ug-bottom"><span class="ug-cost">🪙150</span><div style="display:flex;gap:4px"><button class="ug-btn cage-buy-btn"${state.coins<150?' disabled':''}>Buy</button>${cageCount>0?`<button class="ug-btn cage-place-btn${isPlacing?' active':''}">Place</button>`:''}</div></div>`;
+  // Cage
+  const cageCard = mk('div','upgrade-card');
+  cageCard.innerHTML = `<div class="ug-name">🔒 Cage</div><div class="ug-desc">Drag from inventory onto a tile for 75% crow resistance. Stays until removed.</div><div class="ug-bottom"><span class="ug-cost">🪙150</span><button class="ug-btn cage-buy-btn"${state.coins<150?' disabled':''}>Buy</button></div>`;
   cageCard.querySelector('.cage-buy-btn').addEventListener('click', e => {
     e.stopPropagation();
     if (state.coins < 150) return;
     state.coins -= 150; state.cageCount = (state.cageCount||0) + 1;
-    updateCoins(); save();
+    updateCoins(); renderInventory(); save();
   });
-  if (cageCount > 0) {
-    cageCard.querySelector('.cage-place-btn').addEventListener('click', e => {
-      e.stopPropagation();
-      itemMode = itemMode === 'cage' ? null : 'cage';
-      updateModeIndicator(); renderItems();
-    });
-  }
   container.appendChild(cageCard);
 
-  // — Common Fertilizer —
-  const fertCharges = state.fertCharges || 0;
+  // Common Fertilizer
   const fertCard = mk('div','upgrade-card');
-  const isFertMode = itemMode === 'fertilizer';
-  fertCard.innerHTML = `<div class="ug-name">🌿 Common Fertilizer${fertCharges>0?` <span style="opacity:.6;font-size:10px">(${fertCharges} charge${fertCharges!==1?'s':''})</span>`:''}</div><div class="ug-desc">Permanently fertilize a tile. All crops grown there are 25% faster.</div><div class="ug-bottom"><span class="ug-cost">🪙500</span><div style="display:flex;gap:4px"><button class="ug-btn fert-buy-btn"${state.coins<500?' disabled':''}>Buy</button>${fertCharges>0?`<button class="ug-btn fert-use-btn${isFertMode?' active':''}">Use</button>`:''}</div></div>`;
+  fertCard.innerHTML = `<div class="ug-name">🌿 Common Fertilizer</div><div class="ug-desc">Drag from inventory onto any tile. Crops grown there are 25% faster permanently.</div><div class="ug-bottom"><span class="ug-cost">🪙500</span><button class="ug-btn fert-buy-btn"${state.coins<500?' disabled':''}>Buy</button></div>`;
   fertCard.querySelector('.fert-buy-btn').addEventListener('click', e => {
     e.stopPropagation();
     if (state.coins < 500) return;
     state.coins -= 500; state.fertCharges = (state.fertCharges||0) + 1;
-    updateCoins(); save();
+    updateCoins(); renderInventory(); save();
   });
-  if (fertCharges > 0) {
-    fertCard.querySelector('.fert-use-btn').addEventListener('click', e => {
-      e.stopPropagation();
-      itemMode = itemMode === 'fertilizer' ? null : 'fertilizer';
-      updateModeIndicator(); renderItems();
-    });
-  }
   container.appendChild(fertCard);
+
+  // Uncommon Fertilizer
+  const ufertCard = mk('div','upgrade-card');
+  ufertCard.innerHTML = `<div class="ug-name">⚗️ Uncommon Fertilizer</div><div class="ug-desc">Drag from inventory onto any tile. Crops grown there are 40% faster permanently.</div><div class="ug-bottom"><span class="ug-cost">🪙2000</span><button class="ug-btn ufert-buy-btn"${state.coins<2000?' disabled':''}>Buy</button></div>`;
+  ufertCard.querySelector('.ufert-buy-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    if (state.coins < 2000) return;
+    state.coins -= 2000; state.uncommonFertCharges = (state.uncommonFertCharges||0) + 1;
+    updateCoins(); renderInventory(); save();
+  });
+  container.appendChild(ufertCard);
 }
 
 // ══════════════════════════════
@@ -786,11 +1144,11 @@ function renderItems() {
 // ══════════════════════════════
 function updateSellBoxStyle() {
   const sb = document.getElementById('sell-box');
-  if (state.upgrades && state.upgrades.ironSellBox) {
-    sb.classList.add('iron');
-  } else {
-    sb.classList.remove('iron');
-  }
+  sb.classList.remove('iron','steel','titanium','diamond');
+  if (state.upgrades.diamondSellBox)       sb.classList.add('diamond');
+  else if (state.upgrades.titaniumSellBox) sb.classList.add('titanium');
+  else if (state.upgrades.steelSellBox)    sb.classList.add('steel');
+  else if (state.upgrades.ironSellBox)     sb.classList.add('iron');
 }
 
 // ══════════════════════════════
@@ -801,12 +1159,11 @@ function renderUpgrades() {
   container.innerHTML = '';
   const sorted = [...UPGRADES].sort((a,b) => a.cost - b.cost);
   sorted.forEach(u => {
-    // Chain visibility: only show if chain is null or prerequisite is bought
     if (u.chain !== null && u.chain !== undefined && !state.upgrades[u.chain]) return;
     const bought    = !!state.upgrades[u.id];
     const canAfford = state.coins >= u.cost && !bought;
     const card = mk('div','upgrade-card' + (bought ? ' bought' : ''));
-    card.innerHTML = `<div class="ug-name">${u.name}</div><div class="ug-desc">${u.desc}</div><div class="ug-bottom"><span class="ug-cost">🪙${u.cost}</span><button class="ug-btn"${bought||!canAfford?' disabled':''}>${bought?'Owned':'Buy'}</button></div>`;
+    card.innerHTML = `<div class="ug-name">${u.name}</div><div class="ug-desc">${u.desc}</div><div class="ug-bottom"><span class="ug-cost">🪙${u.cost.toLocaleString()}</span><button class="ug-btn"${bought||!canAfford?' disabled':''}>${bought?'Owned':'Buy'}</button></div>`;
     if (!bought) {
       card.querySelector('.ug-btn').addEventListener('click', e => {
         e.stopPropagation();
@@ -820,22 +1177,21 @@ function renderUpgrades() {
           state.coins -= u.cost;
           state.upgrades[u.id] = true;
         }
-        if (u.type === 'expand') {
-          state.expanded = true; buildGrid(); renderAllTiles();
-          showBanner('🌱 The farm has expanded.');
-        }
-        if (u.type === 'expandBottom') {
-          state.expandedBottom = true; buildGrid(); renderAllTiles();
-          showBanner('🌱 The farm has expanded.');
-        }
-        if (u.type === 'ironSellBox') {
+        // Post-purchase effects
+        if (u.type === 'expand')       { state.expanded = true;       buildGrid(); renderAllTiles(); showBanner('🌱 The farm has expanded.'); }
+        if (u.type === 'expandBottom') { state.expandedBottom = true;  buildGrid(); renderAllTiles(); showBanner('🌱 The farm has expanded.'); }
+        if (u.type === 'expand2ndCol') { state.expand2ndCol = true;    buildGrid(); renderAllTiles(); showBanner('🌱 The farm has expanded.'); }
+        if (u.type === 'expand2ndRow') { state.expand2ndRow = true;    buildGrid(); renderAllTiles(); showBanner('🌱 The farm has expanded.'); }
+        if (u.type === 'expand3rdCol') { state.expand3rdCol = true;    buildGrid(); renderAllTiles(); showBanner('🌱 The farm has expanded.'); }
+        if (u.type === 'expand3rdRow') { state.expand3rdRow = true;    buildGrid(); renderAllTiles(); showBanner('🌱 The farm has expanded.'); }
+        if (u.type === 'ironSellBox' || u.type === 'steelSellBox' || u.type === 'titaniumSellBox' || u.type === 'diamondSellBox') {
           updateSellBoxStyle();
-          showBanner('⚙️ The sell box has been reinforced with iron.');
+          showBanner(`⚙️ ${u.name} activated.`);
         }
+        if (u.type === 'crank' || u.type === 'crankUp') updateCrankDisplay();
         log(`⬆️ ${u.name} purchased`);
         updateCoins();
         renderAllTiles();
-        if (u.type === 'crank' || u.type === 'crankUpI') updateCrankDisplay();
         save();
       });
     }
@@ -882,9 +1238,8 @@ function updateSellTimer() {
 function tickSellBox() {
   if (!state.sellQueue.length) return;
   if (Date.now() >= state.sellNextAt) {
-    const maxSell = state.upgrades.ironSellBox ? 2 : 1;
-    let totalCoins = 0;
-    let sold = 0;
+    const maxSell = getSellAtOnce();
+    let totalCoins = 0, sold = 0;
     for (let s = 0; s < maxSell && state.sellQueue.length > 0; s++) {
       const item = state.sellQueue.shift();
       let coins;
@@ -922,7 +1277,11 @@ function updateCrankDisplay() {
   if (!state.upgrades.windUpCrank) { box.style.display = 'none'; return; }
   box.style.display = 'flex';
   document.getElementById('crank-label').textContent = '⚙️ ' + crankMult.toFixed(2) + 'x';
-  box.classList.toggle('iron', !!state.upgrades.crankUpI);
+  box.classList.remove('iron','steel','titanium','diamond');
+  if (state.upgrades.diamondCrank)       box.classList.add('diamond');
+  else if (state.upgrades.titaniumCrank) box.classList.add('titanium');
+  else if (state.upgrades.steelCrank)    box.classList.add('steel');
+  else if (state.upgrades.ironCrank)     box.classList.add('iron');
   positionCrank();
 }
 
@@ -943,16 +1302,15 @@ document.getElementById('crank-svg').addEventListener('click', () => {
 // WELL & WATERING
 // ══════════════════════════════
 function updateWell() {
-  const well      = document.getElementById('well');
-  const waterEl   = document.getElementById('well-water');
-  const labelEl   = document.getElementById('well-label');
+  const well    = document.getElementById('well');
+  const waterEl = document.getElementById('well-water');
+  const labelEl = document.getElementById('well-label');
   if (!state.items || !state.items.wateringCan) { well.style.display = 'none'; return; }
   well.style.display = 'flex';
   if (state.wellFull) {
     waterEl.setAttribute('fill','#3A8FD4'); waterEl.setAttribute('opacity','0.9');
     labelEl.textContent = '💧 Full'; labelEl.style.color = '#6cf';
-    well.style.cursor = 'pointer';
-    well.classList.toggle('well-active', itemMode === 'water');
+    well.style.cursor = 'default';
   } else {
     waterEl.setAttribute('fill','#888'); waterEl.setAttribute('opacity','0.3');
     const rem = Math.max(0, (state.wellRefillAt - Date.now()) / 1000);
@@ -966,10 +1324,9 @@ function updateWellTick() {
   if (!state.items || !state.items.wateringCan) return;
   if (!state.wellFull && state.wellRefillAt && Date.now() >= state.wellRefillAt) {
     state.wellFull = true; state.wellRefillAt = 0;
-    updateWell(); renderItems(); save();
+    updateWell(); renderItems(); renderInventory(); save();
     return;
   }
-  // Just update the countdown label
   if (!state.wellFull) {
     const labelEl = document.getElementById('well-label');
     const rem = Math.max(0, (state.wellRefillAt - Date.now()) / 1000);
@@ -978,32 +1335,28 @@ function updateWellTick() {
 }
 
 document.getElementById('well').addEventListener('mousedown', e => {
-  e.stopPropagation();
-  if (!state.items || !state.items.wateringCan || !state.wellFull) return;
-  itemMode = itemMode === 'water' ? null : 'water';
-  updateModeIndicator(); updateWell();
+  e.stopPropagation(); // well is display-only; water is applied via inventory drag
 });
 
 function applyWater(idx) {
   const td = state.tiles[idx];
   if (!td || isReady(td, idx)) return;
-  // If already watered → drown
   if (state.tilesWatered && state.tilesWatered[idx]) {
     drownTile(idx);
     return;
   }
-  const baseGT   = SEEDS[td.seed].grow * getGrowMult() * fertFactor(idx);
-  const newGT    = baseGT * 0.75;
-  const elapsed  = (Date.now() - td.plantedAt) / 1000;
-  const oldRem   = Math.max(0, baseGT - elapsed);
-  const newRem   = oldRem * 0.75;
-  td.plantedAt   = Date.now() - (newGT - newRem) * 1000;
-  td.sellBonus   = 1.25;
+  const baseGT  = SEEDS[td.seed].grow * getGrowMult() * fertFactor(idx);
+  const newGT   = baseGT * 0.75;
+  const elapsed = (Date.now() - td.plantedAt) / 1000;
+  const oldRem  = Math.max(0, baseGT - elapsed);
+  const newRem  = oldRem * 0.75;
+  td.plantedAt  = Date.now() - (newGT - newRem) * 1000;
+  td.sellBonus  = 1.25;
   if (!state.tilesWatered) state.tilesWatered = {};
   state.tilesWatered[idx] = true;
   state.wellFull     = false;
   state.wellRefillAt = Date.now() + 20000;
-  renderTile(idx); updateWell(); renderItems();
+  renderTile(idx); updateWell(); renderItems(); renderInventory();
   log(`💧 ${SEEDS[td.seed].name} watered (+25% value, +25% speed)`);
   save();
 }
@@ -1014,8 +1367,8 @@ function drownTile(idx) {
   const growMult = getGrowMult();
   const base = SEEDS[td.seed].grow;
   const ff = fertFactor(idx);
-  const currentGT = base * growMult * ff * 0.75; // was watered
-  const drownedGT = base * growMult * ff;         // fertilized speed (water removed)
+  const currentGT = base * growMult * ff * 0.75;
+  const drownedGT = base * growMult * ff;
   const elapsed = (Date.now() - td.plantedAt) / 1000;
   const currentRem = Math.max(0, currentGT - elapsed);
   const newRem = currentRem * (drownedGT / currentGT);
@@ -1025,29 +1378,18 @@ function drownTile(idx) {
   delete state.tilesWatered[idx];
   state.wellFull = false;
   state.wellRefillAt = Date.now() + 20000;
-  renderTile(idx); updateWell(); renderItems();
+  renderTile(idx); updateWell(); renderItems(); renderInventory();
   log(`💀 ${SEEDS[td.seed].name} was drowned! Value severely reduced.`);
   save();
 }
 
 // ══════════════════════════════
-// MODE INDICATOR
+// MODE INDICATOR (unused — items now use drag)
 // ══════════════════════════════
 function updateModeIndicator() {
-  const el = document.getElementById('mode-ind');
-  if (!itemMode) { el.style.display = 'none'; document.body.style.cursor = ''; return; }
-  el.style.display = 'block';
-  document.body.style.cursor = 'crosshair';
-  if (itemMode === 'water')      el.textContent = '💧 Click a growing crop to water it (ESC to cancel)';
-  if (itemMode === 'cage')       el.textContent = '🔒 Click a tile to place a cage (ESC to cancel)';
-  if (itemMode === 'fertilizer') el.textContent = '🌿 Click a tile to fertilize it (ESC to cancel)';
+  document.getElementById('mode-ind').style.display = 'none';
+  document.body.style.cursor = '';
 }
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && itemMode) {
-    itemMode = null; updateModeIndicator(); updateWell(); renderItems();
-  }
-});
 
 // ══════════════════════════════
 // LOOSE CROPS
@@ -1157,9 +1499,7 @@ function weedSpawn() {
   const tc = tileCount();
   const empty = [];
   for (let i = 0; i < tc; i++) {
-    if (!state.tiles[i] && !(state.weeds && state.weeds[i] !== undefined)) {
-      empty.push(i);
-    }
+    if (!state.tiles[i] && !(state.weeds && state.weeds[i] !== undefined)) empty.push(i);
   }
   if (!empty.length) return;
   const idx = empty[Math.floor(Math.random() * empty.length)];
@@ -1190,23 +1530,17 @@ function showTileMenu(idx, x, y) {
   const menu = document.getElementById('tile-menu');
   menu.innerHTML = '';
   if (isCaged) {
-    const btn = mk('button');
-    btn.className = 'tmenu-btn';
-    btn.textContent = '🔓 Remove Cage';
+    const btn = mk('button'); btn.className = 'tmenu-btn'; btn.textContent = '🔓 Remove Cage';
     btn.addEventListener('mousedown', e => {
       e.stopPropagation();
       const ci = state.cages.indexOf(idx);
       if (ci !== -1) { state.cages.splice(ci, 1); state.cageCount = (state.cageCount||0) + 1; }
-      renderTile(idx); renderItems();
-      log('🔒 Cage removed, returned to inventory');
-      save(); hideTileMenu();
+      renderTile(idx); renderItems(); log('🔒 Cage removed, returned to inventory'); save(); hideTileMenu();
     });
     menu.appendChild(btn);
   }
   if (isFert) {
-    const btn = mk('button');
-    btn.className = 'tmenu-btn';
-    btn.textContent = '🌿 Remove Fertilizer';
+    const btn = mk('button'); btn.className = 'tmenu-btn'; btn.textContent = '🌿 Remove Fertilizer';
     btn.addEventListener('mousedown', e => {
       e.stopPropagation();
       delete state.fertilizedTiles[idx];
@@ -1218,9 +1552,7 @@ function showTileMenu(idx, x, y) {
   menu.style.top  = Math.min(y, window.innerHeight - 90)  + 'px';
   menu.style.display = 'block';
 }
-function hideTileMenu() {
-  document.getElementById('tile-menu').style.display = 'none';
-}
+function hideTileMenu() { document.getElementById('tile-menu').style.display = 'none'; }
 
 // ══════════════════════════════
 // TILE INTERACTION
@@ -1228,7 +1560,6 @@ function hideTileMenu() {
 function onTileDown(e) {
   const idx = parseInt(e.currentTarget.dataset.idx);
 
-  // Weed click — highest priority
   if (state.weeds && state.weeds[idx] !== undefined) {
     e.stopPropagation();
     state.weeds[idx].clicks++;
@@ -1241,47 +1572,6 @@ function onTileDown(e) {
   }
 
   const td = state.tiles[idx];
-
-  if (itemMode === 'water') {
-    e.stopPropagation();
-    if (td && !isReady(td, idx)) applyWater(idx);
-    itemMode = null; updateModeIndicator(); updateWell();
-    return;
-  }
-  if (itemMode === 'cage') {
-    e.stopPropagation();
-    if (!state.cages.includes(idx) && state.cageCount > 0) {
-      state.cages.push(idx); state.cageCount--;
-      renderTile(idx); renderItems(); save();
-    }
-    itemMode = null; updateModeIndicator();
-    return;
-  }
-  if (itemMode === 'fertilizer') {
-    e.stopPropagation();
-    const alreadyFert = !!(state.fertilizedTiles && state.fertilizedTiles[idx]);
-    if (state.fertCharges > 0 && !alreadyFert) {
-      if (!state.fertilizedTiles) state.fertilizedTiles = {};
-      state.fertilizedTiles[idx] = true;
-      state.fertCharges--;
-      // If a crop is actively growing, proportionally speed it up
-      if (td && !isReady(td, idx)) {
-        const growMult = getGrowMult();
-        const wf = waterFactor(idx);
-        const base = SEEDS[td.seed].grow;
-        const oldGT = base * growMult * wf;
-        const newGT = oldGT * 0.75;
-        const elapsed = (Date.now() - td.plantedAt) / 1000;
-        const oldRem = Math.max(0, oldGT - elapsed);
-        const newRem = oldRem * 0.75;
-        td.plantedAt = Date.now() - (newGT - newRem) * 1000;
-      }
-      log(`🌿 Plot fertilized — all future crops here grow faster`);
-      renderTile(idx); renderItems(); save();
-    }
-    itemMode = null; updateModeIndicator();
-    return;
-  }
 
   if (!td) {
     deselect();
@@ -1346,14 +1636,30 @@ document.addEventListener('mousemove', e => {
   clearHighlights();
   const panel   = document.getElementById('panel');
   const sellBox = document.getElementById('sell-box');
-  if (drag.source === 'shop') {
+  if (drag.source === 'shop' || drag.source === 'seedInventory') {
     tileEls().forEach(t => {
       const i = parseInt(t.dataset.idx);
-      if (!state.tiles[i] && !(state.weeds && state.weeds[i] !== undefined) && hit(e.clientX, e.clientY, t)) t.classList.add('drop-hi');
+      if (!state.tiles[i] && !(state.weeds && state.weeds[i] !== undefined) && hit(e.clientX, e.clientY, t))
+        t.classList.add('drop-hi');
+    });
+  } else if (drag.source === 'item') {
+    tileEls().forEach(t => {
+      if (!hit(e.clientX, e.clientY, t)) return;
+      const i = parseInt(t.dataset.idx);
+      const weed = state.weeds && state.weeds[i] !== undefined;
+      if (weed) return;
+      const td = state.tiles[i];
+      const it = drag.itemType;
+      let valid = false;
+      if (it === 'water')       valid = !!(td && !isReady(td, i));
+      if (it === 'cage')        valid = !state.cages.includes(i);
+      if (it === 'fertilizer')  valid = !(state.fertilizedTiles && state.fertilizedTiles[i]);
+      if (it === 'uncommonFert')valid = !(state.uncommonFertilizedTiles && state.uncommonFertilizedTiles[i]);
+      if (valid) t.classList.add('drop-hi');
     });
   } else {
-    if (hit(e.clientX, e.clientY, sellBox))                           sellBox.classList.add('drop-hi');
-    else if (panelExpanded && hit(e.clientX, e.clientY, panel))       panel.classList.add('drop-hi');
+    if (hit(e.clientX, e.clientY, sellBox))                          sellBox.classList.add('drop-hi');
+    else if (panelExpanded && hit(e.clientX, e.clientY, panel))      panel.classList.add('drop-hi');
   }
 });
 
@@ -1368,13 +1674,107 @@ document.addEventListener('mouseup', e => {
   const panel   = document.getElementById('panel');
   const sellBox = document.getElementById('sell-box');
 
-  if (source === 'shop') {
+  if (source === 'item') {
+    const it = drag.itemType;
+    let applied = false;
+    tileEls().forEach(t => {
+      if (applied) return;
+      if (!hit(e.clientX, e.clientY, t)) return;
+      const i = parseInt(t.dataset.idx);
+      if (state.weeds && state.weeds[i] !== undefined) return;
+      const td = state.tiles[i];
+
+      if (it === 'water') {
+        if (td && !isReady(td, i)) { applyWater(i); applied = true; }
+
+      } else if (it === 'cage') {
+        if (!state.cages.includes(i)) {
+          state.cages.push(i);
+          log('🔒 Cage placed on tile');
+          renderTile(i); renderInventory(); renderItems(); save();
+          applied = true;
+        }
+
+      } else if (it === 'fertilizer') {
+        if (!(state.fertilizedTiles && state.fertilizedTiles[i])) {
+          if (!state.fertilizedTiles) state.fertilizedTiles = {};
+          const oldFF = fertFactor(i);
+          state.fertilizedTiles[i] = true;
+          const newFF = fertFactor(i);
+          if (td && !isReady(td, i)) {
+            const base = SEEDS[td.seed].grow, gm = getGrowMult(), wf = waterFactor(i);
+            const oldGT = base * gm * wf * oldFF, newGT = base * gm * wf * newFF;
+            if (oldGT > 0) {
+              const el2 = (Date.now() - td.plantedAt) / 1000;
+              const newRem = Math.max(0, oldGT - el2) * (newGT / oldGT);
+              td.plantedAt = Date.now() - (newGT - newRem) * 1000;
+            }
+          }
+          log('🌿 Plot fertilized — crops grow 25% faster here');
+          renderTile(i); renderInventory(); renderItems(); save();
+          applied = true;
+        }
+
+      } else if (it === 'uncommonFert') {
+        if (!(state.uncommonFertilizedTiles && state.uncommonFertilizedTiles[i])) {
+          if (!state.uncommonFertilizedTiles) state.uncommonFertilizedTiles = {};
+          const oldFF = fertFactor(i);
+          state.uncommonFertilizedTiles[i] = true;
+          const newFF = fertFactor(i);
+          if (td && !isReady(td, i)) {
+            const base = SEEDS[td.seed].grow, gm = getGrowMult(), wf = waterFactor(i);
+            const oldGT = base * gm * wf * oldFF, newGT = base * gm * wf * newFF;
+            if (oldGT > 0) {
+              const el2 = (Date.now() - td.plantedAt) / 1000;
+              const newRem = Math.max(0, oldGT - el2) * (newGT / oldGT);
+              td.plantedAt = Date.now() - (newGT - newRem) * 1000;
+            }
+          }
+          log('⚗️ Plot uncommon fertilized — crops grow 40% faster here');
+          renderTile(i); renderInventory(); renderItems(); save();
+          applied = true;
+        }
+      }
+    });
+
+    // Return item to inventory on invalid/missed drop
+    if (!applied) {
+      if (it === 'water')        { state.wellFull = true; updateWell(); }
+      else if (it === 'cage')    state.cageCount++;
+      else if (it === 'fertilizer')   state.fertCharges++;
+      else if (it === 'uncommonFert') state.uncommonFertCharges++;
+      renderInventory(); renderItems();
+    }
+    endDrag(); return;
+  }
+
+  if (source === 'seedInventory') {
+    // Drag seed from inventory → drop on empty tile to plant (free, cost already paid)
     let planted = false;
     tileEls().forEach(t => {
       if (planted) return;
       const i = parseInt(t.dataset.idx);
       if (!state.tiles[i] && !(state.weeds && state.weeds[i] !== undefined) && hit(e.clientX, e.clientY, t)) {
-        const cost = SEEDS[seed].cost;
+        state.tiles[i] = { seed, plantedAt: Date.now() };
+        renderTile(i); save();
+        log(`🌱 Planted ${SEEDS[seed].name}`);
+        planted = true;
+      }
+    });
+    if (!planted) {
+      // Return to seed inventory
+      if (!state.seedInventory) state.seedInventory = {};
+      state.seedInventory[seed] = (state.seedInventory[seed] || 0) + 1;
+      renderInventory(); save();
+    }
+  } else if (source === 'shop') {
+    // Legacy path — shop drag no longer triggered but kept for safety
+    let planted = false;
+    tileEls().forEach(t => {
+      if (planted) return;
+      const i = parseInt(t.dataset.idx);
+      if (!state.tiles[i] && !(state.weeds && state.weeds[i] !== undefined) && hit(e.clientX, e.clientY, t)) {
+        const cost = SEEDS[seed].cost || 0;
         if (state.coins >= cost) {
           state.coins -= cost;
           state.tiles[i] = { seed, plantedAt: Date.now() };
@@ -1421,26 +1821,21 @@ function updateTimers() {
     const wasReady = prevReadyState[i] || false;
     const nowReady = isReady(td, i);
     if (!wasReady && nowReady) {
-      // Transition: growing → ready — do full re-render
       prevReadyState[i] = true;
       renderTile(i);
     } else if (!nowReady) {
-      // Still growing — just update timer text
       const el = els[i];
       if (!el) continue;
       const timerEl = el.querySelector('.t-timer');
       if (timerEl) timerEl.textContent = fmt(remSec(td, i));
       prevReadyState[i] = false;
     }
-    // If already ready and was already ready — no action needed
   }
 }
 
 // ══════════════════════════════
 // GAME LOOPS
 // ══════════════════════════════
-
-// 50ms loop — timers, sell timer, crank label, well countdown, sell box tick
 setInterval(() => {
   updateTimers();
   updateSellTimer();
@@ -1449,10 +1844,8 @@ setInterval(() => {
   tickSellBox();
 }, 50);
 
-// 1000ms loop — full tile render, crank decay, crow, weeds
 setInterval(() => {
   renderAllTiles();
-  // Crank decay
   if (state.upgrades.windUpCrank && crankMult > 1.0) {
     const excess = crankMult - 1;
     crankMult = Math.max(1.0, 1 + excess / (1 + excess * 0.08));
@@ -1474,21 +1867,65 @@ buildGrid();
 renderAllTiles();
 renderInventory();
 renderSeeds();
+renderSeedBags();
 renderItems();
 renderUpgrades();
 renderSellBox();
 renderLoose();
 updateCoins();
+updateStageDisplay();
 applyPanelState();
 updateCrankDisplay();
 updateWell();
 updateModeIndicator();
 updateSellBoxStyle();
-// Init prevReadyState
 for (let i = 0; i < tileCount(); i++) {
   const td = state.tiles[i];
   prevReadyState[i] = td ? isReady(td, i) : false;
 }
+
+// ══════════════════════════════
+// SETTINGS
+// ══════════════════════════════
+(function () {
+  const btn      = document.getElementById('settings-btn');
+  const backdrop = document.getElementById('settings-backdrop');
+  const panel    = document.getElementById('settings-panel');
+  const resetBtn = document.getElementById('reset-btn');
+  let confirmed  = false;
+
+  function openSettings() {
+    confirmed = false;
+    resetBtn.textContent = 'Reset Data';
+    backdrop.style.display = 'block';
+    panel.style.display    = 'block';
+  }
+
+  function closeSettings() {
+    confirmed = false;
+    resetBtn.textContent   = 'Reset Data';
+    backdrop.style.display = 'none';
+    panel.style.display    = 'none';
+  }
+
+  btn.addEventListener('click', e => { e.stopPropagation(); openSettings(); });
+
+  backdrop.addEventListener('click', closeSettings);
+
+  // Prevent panel clicks from bubbling to backdrop
+  panel.addEventListener('click', e => e.stopPropagation());
+
+  resetBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (!confirmed) {
+      confirmed = true;
+      resetBtn.textContent = 'Are you sure?';
+    } else {
+      localStorage.clear();
+      location.reload();
+    }
+  });
+}());
 </script>
 </body>
 </html>
