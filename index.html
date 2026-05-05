@@ -348,11 +348,11 @@ const BASIC_SEEDS = ['potato','carrot','wheat','sunflower'];
 // SEED BAGS
 // ══════════════════════════════
 const SEED_BAGS = [
-  { id:'fieldBag',     name:'Field Bag',     icon:'🎒', cost:25,
+  { id:'fieldBag',     name:'Field Bag',     icon:'🎒', cost:50,
     seeds:['pumpkin','chard','moonbloom'],         odds:[0.70,0.20,0.10] },
-  { id:'forestBag',    name:'Forest Bag',    icon:'🌲', cost:120,
+  { id:'forestBag',    name:'Forest Bag',    icon:'🌲', cost:450,
     seeds:['starfruit','thornvine','glowshroom'],  odds:[0.65,0.22,0.13] },
-  { id:'celestialBag', name:'Celestial Bag', icon:'✨', cost:600,
+  { id:'celestialBag', name:'Celestial Bag', icon:'✨', cost:2650,
     seeds:['voidbloom','aetherfern','solarspike'], odds:[0.68,0.20,0.12] },
 ];
 
@@ -864,7 +864,7 @@ function renderSeeds() {
     const gt = seed.grow * getGrowMult();
     const canAfford = state.coins >= seed.cost;
     const row = mk('div','seed-row');
-    row.innerHTML = `<span class="sr-icon">${seed.seedIcon}</span><div class="sr-info"><span class="sr-name">${seed.name}</span><span class="sr-meta">🪙${seed.cost} · ${fmt(gt)} · sells 🪙${seed.sell}</span></div>`;
+    row.innerHTML = `<span class="sr-icon">${seed.seedIcon}</span><div class="sr-info"><span class="sr-name">${seed.name}</span><span class="sr-meta">🪙${seed.cost} - ${fmt(gt)}`;
     const btn = mk('button','seed-buy-btn');
     btn.textContent = 'Buy';
     btn.disabled = !canAfford;
@@ -1107,11 +1107,11 @@ function renderItems() {
 
   // Cage
   const cageCard = mk('div','upgrade-card');
-  cageCard.innerHTML = `<div class="ug-name">🔒 Cage</div><div class="ug-desc">Drag from inventory onto a tile for 75% crow resistance. Stays until removed.</div><div class="ug-bottom"><span class="ug-cost">🪙150</span><button class="ug-btn cage-buy-btn"${state.coins<150?' disabled':''}>Buy</button></div>`;
+  cageCard.innerHTML = `<div class="ug-name">🔒 Cage</div><div class="ug-desc">Drag from inventory onto a tile for 75% crow resistance. Stays until removed.</div><div class="ug-bottom"><span class="ug-cost">🪙250</span><button class="ug-btn cage-buy-btn"${state.coins<250?' disabled':''}>Buy</button></div>`;
   cageCard.querySelector('.cage-buy-btn').addEventListener('click', e => {
     e.stopPropagation();
-    if (state.coins < 150) return;
-    state.coins -= 150; state.cageCount = (state.cageCount||0) + 1;
+    if (state.coins < 250) return;
+    state.coins -= 250; state.cageCount = (state.cageCount||0) + 1;
     updateCoins(); renderInventory(); save();
   });
   container.appendChild(cageCard);
