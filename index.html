@@ -70,7 +70,7 @@ body {
 /* ── SEED ROWS ── */
 .seed-row { display:flex; align-items:center; gap:9px; padding:9px 12px; color:#fff; }
 .seed-row:hover { background:rgba(0,0,0,.12); }
-.seed-row .sr-icon { font-size:19px; line-height:1; }
+.seed-row .sr-icon { width:48px; height:48px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .seed-row .sr-info { display:flex; flex-direction:column; flex:1; min-width:0; }
 .seed-row .sr-name { font-size:12px; font-weight:700; }
 .seed-row .sr-meta { font-size:10px; opacity:.6; margin-top:1px; }
@@ -80,7 +80,7 @@ body {
 
 /* ── INVENTORY ── */
 #inv-grid { display:flex; flex-wrap:wrap; gap:8px; padding:8px 12px 14px; }
-.inv-icon { position:relative; width:42px; height:42px; background:rgba(0,0,0,.2); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:22px; cursor:grab; }
+.inv-icon { position:relative; width:42px; height:42px; background:rgba(0,0,0,.2); border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:grab; }
 .inv-icon:active { cursor:grabbing; }
 .inv-badge { position:absolute; top:-5px; right:-5px; background:#b03020; color:#fff; font-size:9px; font-weight:700; border-radius:10px; padding:1px 4px; min-width:15px; text-align:center; line-height:13px; pointer-events:none; }
 .inv-icon::after { content:attr(data-name); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:rgba(0,0,0,.8); color:#fff; font-size:11px; padding:3px 8px; border-radius:4px; white-space:nowrap; pointer-events:none; opacity:0; transition:opacity .15s; z-index:999; }
@@ -90,7 +90,7 @@ body {
 
 /* ── SEED INVENTORY SLOTS ── */
 .inv-seed-slot { display:flex; flex-direction:column; align-items:center; gap:3px; }
-.inv-seed-icon { position:relative; width:42px; height:42px; background:rgba(0,0,0,.2); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:22px; cursor:grab; border:1px solid rgba(255,255,255,.1); }
+.inv-seed-icon { position:relative; width:42px; height:42px; background:rgba(0,0,0,.2); border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:grab; border:1px solid rgba(255,255,255,.1); }
 .inv-seed-icon:active { cursor:grabbing; }
 .inv-seed-icon::after { content:attr(data-name); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:rgba(0,0,0,.8); color:#fff; font-size:11px; padding:3px 8px; border-radius:4px; white-space:nowrap; pointer-events:none; opacity:0; transition:opacity .15s; z-index:999; }
 .inv-seed-icon:hover::after { opacity:1; }
@@ -100,6 +100,7 @@ body {
 /* ── BAG INVENTORY SLOTS ── */
 .inv-bag-slot { display:flex; flex-direction:column; align-items:center; gap:3px; }
 .inv-bag-icon { position:relative; width:42px; height:42px; background:rgba(80,50,20,.4); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:22px; cursor:pointer; border:1px solid rgba(255,200,100,.25); }
+/* inv-bag-icon keeps font-size for bag emoji (non-crop) */
 .inv-bag-icon::after { content:attr(data-name); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:rgba(0,0,0,.8); color:#fff; font-size:11px; padding:3px 8px; border-radius:4px; white-space:nowrap; pointer-events:none; opacity:0; transition:opacity .15s; z-index:999; }
 .inv-bag-icon:hover::after { opacity:1; }
 .inv-bag-open { background:#8B6020; color:#fff; border:none; border-radius:4px; padding:2px 5px; font-size:9px; font-weight:700; cursor:pointer; white-space:nowrap; width:42px; text-align:center; }
@@ -120,7 +121,7 @@ body {
 .tile.tile-drowned { filter:brightness(0.65); }
 .tile.tile-weed { background-color:#3a6a20; cursor:pointer; }
 .tile.tile-weed:hover { background-color:#4a7a28; }
-.tile .t-icon  { font-size:36px; line-height:1; pointer-events:none; }
+.tile .t-icon  { display:flex; align-items:center; justify-content:center; pointer-events:none; }
 .tile .t-timer { font-size:11px; color:rgba(255,255,255,.85); font-weight:700; margin-top:3px; pointer-events:none; }
 .tile .t-xbtn  { position:absolute; top:-13px; left:50%; transform:translateX(-50%); width:22px; height:22px; background:rgba(180,35,35,.9); color:#fff; border-radius:50%; font-size:12px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:10; }
 .tile .t-cage-rm { position:absolute; top:-13px; right:2px; width:22px; height:22px; background:rgba(30,60,140,.9); color:#fff; border-radius:50%; font-size:11px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:10; }
@@ -144,7 +145,7 @@ body {
 #sell-box.diamond #sell-center { color:#60c8ff; text-shadow:0 0 8px rgba(80,160,255,.7); }
 #sell-center { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:13px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#f5e6ce; white-space:nowrap; pointer-events:none; }
 #sell-queue-row { position:absolute; top:6px; left:50%; transform:translateX(-50%); display:flex; gap:2px; align-items:center; max-width:92%; flex-wrap:nowrap; overflow:hidden; }
-.sq-icon { font-size:16px; line-height:1; cursor:grab; }
+.sq-icon { cursor:grab; display:flex; align-items:center; justify-content:center; }
 .sq-icon:active { cursor:grabbing; }
 #sell-cd { position:absolute; bottom:7px; right:10px; font-size:10px; color:rgba(255,255,255,.5); pointer-events:none; }
 
@@ -188,11 +189,11 @@ body {
 #mode-ind { position:fixed; bottom:172px; left:8px; background:rgba(0,0,0,.65); color:#fff; font-size:11px; padding:4px 9px; border-radius:5px; display:none; z-index:270; pointer-events:none; }
 
 /* ── LOOSE CROPS ── */
-.loose-crop { position:fixed; font-size:30px; line-height:1; cursor:grab; z-index:50; transform:translate(-50%,-50%); pointer-events:all; filter:drop-shadow(0 2px 4px rgba(0,0,0,.3)); }
+.loose-crop { position:fixed; cursor:grab; z-index:50; transform:translate(-50%,-50%); pointer-events:all; filter:drop-shadow(0 2px 4px rgba(0,0,0,.3)); display:flex; align-items:center; justify-content:center; }
 .loose-crop:active { cursor:grabbing; }
 
 /* ── GHOST ── */
-#ghost { position:fixed; pointer-events:none; z-index:9999; font-size:38px; line-height:1; transform:translate(-50%,-50%); display:none; }
+#ghost { position:fixed; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); display:none; }
 
 /* ── FLOAT POP ── */
 .fpop { position:fixed; pointer-events:none; z-index:9999; font-size:15px; font-weight:700; color:#FFD700; text-shadow:0 1px 4px rgba(0,0,0,.45); animation:floatUp 1.2s ease forwards; transform:translateX(-50%); white-space:nowrap; }
@@ -321,6 +322,50 @@ body {
 <div id="ghost"></div>
 
 <script>
+// ══════════════════════════════
+// SPRITE SHEET HELPERS
+// sprites.png: 384×832, 3 cols (seed·sprout·grown), 13 rows (one per crop), each cell 128×128
+// ══════════════════════════════
+const SPRITE_ROW = {
+  potato:0, carrot:1, wheat:2, sunflower:3,
+  pumpkin:4, chard:5, moonbloom:6, starfruit:7,
+  thornvine:8, glowshroom:9, voidbloom:10, aetherfern:11, solarspike:12
+};
+const SPRITE_COL = { seed:0, sprout:1, grown:2 };
+
+function getSpriteStyle(cropId, stage, size) {
+  const row = SPRITE_ROW[cropId] ?? 0;
+  const col = SPRITE_COL[stage]  ?? 0;
+  const scale = size / 128;
+  return {
+    backgroundImage:    "url('sprites.png')",
+    backgroundPosition: `${Math.round(col * -128 * scale)}px ${Math.round(row * -128 * scale)}px`,
+    backgroundSize:     `${Math.round(384 * scale)}px ${Math.round(832 * scale)}px`,
+    width:  size + 'px',
+    height: size + 'px',
+    imageRendering: 'pixelated',
+    flexShrink: '0',
+  };
+}
+
+function makeSpriteDiv(cropId, stage, size) {
+  const el = document.createElement('div');
+  Object.assign(el.style, getSpriteStyle(cropId, stage, size));
+  el.style.pointerEvents = 'none';
+  return el;
+}
+
+function spriteHTML(cropId, stage, size) {
+  const row = SPRITE_ROW[cropId] ?? 0;
+  const col = SPRITE_COL[stage]  ?? 0;
+  const scale = size / 128;
+  const bx = Math.round(col * -128 * scale);
+  const by = Math.round(row * -128 * scale);
+  const bw = Math.round(384 * scale);
+  const bh = Math.round(832 * scale);
+  return `<span style="display:inline-block;width:${size}px;height:${size}px;background:url('sprites.png') ${bx}px ${by}px/${bw}px ${bh}px;image-rendering:pixelated;vertical-align:middle;flex-shrink:0;pointer-events:none"></span>`;
+}
+
 // ══════════════════════════════
 // SEED DATA
 // ══════════════════════════════
@@ -474,14 +519,19 @@ const ghost = document.getElementById('ghost');
 
 function startDrag(seed, source, bonus = 1.0, drowned = false) {
   drag = { seed, source, bonus, drowned };
-  ghost.textContent = source === 'seedInventory' ? SEEDS[seed].seedIcon : SEEDS[seed].icon;
+  ghost.innerHTML = '';
+  ghost.appendChild(makeSpriteDiv(seed, source === 'seedInventory' ? 'seed' : 'grown', 64));
   ghost.style.display = 'block';
   deselect();
 }
 const ITEM_ICONS = { water:'💧', cage:'🔒', fertilizer:'🌿', uncommonFert:'⚗️' };
 function startItemDrag(itemType) {
   drag = { itemType, source: 'item', seed: null, bonus: 1, drowned: false };
-  ghost.textContent = ITEM_ICONS[itemType] || '❓';
+  ghost.innerHTML = '';
+  const sp = document.createElement('span');
+  sp.style.cssText = 'font-size:38px;line-height:1;display:block;pointer-events:none';
+  sp.textContent = ITEM_ICONS[itemType] || '❓';
+  ghost.appendChild(sp);
   ghost.style.display = 'block';
   deselect();
 }
@@ -815,7 +865,9 @@ function renderTile(idx) {
     if (td.drowned) el.classList.add('tile-drowned');
   }
 
-  const icon = mk('div','t-icon'); icon.textContent = SEEDS[td.seed].icon; el.appendChild(icon);
+  const icon = mk('div','t-icon');
+  icon.appendChild(makeSpriteDiv(td.seed, rdy ? 'grown' : 'sprout', 56));
+  el.appendChild(icon);
 
   if (!rdy) {
     const timer = mk('div','t-timer'); timer.textContent = fmt(remSec(td, idx)); el.appendChild(timer);
@@ -864,7 +916,7 @@ function renderSeeds() {
     const gt = seed.grow * getGrowMult();
     const canAfford = state.coins >= seed.cost;
     const row = mk('div','seed-row');
-    row.innerHTML = `<span class="sr-icon">${seed.seedIcon}</span><div class="sr-info"><span class="sr-name">${seed.name}</span><span class="sr-meta">🪙${seed.cost} - ${fmt(gt)}`;
+    row.innerHTML = `<span class="sr-icon">${spriteHTML(key, 'seed', 48)}</span><div class="sr-info"><span class="sr-name">${seed.name}</span><span class="sr-meta">🪙${seed.cost} - ${fmt(gt)}`;
     const btn = mk('button','seed-buy-btn');
     btn.textContent = 'Buy';
     btn.disabled = !canAfford;
@@ -891,7 +943,7 @@ function renderSeedBags() {
   SEED_BAGS.forEach(bag => {
     const canAfford = state.coins >= bag.cost;
     const card = mk('div','upgrade-card');
-    const desc = bag.seeds.map((s,i) => `${SEEDS[s].seedIcon} ${SEEDS[s].name} ${Math.round(bag.odds[i]*100)}%`).join(' · ');
+    const desc = bag.seeds.map((s,i) => `${spriteHTML(s, 'seed', 20)} ${SEEDS[s].name} ${Math.round(bag.odds[i]*100)}%`).join(' · ');
     card.innerHTML = `<div class="ug-name">${bag.icon} ${bag.name}</div><div class="ug-desc">Opens for 3 seeds: ${desc}</div><div class="ug-bottom"><span class="ug-cost">🪙${bag.cost}</span><button class="ug-btn"${canAfford?'':' disabled'}>Buy</button></div>`;
     card.querySelector('.ug-btn').addEventListener('click', e => {
       e.stopPropagation();
@@ -1019,7 +1071,7 @@ function renderInventory() {
     const slot = mk('div','inv-seed-slot');
     const icon = mk('div','inv-seed-icon');
     icon.dataset.name = `${seed.name} seed — drag to plant`;
-    icon.innerHTML = `<span style="pointer-events:none">${seed.seedIcon}</span><span class="inv-badge">${qty}</span>`;
+    icon.innerHTML = `${spriteHTML(key, 'seed', 40)}<span class="inv-badge">${qty}</span>`;
     icon.addEventListener('mousedown', e => {
       e.stopPropagation();
       if ((state.seedInventory[key] || 0) < 1) return;
@@ -1052,7 +1104,7 @@ function renderInventory() {
     count++;
     const el = mk('div','inv-icon');
     el.dataset.name = SEEDS[key].name;
-    el.innerHTML = `<span style="pointer-events:none">${SEEDS[key].icon}</span><span class="inv-badge">${qty}</span>`;
+    el.innerHTML = `${spriteHTML(key, 'grown', 40)}<span class="inv-badge">${qty}</span>`;
     el.addEventListener('mousedown', e => {
       e.stopPropagation();
       if ((state.inventory[key] || 0) < 1) return;
@@ -1213,7 +1265,7 @@ function renderSellBox() {
   qRow.innerHTML = '';
   state.sellQueue.forEach((item, idx) => {
     const s = mk('span','sq-icon');
-    s.textContent = SEEDS[item.seed].icon;
+    s.appendChild(makeSpriteDiv(item.seed, 'grown', 24));
     s.addEventListener('mousedown', e => {
       if (drag) return;
       e.stopPropagation();
@@ -1403,7 +1455,7 @@ function renderLoose() {
   document.querySelectorAll('.loose-crop').forEach(el => el.remove());
   state.loose.forEach(item => {
     const el = mk('div','loose-crop');
-    el.textContent = SEEDS[item.seed].icon;
+    el.appendChild(makeSpriteDiv(item.seed, 'grown', 48));
     el.style.left = item.x + 'px'; el.style.top = item.y + 'px';
     el.dataset.id = item.id;
     el.addEventListener('mousedown', e => {

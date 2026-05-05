@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Bliss Garden — Crop Sprite Sheet</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; min-height: 100%; background: #1f2530; color: #e6e8ec; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  body { padding: 28px 36px 80px; }
+  h1 { font-size: 18px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 4px; color: #f5f1e6; }
+  .sub { font-size: 12px; color: #8d96a6; margin-bottom: 22px; }
+  .toolbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:20px; }
+  .toolbar button { background:#2c3340; color:#e6e8ec; border:1px solid #3b4456; border-radius:6px; padding:8px 14px; font:inherit; font-size:12px; cursor:pointer; }
+  .toolbar button:hover { background:#353d4d; border-color:#5a6478; }
+  .toolbar button.primary { background:#5e7a4a; border-color:#7a9560; color:#f4ffe8; }
+  .toolbar button.primary:hover { background:#6e8c58; }
+  .toolbar label { font-size:11px; color:#8d96a6; display:flex; align-items:center; gap:6px; }
+  .toolbar select { background:#2c3340; color:#e6e8ec; border:1px solid #3b4456; border-radius:5px; padding:5px 8px; font:inherit; font-size:11px; }
+
+  /* Grid of sprites */
+  #grid { display:grid; grid-template-columns: 180px repeat(3, 144px); gap:0; border:1px solid #2a313e; border-radius:8px; overflow:hidden; background:#252b37; }
+  .hdr { background:#2a313e; color:#aab2c2; font-size:10px; letter-spacing:2px; text-transform:uppercase; padding:10px 14px; border-bottom:1px solid #1f2530; display:flex; align-items:center; }
+  .hdr.row { font-size:12px; letter-spacing:0.6px; text-transform:none; color:#d3d7de; }
+  .cell { padding:8px; border-bottom:1px solid #1f2530; border-right:1px solid #1f2530; display:flex; align-items:center; justify-content:center; background:
+    repeating-conic-gradient(#2c3340 0 25%, #313846 0 50%) 0 0/16px 16px; }
+  .cell:last-child { border-right:none; }
+  .row-name { padding:0 14px; border-bottom:1px solid #1f2530; border-right:1px solid #1f2530; display:flex; flex-direction:column; justify-content:center; gap:2px; background:#252b37; }
+  .row-name .nm { font-size:13px; color:#f0eedc; }
+  .row-name .id { font-size:10px; color:#7a8294; }
+  canvas.sprite { width:128px; height:128px; image-rendering: pixelated; image-rendering: crisp-edges; display:block; }
+
+  /* Sheet preview */
+  .sheet-wrap { margin-top:28px; padding:16px; background:#252b37; border:1px solid #2a313e; border-radius:8px; }
+  .sheet-wrap h2 { font-size:12px; letter-spacing:2px; text-transform:uppercase; color:#aab2c2; margin-bottom:10px; }
+  #sheet { background: repeating-conic-gradient(#2c3340 0 25%, #313846 0 50%) 0 0/16px 16px; image-rendering: pixelated; max-width:100%; height:auto; border:1px solid #1f2530; border-radius:4px; }
+  .sheet-info { font-size:11px; color:#8d96a6; margin-top:8px; line-height:1.6; }
+</style>
+</head>
+<body>
+
+<h1>Bliss Garden — Crop Texture Sheet</h1>
+<div class="sub">13 crops × 3 stages (seed · sprout · grown) — 64×64 native, exported at 128×128 per cell · transparent PNG · soft pastel</div>
+
+<div class="toolbar">
+  <button class="primary" id="btn-sheet">⬇ Download Sprite Sheet (PNG)</button>
+  <button id="btn-redraw">↻ Redraw</button>
+  <label>Outline
+    <select id="opt-outline">
+      <option value="tone" selected>Dark-tone (per crop)</option>
+      <option value="black">Hard black</option>
+      <option value="none">None</option>
+    </select>
+  </label>
+  <label>Cell size
+    <select id="opt-cellsize">
+      <option value="64" selected>64×64 native (128 export)</option>
+      <option value="128">128×128 native (no upscale)</option>
+    </select>
+  </label>
+</div>
+
+<div id="grid"></div>
+
+<div class="sheet-wrap">
+  <h2>Sprite Sheet Preview</h2>
+  <canvas id="sheet"></canvas>
+  <div class="sheet-info" id="sheet-info"></div>
+</div>
+
+<script src="sprites.js"></script>
+
+</body>
+</html>

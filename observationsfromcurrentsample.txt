@@ -1,0 +1,13 @@
+watering can symbol from inventory needs to be fix. 
+- player should fill up watering can first, which oculd be filled up in inventory, and then water plants
+
+title doesn't match with resizing, and it off center, should be centered from the farm, and moves with display
+
+scaling is rough, you get really high amounts of money really fast.
+upgrades for the same thing shouldn't stack
+Higher seeds should cost more
+
+watering can should have upgrade
+should be item to prevent weeds
+
+next stage reached at 1000000 coins
