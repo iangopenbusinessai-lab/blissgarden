@@ -40,7 +40,7 @@ body {
 /* ── TOP BAR ── */
 #topbar { position:fixed; top:0; left:0; right:0; height:44px; z-index:300; display:flex; align-items:center; padding:0 12px; pointer-events:none; }
 #coins { display:flex; align-items:center; gap:5px; background:rgba(0,0,0,.2); border-radius:20px; padding:4px 12px 4px 8px; color:#fff; font-size:15px; font-weight:700; pointer-events:all; }
-#stage-display { position:fixed; top:0; left:50%; transform:translateX(-50%); height:44px; z-index:300; display:flex; align-items:center; color:rgba(255,255,255,.82); font-size:12px; font-weight:600; letter-spacing:.3px; pointer-events:none; white-space:nowrap; }
+#stage-display { position:fixed; top:0; left:0; right:var(--pw); height:44px; z-index:300; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.82); font-size:12px; font-weight:600; letter-spacing:.3px; pointer-events:none; white-space:nowrap; }
 
 /* ── WORLD BANNER ── */
 .world-banner { position:fixed; top:44px; left:0; right:var(--pw); z-index:290; pointer-events:none; background:rgba(0,0,0,0.72); color:#fff; font-size:14px; font-weight:700; text-align:center; padding:8px 16px; animation:bannerFade 4s forwards; }
@@ -240,6 +240,10 @@ body {
 <div id="settings-backdrop"></div>
 <div id="settings-panel">
   <h2>Settings</h2>
+  <label style="display:flex;align-items:center;gap:8px;margin-bottom:16px;cursor:pointer;font-size:13px;font-weight:600">
+    <input type="checkbox" id="hide-bought-toggle" style="width:15px;height:15px;cursor:pointer">
+    Hide purchased upgrades
+  </label>
   <button id="reset-btn">Reset Data</button>
 </div>
 
@@ -371,20 +375,20 @@ function spriteHTML(cropId, stage, size) {
 // ══════════════════════════════
 const SEEDS = {
   // Basic shop seeds
-  potato:     { name:'Potato',        icon:'🥔', seedIcon:'🌰', cost:2,   grow:15,     sell:6      },
-  carrot:     { name:'Carrot',        icon:'🥕', seedIcon:'🌱', cost:4,   grow:45,     sell:12     },
-  wheat:      { name:'Wheat',         icon:'🌾', seedIcon:'🌾', cost:8,   grow:90,     sell:25     },
-  sunflower:  { name:'Sunflower',     icon:'🌻', seedIcon:'🌻', cost:15,  grow:180,    sell:45     },
+  potato:     { name:'Potato',        icon:'🥔', seedIcon:'🌰', cost:5,    grow:15,     sell:12      },
+  carrot:     { name:'Carrot',        icon:'🥕', seedIcon:'🌱', cost:15,   grow:45,     sell:40      },
+  wheat:      { name:'Wheat',         icon:'🌾', seedIcon:'🌾', cost:40,   grow:90,     sell:110     },
+  sunflower:  { name:'Sunflower',     icon:'🌻', seedIcon:'🌻', cost:120,  grow:180,    sell:380     },
   // Bag-only seeds
-  pumpkin:    { name:'Pumpkin',       icon:'🎃', seedIcon:'🎃', grow:480,    sell:200    },
-  chard:      { name:'Rainbow Chard', icon:'🌈', seedIcon:'🌿', grow:1200,   sell:600    },
-  moonbloom:  { name:'Moonbloom',     icon:'🌕', seedIcon:'🌑', grow:2700,   sell:1800   },
-  starfruit:  { name:'Starfruit',     icon:'⭐', seedIcon:'💫', grow:7200,   sell:5500   },
-  thornvine:  { name:'Thornvine',     icon:'🌿', seedIcon:'🌱', grow:14400,  sell:13000  },
-  glowshroom: { name:'Glowshroom',    icon:'🍄', seedIcon:'🍄', grow:28800,  sell:30000  },
-  voidbloom:  { name:'Voidbloom',     icon:'🌑', seedIcon:'🔮', grow:57600,  sell:80000  },
-  aetherfern: { name:'Aetherfern',    icon:'🌀', seedIcon:'🌀', grow:115200, sell:220000 },
-  solarspike: { name:'Solarspike',    icon:'☀️', seedIcon:'✨', grow:230400, sell:650000 },
+  pumpkin:    { name:'Pumpkin',       icon:'🎃', seedIcon:'🎃', grow:480,    sell:1400    },
+  chard:      { name:'Rainbow Chard', icon:'🌈', seedIcon:'🌿', grow:1200,   sell:5000    },
+  moonbloom:  { name:'Moonbloom',     icon:'🌕', seedIcon:'🌑', grow:2700,   sell:18000   },
+  starfruit:  { name:'Starfruit',     icon:'⭐', seedIcon:'💫', grow:7200,   sell:65000   },
+  thornvine:  { name:'Thornvine',     icon:'🌿', seedIcon:'🌱', grow:14400,  sell:200000  },
+  glowshroom: { name:'Glowshroom',    icon:'🍄', seedIcon:'🍄', grow:28800,  sell:580000  },
+  voidbloom:  { name:'Voidbloom',     icon:'🌑', seedIcon:'🔮', grow:57600,  sell:1800000 },
+  aetherfern: { name:'Aetherfern',    icon:'🌀', seedIcon:'🌀', grow:115200, sell:5500000 },
+  solarspike: { name:'Solarspike',    icon:'☀️', seedIcon:'✨', grow:230400, sell:16000000},
 };
 
 const BASIC_SEEDS = ['potato','carrot','wheat','sunflower'];
@@ -393,11 +397,11 @@ const BASIC_SEEDS = ['potato','carrot','wheat','sunflower'];
 // SEED BAGS
 // ══════════════════════════════
 const SEED_BAGS = [
-  { id:'fieldBag',     name:'Field Bag',     icon:'🎒', cost:50,
+  { id:'fieldBag',     name:'Field Bag',     icon:'🎒', cost:1000,
     seeds:['pumpkin','chard','moonbloom'],         odds:[0.70,0.20,0.10] },
-  { id:'forestBag',    name:'Forest Bag',    icon:'🌲', cost:450,
+  { id:'forestBag',    name:'Forest Bag',    icon:'🌲', cost:50000,
     seeds:['starfruit','thornvine','glowshroom'],  odds:[0.65,0.22,0.13] },
-  { id:'celestialBag', name:'Celestial Bag', icon:'✨', cost:2650,
+  { id:'celestialBag', name:'Celestial Bag', icon:'✨', cost:800000,
     seeds:['voidbloom','aetherfern','solarspike'], odds:[0.68,0.20,0.12] },
 ];
 
@@ -405,10 +409,10 @@ const SEED_BAGS = [
 // SEED SELL PRICES
 // ══════════════════════════════
 const SEED_SELL_PRICES = {
-  potato:1, carrot:2, wheat:4, sunflower:7,
-  pumpkin:4, chard:20, moonbloom:20, starfruit:20,
-  thornvine:20, glowshroom:20,
-  voidbloom:100, aetherfern:100, solarspike:100,
+  potato:2, carrot:7, wheat:20, sunflower:60,
+  pumpkin:150, chard:150, moonbloom:150,
+  starfruit:2500, thornvine:2500, glowshroom:2500,
+  voidbloom:35000, aetherfern:35000, solarspike:35000,
 };
 
 // ══════════════════════════════
@@ -493,8 +497,8 @@ let state = {
   items: {},
   cageCount: 0,
   cages: [],
-  wellFull: true,
-  wellRefillAt: 0,
+  canCharges: 0,
+  canRefillAt: 0,
   tilesWatered: {},
   fertCharges: 0,
   uncommonFertCharges: 0,
@@ -503,6 +507,7 @@ let state = {
   uncommonFertilizedTiles: {},
   firstWeedEver: false,
   firstCrowEver: false,
+  hideBoughtUpgrades: false,
 };
 let nextId = 0, selectedTile = null, panelExpanded = true, panelWidth = 220;
 let crankMult = 1.0, crankAngle = 0;
@@ -596,16 +601,17 @@ function load() {
     state.items           = d.items           ?? {};
     state.cageCount       = d.cageCount       ?? 0;
     state.cages           = d.cages           ?? [];
-    state.wellFull        = d.wellFull        ?? true;
-    state.wellRefillAt    = d.wellRefillAt    ?? 0;
+    state.canCharges  = d.canCharges  ?? (d.wellFull ? 1 : 0);
+    state.canRefillAt = d.canRefillAt ?? ((!d.wellFull && d.wellRefillAt) ? d.wellRefillAt : 0);
     state.tilesWatered    = d.tilesWatered    ?? {};
     state.fertCharges            = d.fertCharges            ?? 0;
     state.uncommonFertCharges    = d.uncommonFertCharges    ?? 0;
     state.weeds                  = d.weeds                  ?? {};
     state.fertilizedTiles        = d.fertilizedTiles        ?? {};
     state.uncommonFertilizedTiles= d.uncommonFertilizedTiles?? {};
-    state.firstWeedEver   = d.firstWeedEver   ?? false;
-    state.firstCrowEver   = d.firstCrowEver   ?? false;
+    state.firstWeedEver       = d.firstWeedEver       ?? false;
+    state.firstCrowEver       = d.firstCrowEver       ?? false;
+    state.hideBoughtUpgrades  = d.hideBoughtUpgrades  ?? false;
     nextId                = d.nextId          ?? 0;
     panelExpanded         = d.panelExpanded   ?? true;
     panelWidth            = d.panelWidth      ?? 220;
@@ -633,6 +639,8 @@ function getSellSpeedMult() {
 function getSellInterval() {
   return 10000 * getSellSpeedMult() / crankMult;
 }
+function canCapacity() { return (state.upgrades && state.upgrades.copperSpout) ? 2 : 1; }
+function canFillTime()  { return (state.upgrades && state.upgrades.copperSpout) ? 8000 : 20000; }
 function getCrankClickMult() {
   if (state.upgrades.diamondCrank)  return 1.085;
   if (state.upgrades.titaniumCrank) return 1.060;
@@ -716,7 +724,7 @@ const MILESTONE_VALS = [100, 1000, 10000, 100000, 1000000];
 
 const STAGES = [
   { stage: 0, name: 'Birth',      threshold: 0    },
-  { stage: 1, name: 'Real World', threshold: 1000 },
+  { stage: 1, name: 'Real World', threshold: 1000000 },
 ];
 
 function getCurrentStage() {
@@ -994,19 +1002,72 @@ function renderInventory() {
     const el = mk('div','inv-icon');
     el.dataset.name = tooltip;
     el.style.cursor = 'grab';
-    el.innerHTML = `<span style="pointer-events:none">${icon}</span>`;
+    el.innerHTML = `<span style="pointer-events:none;font-size:22px;line-height:1">${icon}</span>`;
     el.addEventListener('mousedown', e => { e.stopPropagation(); onDown(e); });
     return el;
   }
 
-  // Water charge
-  if (state.items && state.items.wateringCan && state.wellFull) {
+  // Watering Can (persistent slot — empty or charged)
+  if (state.items && state.items.wateringCan) {
     count++;
-    const el = makeItemSlot('💧', 'Water charge — drag onto growing crop', 'water', e => {
-      startItemDrag('water'); moveGhost(e.clientX, e.clientY);
-      state.wellFull = false; renderInventory(); renderItems();
-    });
-    grid.appendChild(el);
+    const charges  = state.canCharges  || 0;
+    const capacity = canCapacity();
+    const filling  = !!(state.canRefillAt);
+    const canFill  = charges < capacity && !filling;
+
+    const slot = mk('div','inv-seed-slot');
+    const icon = mk('div','inv-seed-icon');
+    icon.style.cursor = charges > 0 ? 'grab' : 'default';
+    icon.dataset.name = charges > 0
+      ? `Watering Can (${charges}/${capacity}) — drag onto a growing crop`
+      : filling ? 'Watering Can — filling…' : 'Watering Can — empty, click Fill';
+
+    const iconSpan = document.createElement('span');
+    iconSpan.style.cssText = `font-size:22px;line-height:1;pointer-events:none;opacity:${charges > 0 ? '1' : '0.3'}`;
+    iconSpan.textContent = '💧';
+    icon.appendChild(iconSpan);
+
+    if (charges > 0) {
+      const badge = mk('span','inv-badge');
+      badge.textContent = charges;
+      icon.appendChild(badge);
+    }
+
+    if (charges > 0) {
+      icon.addEventListener('mousedown', e => {
+        e.stopPropagation();
+        if ((state.canCharges || 0) < 1) return;
+        state.canCharges--;
+        renderInventory();
+        startItemDrag('water');
+        moveGhost(e.clientX, e.clientY);
+      });
+    }
+
+    slot.appendChild(icon);
+
+    // Fill button or countdown timer
+    if (filling) {
+      const timer = mk('div','inv-seed-sell');
+      timer.id = 'can-fill-timer';
+      timer.style.cssText = 'background:rgba(0,0,0,.18);cursor:default;color:rgba(255,255,255,.6)';
+      timer.textContent = fmt(Math.max(0, (state.canRefillAt - Date.now()) / 1000));
+      slot.appendChild(timer);
+    } else if (canFill) {
+      const fillBtn = mk('button','inv-seed-sell');
+      fillBtn.textContent = 'Fill';
+      fillBtn.style.background = '#3a6aac';
+      fillBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        if ((state.canCharges || 0) >= canCapacity() || state.canRefillAt) return;
+        state.canRefillAt = Date.now() + canFillTime();
+        renderInventory(); renderItems(); save();
+        log('💧 Watering can filling…');
+      });
+      slot.appendChild(fillBtn);
+    }
+
+    grid.appendChild(slot);
   }
 
   // Cages
@@ -1017,7 +1078,7 @@ function renderInventory() {
       state.cageCount--; renderInventory(); renderItems();
       startItemDrag('cage'); moveGhost(e.clientX, e.clientY);
     });
-    el.innerHTML = `<span style="pointer-events:none">🔒</span><span class="inv-badge">${cageHeld}</span>`;
+    el.innerHTML = `<span style="pointer-events:none;font-size:22px;line-height:1">🔒</span><span class="inv-badge">${cageHeld}</span>`;
     grid.appendChild(el);
   }
 
@@ -1029,7 +1090,7 @@ function renderInventory() {
       state.fertCharges--; renderInventory(); renderItems();
       startItemDrag('fertilizer'); moveGhost(e.clientX, e.clientY);
     });
-    el.innerHTML = `<span style="pointer-events:none">🌿</span><span class="inv-badge">${fertHeld}</span>`;
+    el.innerHTML = `<span style="pointer-events:none;font-size:22px;line-height:1">🌿</span><span class="inv-badge">${fertHeld}</span>`;
     grid.appendChild(el);
   }
 
@@ -1041,7 +1102,7 @@ function renderInventory() {
       state.uncommonFertCharges--; renderInventory(); renderItems();
       startItemDrag('uncommonFert'); moveGhost(e.clientX, e.clientY);
     });
-    el.innerHTML = `<span style="pointer-events:none">⚗️</span><span class="inv-badge">${ufertHeld}</span>`;
+    el.innerHTML = `<span style="pointer-events:none;font-size:22px;line-height:1">⚗️</span><span class="inv-badge">${ufertHeld}</span>`;
     grid.appendChild(el);
   }
 
@@ -1133,15 +1194,18 @@ function renderItems() {
   // Watering Can
   const wcOwned = !!(state.items && state.items.wateringCan);
   const wcCard  = mk('div','upgrade-card' + (wcOwned ? ' bought' : ''));
-  let wcStatus  = '';
+  let wcStatus = '';
   if (wcOwned) {
-    if (state.wellFull) wcStatus = ' <span style="color:#6cf;font-size:10px">● Charge ready in inventory</span>';
-    else {
-      const rem = Math.max(0,(state.wellRefillAt - Date.now())/1000);
-      wcStatus = ` <span style="opacity:.5;font-size:10px">Refills in ${fmt(rem)}</span>`;
+    const ch = state.canCharges || 0;
+    const cap = canCapacity();
+    if (ch > 0) wcStatus = ` <span style="color:#6cf;font-size:10px">● ${ch}/${cap} charge${ch>1?'s':''} ready</span>`;
+    if (state.canRefillAt) {
+      const rem = Math.max(0, (state.canRefillAt - Date.now()) / 1000);
+      wcStatus += ` <span style="opacity:.5;font-size:10px">Filling in ${fmt(rem)}</span>`;
     }
   }
-  wcCard.innerHTML = `<div class="ug-name">💧 Watering Can</div><div class="ug-desc">Drag charge from inventory onto a growing crop. +25% speed &amp; value. Refills 20s.${wcStatus}</div><div class="ug-bottom"><span class="ug-cost">🪙100</span><button class="ug-btn"${wcOwned||state.coins<100?' disabled':''}>${wcOwned?'Owned':'Buy'}</button></div>`;
+  const fillSecs = wcOwned ? canFillTime() / 1000 : 20;
+  wcCard.innerHTML = `<div class="ug-name">💧 Watering Can</div><div class="ug-desc">Click can in inventory to fill (${fillSecs}s). Drag charged can onto growing crop. +25% speed &amp; value.${wcStatus}</div><div class="ug-bottom"><span class="ug-cost">🪙100</span><button class="ug-btn"${wcOwned||state.coins<100?' disabled':''}>${wcOwned?'Owned':'Buy'}</button></div>`;
   if (!wcOwned) {
     wcCard.querySelector('.ug-btn').addEventListener('click', e => {
       e.stopPropagation();
@@ -1149,13 +1213,30 @@ function renderItems() {
       state.coins -= 100;
       if (!state.items) state.items = {};
       state.items.wateringCan = true;
-      state.wellFull = true;
-      document.getElementById('well').style.display = 'flex';
-      updateWell();
+      state.canCharges = 0;
       updateCoins(); renderInventory(); save();
     });
   }
   container.appendChild(wcCard);
+
+  // Copper Spout (unlocked after watering can)
+  if (wcOwned) {
+    const spoutOwned = !!(state.upgrades && state.upgrades.copperSpout);
+    const spoutCard  = mk('div','upgrade-card' + (spoutOwned ? ' bought' : ''));
+    spoutCard.innerHTML = `<div class="ug-name">🪙 Copper Spout</div><div class="ug-desc">Upgrade the can: fill time reduced to 8s, capacity increases to 2 charges.</div><div class="ug-bottom"><span class="ug-cost">🪙800</span><button class="ug-btn"${spoutOwned||state.coins<800?' disabled':''}>${spoutOwned?'Owned':'Buy'}</button></div>`;
+    if (!spoutOwned) {
+      spoutCard.querySelector('.ug-btn').addEventListener('click', e => {
+        e.stopPropagation();
+        if (state.coins < 800 || (state.upgrades && state.upgrades.copperSpout)) return;
+        state.coins -= 800;
+        if (!state.upgrades) state.upgrades = {};
+        state.upgrades.copperSpout = true;
+        log('🪙 Copper Spout installed — fill time 8s, capacity 2');
+        updateCoins(); renderInventory(); renderItems(); save();
+      });
+    }
+    container.appendChild(spoutCard);
+  }
 
   // Cage
   const cageCard = mk('div','upgrade-card');
@@ -1213,6 +1294,7 @@ function renderUpgrades() {
   sorted.forEach(u => {
     if (u.chain !== null && u.chain !== undefined && !state.upgrades[u.chain]) return;
     const bought    = !!state.upgrades[u.id];
+    if (bought && state.hideBoughtUpgrades) return;
     const canAfford = state.coins >= u.cost && !bought;
     const card = mk('div','upgrade-card' + (bought ? ' bought' : ''));
     card.innerHTML = `<div class="ug-name">${u.name}</div><div class="ug-desc">${u.desc}</div><div class="ug-bottom"><span class="ug-cost">🪙${u.cost.toLocaleString()}</span><button class="ug-btn"${bought||!canAfford?' disabled':''}>${bought?'Owned':'Buy'}</button></div>`;
@@ -1354,35 +1436,19 @@ document.getElementById('crank-svg').addEventListener('click', () => {
 // WELL & WATERING
 // ══════════════════════════════
 function updateWell() {
-  const well    = document.getElementById('well');
-  const waterEl = document.getElementById('well-water');
-  const labelEl = document.getElementById('well-label');
-  if (!state.items || !state.items.wateringCan) { well.style.display = 'none'; return; }
-  well.style.display = 'flex';
-  if (state.wellFull) {
-    waterEl.setAttribute('fill','#3A8FD4'); waterEl.setAttribute('opacity','0.9');
-    labelEl.textContent = '💧 Full'; labelEl.style.color = '#6cf';
-    well.style.cursor = 'default';
-  } else {
-    waterEl.setAttribute('fill','#888'); waterEl.setAttribute('opacity','0.3');
-    const rem = Math.max(0, (state.wellRefillAt - Date.now()) / 1000);
-    labelEl.textContent = fmt(rem); labelEl.style.color = 'rgba(255,255,255,.5)';
-    well.style.cursor = 'default';
-    well.classList.remove('well-active');
-  }
+  document.getElementById('well').style.display = 'none';
 }
 
-function updateWellTick() {
+function canTick() {
   if (!state.items || !state.items.wateringCan) return;
-  if (!state.wellFull && state.wellRefillAt && Date.now() >= state.wellRefillAt) {
-    state.wellFull = true; state.wellRefillAt = 0;
-    updateWell(); renderItems(); renderInventory(); save();
-    return;
-  }
-  if (!state.wellFull) {
-    const labelEl = document.getElementById('well-label');
-    const rem = Math.max(0, (state.wellRefillAt - Date.now()) / 1000);
-    labelEl.textContent = fmt(rem);
+  if (!state.canRefillAt) return;
+  if (Date.now() >= state.canRefillAt) {
+    state.canCharges  = Math.min(canCapacity(), (state.canCharges || 0) + 1);
+    state.canRefillAt = 0;
+    renderInventory(); renderItems(); save();
+  } else {
+    const el = document.getElementById('can-fill-timer');
+    if (el) el.textContent = fmt(Math.max(0, (state.canRefillAt - Date.now()) / 1000));
   }
 }
 
@@ -1406,9 +1472,7 @@ function applyWater(idx) {
   td.sellBonus  = 1.25;
   if (!state.tilesWatered) state.tilesWatered = {};
   state.tilesWatered[idx] = true;
-  state.wellFull     = false;
-  state.wellRefillAt = Date.now() + 20000;
-  renderTile(idx); updateWell(); renderItems(); renderInventory();
+  renderTile(idx); renderInventory(); renderItems();
   log(`💧 ${SEEDS[td.seed].name} watered (+25% value, +25% speed)`);
   save();
 }
@@ -1428,9 +1492,7 @@ function drownTile(idx) {
   td.drowned = true;
   td.sellBonus = 0.25;
   delete state.tilesWatered[idx];
-  state.wellFull = false;
-  state.wellRefillAt = Date.now() + 20000;
-  renderTile(idx); updateWell(); renderItems(); renderInventory();
+  renderTile(idx); renderInventory(); renderItems();
   log(`💀 ${SEEDS[td.seed].name} was drowned! Value severely reduced.`);
   save();
 }
@@ -1791,7 +1853,7 @@ document.addEventListener('mouseup', e => {
 
     // Return item to inventory on invalid/missed drop
     if (!applied) {
-      if (it === 'water')        { state.wellFull = true; updateWell(); }
+      if (it === 'water')        state.canCharges++;
       else if (it === 'cage')    state.cageCount++;
       else if (it === 'fertilizer')   state.fertCharges++;
       else if (it === 'uncommonFert') state.uncommonFertCharges++;
@@ -1892,7 +1954,7 @@ setInterval(() => {
   updateTimers();
   updateSellTimer();
   updateCrankLabel();
-  updateWellTick();
+  canTick();
   tickSellBox();
 }, 50);
 
@@ -1940,18 +2002,26 @@ for (let i = 0; i < tileCount(); i++) {
 // SETTINGS
 // ══════════════════════════════
 (function () {
-  const btn      = document.getElementById('settings-btn');
-  const backdrop = document.getElementById('settings-backdrop');
-  const panel    = document.getElementById('settings-panel');
-  const resetBtn = document.getElementById('reset-btn');
+  const btn             = document.getElementById('settings-btn');
+  const backdrop        = document.getElementById('settings-backdrop');
+  const panel           = document.getElementById('settings-panel');
+  const resetBtn        = document.getElementById('reset-btn');
+  const hideBoughtToggle = document.getElementById('hide-bought-toggle');
   let confirmed  = false;
 
   function openSettings() {
     confirmed = false;
     resetBtn.textContent = 'Reset Data';
+    hideBoughtToggle.checked = !!state.hideBoughtUpgrades;
     backdrop.style.display = 'block';
     panel.style.display    = 'block';
   }
+
+  hideBoughtToggle.addEventListener('change', () => {
+    state.hideBoughtUpgrades = hideBoughtToggle.checked;
+    renderUpgrades();
+    save();
+  });
 
   function closeSettings() {
     confirmed = false;
