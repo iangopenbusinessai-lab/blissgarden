@@ -386,35 +386,43 @@ const SPRITE_ROW = {
 };
 const SPRITE_COL = { seed:0, sprout:1, grown:2 };
 
-function getSpriteStyle(cropId, stage, size) {
-  const row = SPRITE_ROW[cropId] ?? 0;
-  const col = SPRITE_COL[stage]  ?? 0;
+function getSpriteStyle(cropId, stage, size = 64) {
+  const row = SPRITE_ROW[cropId];
+  const col = SPRITE_COL[stage];
+  if (row === undefined) console.error(`[sprites] Unknown cropId: "${cropId}"`);
+  if (col === undefined) console.error(`[sprites] Unknown stage: "${stage}"`);
+  const r = row ?? 0;
+  const c = col ?? 0;
   const scale = size / 128;
   return {
     backgroundImage:    "url('./sprites.png')",
-    backgroundPosition: `${Math.round(col * -128 * scale)}px ${Math.round(row * -128 * scale)}px`,
+    backgroundPosition: `${Math.round(c * -128 * scale)}px ${Math.round(r * -128 * scale)}px`,
     backgroundSize:     `${Math.round(384 * scale)}px ${Math.round(832 * scale)}px`,
     backgroundRepeat:   'no-repeat',
-    width:  size + 'px',
-    height: size + 'px',
-    imageRendering: 'pixelated',
-    flexShrink: '0',
+    width:              size + 'px',
+    height:             size + 'px',
+    imageRendering:     'pixelated',
+    flexShrink:         '0',
   };
 }
 
-function makeSpriteDiv(cropId, stage, size) {
+function makeSpriteDiv(cropId, stage, size = 64) {
   const el = document.createElement('div');
   Object.assign(el.style, getSpriteStyle(cropId, stage, size));
   el.style.pointerEvents = 'none';
   return el;
 }
 
-function spriteHTML(cropId, stage, size) {
-  const row = SPRITE_ROW[cropId] ?? 0;
-  const col = SPRITE_COL[stage]  ?? 0;
+function spriteHTML(cropId, stage, size = 64) {
+  const row = SPRITE_ROW[cropId];
+  const col = SPRITE_COL[stage];
+  if (row === undefined) console.error(`[sprites] Unknown cropId: "${cropId}"`);
+  if (col === undefined) console.error(`[sprites] Unknown stage: "${stage}"`);
+  const r = row ?? 0;
+  const c = col ?? 0;
   const scale = size / 128;
-  const bx = Math.round(col * -128 * scale);
-  const by = Math.round(row * -128 * scale);
+  const bx = Math.round(c * -128 * scale);
+  const by = Math.round(r * -128 * scale);
   const bw = Math.round(384 * scale);
   const bh = Math.round(832 * scale);
   return `<span style="display:inline-block;width:${size}px;height:${size}px;background:url('./sprites.png') no-repeat ${bx}px ${by}px/${bw}px ${bh}px;image-rendering:pixelated;vertical-align:middle;flex-shrink:0;pointer-events:none"></span>`;
