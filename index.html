@@ -266,6 +266,8 @@ body {
 /* ── SETTINGS ── */
 #settings-btn { position:fixed; top:7px; right:calc(var(--pw) + 8px); z-index:310; width:30px; height:30px; background:rgba(0,0,0,.2); border:none; border-radius:50%; color:#fff; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .15s; pointer-events:all; }
 #settings-btn:hover { background:rgba(0,0,0,.38); }
+#mute-btn { position:fixed; top:7px; right:calc(var(--pw) + 46px); z-index:310; width:30px; height:30px; background:rgba(0,0,0,.2); border:none; border-radius:50%; color:#fff; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .15s; pointer-events:all; }
+#mute-btn:hover { background:rgba(0,0,0,.38); }
 #settings-backdrop { position:fixed; inset:0; z-index:900; background:rgba(0,0,0,.55); display:none; }
 #settings-panel { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:901; background:#6B4432; border:2px solid #3d2010; border-radius:10px; padding:22px 26px 20px; min-width:220px; color:#fff; display:none; }
 #settings-panel h2 { font-size:15px; font-weight:700; margin-bottom:18px; letter-spacing:.5px; }
@@ -285,6 +287,7 @@ body {
 </div>
 <div id="stage-display"></div>
 
+<button id="mute-btn" title="Toggle sound">🔊</button>
 <button id="settings-btn" title="Settings">⚙️</button>
 <div id="settings-backdrop"></div>
 <div id="settings-panel">
@@ -806,6 +809,144 @@ function fmtElapsed(ms) {
 function coinHTML() { return '<span class="coin"></span>'; }
 
 // ══════════════════════════════
+// AUDIO ENGINE
+// ══════════════════════════════
+let _audioCtx = null;
+let _muted = localStorage.getItem('bliss_muted') === '1';
+
+function _ctx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  return _audioCtx;
+}
+
+document.addEventListener('click', () => { if (!_audioCtx) _ctx(); }, { once: true });
+
+const sfx = {
+  _play(setup) {
+    if (_muted) return;
+    try { setup(_ctx()); } catch(e) {}
+  },
+
+  plant() {
+    this._play(c => {
+      const o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = 'sine'; o.frequency.setValueAtTime(180, c.currentTime);
+      g.gain.setValueAtTime(0.35, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.08);
+      o.start(); o.stop(c.currentTime + 0.08);
+    });
+  },
+
+  harvest() {
+    this._play(c => {
+      const o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(520, c.currentTime);
+      o.frequency.exponentialRampToValueAtTime(260, c.currentTime + 0.12);
+      g.gain.setValueAtTime(0.4, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.12);
+      o.start(); o.stop(c.currentTime + 0.12);
+    });
+  },
+
+  drop() {
+    this._play(c => {
+      const o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = 'sine'; o.frequency.setValueAtTime(140, c.currentTime);
+      g.gain.setValueAtTime(0.3, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.06);
+      o.start(); o.stop(c.currentTime + 0.06);
+    });
+  },
+
+  sell(vol = 1.0) {
+    this._play(c => {
+      [880, 1100].forEach(freq => {
+        const o = c.createOscillator(), g = c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.type = 'sine'; o.frequency.setValueAtTime(freq, c.currentTime);
+        g.gain.setValueAtTime(0.20 * vol, c.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.3);
+        o.start(); o.stop(c.currentTime + 0.3);
+      });
+    });
+  },
+
+  sellAuto() { this.sell(0.5); },
+
+  attack() {
+    this._play(c => {
+      const o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(400, c.currentTime);
+      o.frequency.exponentialRampToValueAtTime(200, c.currentTime + 0.15);
+      g.gain.setValueAtTime(0.25, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.15);
+      o.start(); o.stop(c.currentTime + 0.15);
+    });
+  },
+
+  weedClick() {
+    this._play(c => {
+      const o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = 'sine'; o.frequency.setValueAtTime(300, c.currentTime);
+      g.gain.setValueAtTime(0.18, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.04);
+      o.start(); o.stop(c.currentTime + 0.04);
+    });
+  },
+
+  upgrade() {
+    this._play(c => {
+      [440, 660, 880].forEach((freq, i) => {
+        const t = c.currentTime + i * 0.08;
+        const o = c.createOscillator(), g = c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.type = 'sine'; o.frequency.setValueAtTime(freq, t);
+        g.gain.setValueAtTime(0.25, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+        o.start(t); o.stop(t + 0.08);
+      });
+    });
+  },
+
+  stageAdvance() {
+    this._play(c => {
+      [523, 659, 784].forEach(freq => {
+        const o = c.createOscillator(), g = c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.type = 'sine'; o.frequency.setValueAtTime(freq, c.currentTime);
+        g.gain.setValueAtTime(0.20, c.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.8);
+        o.start(); o.stop(c.currentTime + 0.8);
+      });
+    });
+  },
+
+  locust() {
+    this._play(c => {
+      const o = c.createOscillator(), lfo = c.createOscillator();
+      const lfoG = c.createGain(), g = c.createGain();
+      lfo.frequency.setValueAtTime(18, c.currentTime);
+      lfoG.gain.setValueAtTime(30, c.currentTime);
+      lfo.connect(lfoG); lfoG.connect(o.frequency);
+      o.connect(g); g.connect(c.destination);
+      o.type = 'sawtooth'; o.frequency.setValueAtTime(120, c.currentTime);
+      g.gain.setValueAtTime(0.28, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.6);
+      lfo.start(); lfo.stop(c.currentTime + 0.6);
+      o.start(); o.stop(c.currentTime + 0.6);
+    });
+  },
+};
+
+// ══════════════════════════════
 // LOG
 // ══════════════════════════════
 const logEntries = [];
@@ -886,6 +1027,7 @@ function checkStages() {
     if (s.stage === 0) continue;
     if ((state.coinsEarned || 0) >= s.threshold && !state.stagesSeen[s.stage]) {
       state.stagesSeen[s.stage] = true;
+      sfx.stageAdvance();
       showBanner(`Stage ${s.stage}: ${s.name}`);
       if (s.log) log(s.log);
       updateStageDisplay();
@@ -1499,6 +1641,7 @@ function renderUpgrades() {
           showBanner(`⚙️ ${u.name} activated.`);
         }
         if (u.type === 'crank' || u.type === 'crankUp') updateCrankDisplay();
+        sfx.upgrade();
         log(`⬆️ ${u.name} purchased`);
         updateCoins();
         renderAllTiles();
@@ -1567,8 +1710,10 @@ function tickSellBox() {
       sold++;
     }
     if (sold > 0) {
+      if (sold === 1) sfx.sell(); else sfx.sellAuto();
       const sb = document.getElementById('sell-box');
       const r  = sb.getBoundingClientRect();
+      spawnCoinBurst(r.left + r.width / 2, r.top + r.height / 2);
       showPop(`+${coinHTML()}${totalCoins}`, r.left + r.width / 2, r.top - 6);
       addCoins(totalCoins);
     }
@@ -1691,6 +1836,7 @@ function updateModeIndicator() {
 function dropLoose(seed, x, y, bonus = 1.0, drowned = false, fungal = false) {
   const id = nextId++;
   state.loose.push({ seed, id, x, y, bonus, drowned, fungal });
+  sfx.drop();
   renderLoose();
   const el = document.querySelector(`.loose-crop[data-id="${id}"]`);
   if (el) el.classList.add('loose-land');
@@ -1777,6 +1923,7 @@ function crowAttack() {
     if (state.rotTiles) delete state.rotTiles[target.idx];
     renderTile(target.idx);
   }
+  sfx.attack();
   log(`🐦 A crow snatched a ${cropName}!`);
   animateCrow(); save();
 }
@@ -1845,7 +1992,7 @@ function hawkAttack() {
       }
     }
   });
-  if (stolen > 0) { renderLoose(); animateHawk(); save(); }
+  if (stolen > 0) { sfx.attack(); renderLoose(); animateHawk(); save(); }
 }
 
 function animateHawk() {
@@ -2024,6 +2171,7 @@ function locustAttack() {
     td.plantedAt = now - newProgress * gt * 1000;
   }
 
+  sfx.locust();
   log('🪲 A locust swarm devastated the farm!');
   renderAllTiles();
   animateLocust();
@@ -2417,6 +2565,7 @@ function onTileDown(e) {
 
   if (state.thornedWeeds && state.thornedWeeds[idx] !== undefined) {
     e.stopPropagation();
+    sfx.weedClick();
     state.thornedWeeds[idx].clicks++;
     if (state.thornedWeeds[idx].clicks >= THORNED_WEED_CLICKS) {
       delete state.thornedWeeds[idx];
@@ -2432,6 +2581,7 @@ function onTileDown(e) {
 
   if (state.weeds && state.weeds[idx] !== undefined) {
     e.stopPropagation();
+    sfx.weedClick();
     state.weeds[idx].clicks++;
     if (state.weeds[idx].clicks >= WEED_CLICKS) {
       delete state.weeds[idx];
@@ -2462,6 +2612,8 @@ function onTileDown(e) {
     e.stopPropagation();
     const seed    = td.seed;
     const tileRect = e.currentTarget.getBoundingClientRect();
+    sfx.harvest();
+    spawnLeafBurst(tileRect.left + tileRect.width / 2, tileRect.top + tileRect.height / 2);
     spawnHarvestPop(tileRect.left + tileRect.width / 2, tileRect.top + tileRect.height / 2, seed);
     const rotInf  = !!(state.rotTiles && state.rotTiles[idx] && state.rotTiles[idx].infectedAt !== undefined && state.rotTiles[idx].deadAt === undefined);
     const bonus   = rotInf ? 0.5 : (td.sellBonus || 1.0);
@@ -2670,6 +2822,9 @@ document.addEventListener('mouseup', e => {
       const i = parseInt(t.dataset.idx);
       if (!state.tiles[i] && !(state.weeds && state.weeds[i] !== undefined) && !(state.thornedWeeds && state.thornedWeeds[i] !== undefined) && !(state.mounds && state.mounds[i] !== undefined) && !(state.rotTiles && state.rotTiles[i] && state.rotTiles[i].deadAt !== undefined) && hit(e.clientX, e.clientY, t)) {
         state.tiles[i] = { seed, plantedAt: Date.now() };
+        sfx.plant();
+        const _tr = t.getBoundingClientRect();
+        spawnDirtPuff(_tr.left + _tr.width / 2, _tr.top + _tr.height / 2);
         renderTile(i); save();
         log(`🌱 Planted ${SEEDS[seed].name}`);
         planted = true;
@@ -2692,6 +2847,9 @@ document.addEventListener('mouseup', e => {
         if (state.coins >= cost) {
           state.coins -= cost;
           state.tiles[i] = { seed, plantedAt: Date.now() };
+          sfx.plant();
+          const _tr2 = t.getBoundingClientRect();
+          spawnDirtPuff(_tr2.left + _tr2.width / 2, _tr2.top + _tr2.height / 2);
           updateCoins(); renderTile(i); save();
         }
         planted = true;
@@ -2723,6 +2881,69 @@ function spawnHarvestPop(x, y, seed) {
   el.appendChild(makeSpriteDiv(seed, 'grown', 56));
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 200);
+}
+
+function _particle(x, y, w, h, css, dx, dy, gravity, duration, scaleEnd, fadeStart) {
+  const el = document.createElement('div');
+  el.style.cssText = `position:fixed;pointer-events:none;z-index:9997;width:${w}px;height:${h}px;left:${x}px;top:${y}px;${css}`;
+  document.body.appendChild(el);
+  const start = performance.now();
+  (function tick(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const e = 1 - Math.pow(1 - t, 2);
+    const tx = dx * e, ty = dy * e + gravity * t * t;
+    const sc = 1 + (scaleEnd - 1) * t;
+    const op = t < fadeStart ? 1 : 1 - (t - fadeStart) / (1 - fadeStart);
+    el.style.transform = `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(${sc})`;
+    el.style.opacity = op;
+    if (t < 1) requestAnimationFrame(tick); else el.remove();
+  })(start);
+}
+
+function spawnCoinBurst(x, y) {
+  for (let i = 0; i < 8; i++) {
+    const angle = (Math.PI * 2 * i / 8) + (Math.random() - 0.5) * 0.7;
+    const dist  = 40 + Math.random() * 40;
+    _particle(x, y, 9, 9,
+      'border-radius:50%;background:radial-gradient(circle at 35% 35%,#F5C518,#D4A017);border:1px solid #A07800;',
+      Math.cos(angle) * dist, Math.sin(angle) * dist,
+      22 + Math.random() * 12, 500 + Math.random() * 120, 0.5, 0.55);
+  }
+}
+
+function spawnLeafBurst(x, y) {
+  for (let i = 0; i < 5; i++) {
+    const angle = (-Math.PI * 5/6) + Math.random() * (Math.PI * 2/3);
+    const dist  = 28 + Math.random() * 32;
+    const size  = 5 + Math.random() * 4;
+    const hue   = 95 + Math.floor(Math.random() * 35);
+    const rot   = (Math.random() - 0.5) * 300;
+    const el = document.createElement('div');
+    el.style.cssText = `position:fixed;pointer-events:none;z-index:9997;width:${size}px;height:${size * 1.7}px;left:${x}px;top:${y}px;border-radius:50% 50% 50% 8%;background:hsl(${hue},62%,36%);`;
+    document.body.appendChild(el);
+    const dx = Math.cos(angle) * dist, dy = Math.sin(angle) * dist;
+    const dur = 350 + Math.random() * 80;
+    const start = performance.now();
+    (function tick(now) {
+      const t = Math.min(1, (now - start) / dur);
+      const e = 1 - Math.pow(1 - t, 2);
+      el.style.transform = `translate(calc(-50% + ${dx*e}px), calc(-50% + ${dy*e + 14*t*t}px)) rotate(${rot*t}deg)`;
+      el.style.opacity = t < 0.45 ? 1 : 1 - (t - 0.45) / 0.55;
+      if (t < 1) requestAnimationFrame(tick); else el.remove();
+    })(start);
+  }
+}
+
+function spawnDirtPuff(x, y) {
+  for (let i = 0; i < 4; i++) {
+    const angle = (Math.PI * 2 * i / 4) + (Math.random() - 0.5) * 0.8;
+    const dist  = 14 + Math.random() * 16;
+    const size  = 5 + Math.random() * 5;
+    _particle(x, y, size, size,
+      'border-radius:50%;background:rgba(88,55,28,0.7);',
+      Math.cos(angle) * dist, Math.sin(angle) * dist,
+      0, 260 + Math.random() * 60, 1.5, 0.25);
+  }
 }
 
 function showPop(text, x, y) {
@@ -2852,6 +3073,18 @@ for (let i = 0; i < tileCount(); i++) {
 // ══════════════════════════════
 // SETTINGS
 // ══════════════════════════════
+(function () {
+  const muteBtn = document.getElementById('mute-btn');
+  muteBtn.textContent = _muted ? '🔇' : '🔊';
+  muteBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    _muted = !_muted;
+    localStorage.setItem('bliss_muted', _muted ? '1' : '0');
+    muteBtn.textContent = _muted ? '🔇' : '🔊';
+    if (!_muted) _ctx(); // resume/init context on unmute
+  });
+}());
+
 (function () {
   const btn             = document.getElementById('settings-btn');
   const backdrop        = document.getElementById('settings-backdrop');
