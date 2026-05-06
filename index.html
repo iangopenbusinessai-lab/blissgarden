@@ -209,6 +209,9 @@ body {
 /* ── GHOST ── */
 #ghost { position:fixed; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); display:none; }
 
+/* ── COIN ── */
+.coin { display:inline-block; width:16px; height:16px; background:radial-gradient(circle at 35% 35%, #F5C518, #D4A017); border:1.5px solid #A07800; border-radius:50%; vertical-align:middle; flex-shrink:0; position:relative; top:-1px; }
+
 /* ── FLOAT POP ── */
 .fpop { position:fixed; pointer-events:none; z-index:9999; font-size:15px; font-weight:700; color:#FFD700; text-shadow:0 1px 4px rgba(0,0,0,.45); animation:floatUp 1.2s ease forwards; transform:translateX(-50%); white-space:nowrap; }
 @keyframes floatUp { 0%{opacity:1;transform:translateX(-50%) translateY(0)} 100%{opacity:0;transform:translateX(-50%) translateY(-52px)} }
@@ -262,7 +265,7 @@ body {
 </div>
 
 <div id="topbar">
-  <div id="coins">🪙 <span id="coin-count">10</span></div>
+  <div id="coins"><span class="coin"></span> <span id="coin-count">10</span></div>
 </div>
 <div id="stage-display"></div>
 
@@ -372,9 +375,10 @@ function getSpriteStyle(cropId, stage, size) {
   const col = SPRITE_COL[stage]  ?? 0;
   const scale = size / 128;
   return {
-    backgroundImage:    "url('sprites.png')",
+    backgroundImage:    "url('./sprites.png')",
     backgroundPosition: `${Math.round(col * -128 * scale)}px ${Math.round(row * -128 * scale)}px`,
     backgroundSize:     `${Math.round(384 * scale)}px ${Math.round(832 * scale)}px`,
+    backgroundRepeat:   'no-repeat',
     width:  size + 'px',
     height: size + 'px',
     imageRendering: 'pixelated',
@@ -397,7 +401,7 @@ function spriteHTML(cropId, stage, size) {
   const by = Math.round(row * -128 * scale);
   const bw = Math.round(384 * scale);
   const bh = Math.round(832 * scale);
-  return `<span style="display:inline-block;width:${size}px;height:${size}px;background:url('sprites.png') ${bx}px ${by}px/${bw}px ${bh}px;image-rendering:pixelated;vertical-align:middle;flex-shrink:0;pointer-events:none"></span>`;
+  return `<span style="display:inline-block;width:${size}px;height:${size}px;background:url('./sprites.png') no-repeat ${bx}px ${by}px/${bw}px ${bh}px;image-rendering:pixelated;vertical-align:middle;flex-shrink:0;pointer-events:none"></span>`;
 }
 
 // ══════════════════════════════
@@ -773,6 +777,11 @@ function fmtElapsed(ms) {
 }
 
 // ══════════════════════════════
+// COIN HELPER
+// ══════════════════════════════
+function coinHTML() { return '<span class="coin"></span>'; }
+
+// ══════════════════════════════
 // LOG
 // ══════════════════════════════
 const logEntries = [];
@@ -782,7 +791,7 @@ function log(msg) {
   const inner = document.getElementById('log-inner');
   const line = document.createElement('div');
   line.className = 'log-line';
-  line.textContent = msg;
+  line.innerHTML = msg;
   inner.appendChild(line);
   while (inner.children.length > 60) inner.removeChild(inner.firstChild);
   inner.scrollTop = inner.scrollHeight;
@@ -843,7 +852,7 @@ function checkMilestones() {
     if (state.coinsEarned >= m && !state.milestones[m]) {
       state.milestones[m] = true;
       const elapsed = Date.now() - state.gameStartTime;
-      log(`⏱️ Reached 🪙${m.toLocaleString()} — ${fmtElapsed(elapsed)}`);
+      log(`⏱️ Reached ${coinHTML()}${m.toLocaleString()} — ${fmtElapsed(elapsed)}`);
     }
   });
 }
@@ -1064,7 +1073,7 @@ function renderSeeds() {
     const gt = seed.grow * getGrowMult();
     const canAfford = state.coins >= seed.cost;
     const row = mk('div','seed-row');
-    row.innerHTML = `<span class="sr-icon">${spriteHTML(key, 'seed', 48)}</span><div class="sr-info"><span class="sr-name">${seed.name}</span><span class="sr-meta">🪙${seed.cost} - ${fmt(gt)}`;
+    row.innerHTML = `<span class="sr-icon">${spriteHTML(key, 'seed', 48)}</span><div class="sr-info"><span class="sr-name">${seed.name}</span><span class="sr-meta">${coinHTML()}${seed.cost} - ${fmt(gt)}`;
     const btn = mk('button','seed-buy-btn');
     btn.textContent = 'Buy';
     btn.disabled = !canAfford;
@@ -1092,7 +1101,7 @@ function renderSeedBags() {
     const canAfford = state.coins >= bag.cost;
     const card = mk('div','upgrade-card');
     const desc = bag.seeds.map((s,i) => `${spriteHTML(s, 'seed', 20)} ${SEEDS[s].name} ${Math.round(bag.odds[i]*100)}%`).join(' · ');
-    card.innerHTML = `<div class="ug-name">${bag.icon} ${bag.name}</div><div class="ug-desc">Opens for 3 seeds: ${desc}</div><div class="ug-bottom"><span class="ug-cost">🪙${bag.cost}</span><button class="ug-btn"${canAfford?'':' disabled'}>Buy</button></div>`;
+    card.innerHTML = `<div class="ug-name">${bag.icon} ${bag.name}</div><div class="ug-desc">Opens for 3 seeds: ${desc}</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}${bag.cost}</span><button class="ug-btn"${canAfford?'':' disabled'}>Buy</button></div>`;
     card.querySelector('.ug-btn').addEventListener('click', e => {
       e.stopPropagation();
       if (state.coins < bag.cost) return;
@@ -1283,15 +1292,15 @@ function renderInventory() {
     });
     const sellBtn = mk('button','inv-seed-sell');
     const price = SEED_SELL_PRICES[key] || 0;
-    sellBtn.textContent = `Sell 🪙${price}`;
-    sellBtn.title = `Sell ${seed.name} seed for 🪙${price}`;
+    sellBtn.innerHTML = `Sell ${coinHTML()}${price}`;
+    sellBtn.title = `Sell ${seed.name} seed for ${price} coins`;
     sellBtn.addEventListener('click', e => {
       e.stopPropagation();
       if ((state.seedInventory[key] || 0) < 1) return;
       state.seedInventory[key]--;
       if (state.seedInventory[key] <= 0) delete state.seedInventory[key];
       addCoins(price);
-      log(`🌱 Sold ${seed.name} seed for 🪙${price}`);
+      log(`🌱 Sold ${seed.name} seed for ${coinHTML()}${price}`);
       renderInventory(); save();
     });
     slot.appendChild(icon);
@@ -1345,7 +1354,7 @@ function renderItems() {
     }
   }
   const fillSecs = wcOwned ? canFillTime() / 1000 : 20;
-  wcCard.innerHTML = `<div class="ug-name">💧 Watering Can</div><div class="ug-desc">Click can in inventory to fill (${fillSecs}s). Drag charged can onto growing crop. +25% speed &amp; value.${wcStatus}</div><div class="ug-bottom"><span class="ug-cost">🪙100</span><button class="ug-btn"${wcOwned||state.coins<100?' disabled':''}>${wcOwned?'Owned':'Buy'}</button></div>`;
+  wcCard.innerHTML = `<div class="ug-name">💧 Watering Can</div><div class="ug-desc">Click can in inventory to fill (${fillSecs}s). Drag charged can onto growing crop. +25% speed &amp; value.${wcStatus}</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}100</span><button class="ug-btn"${wcOwned||state.coins<100?' disabled':''}>${wcOwned?'Owned':'Buy'}</button></div>`;
   if (!wcOwned) {
     wcCard.querySelector('.ug-btn').addEventListener('click', e => {
       e.stopPropagation();
@@ -1363,7 +1372,7 @@ function renderItems() {
   if (wcOwned) {
     const spoutOwned = !!(state.upgrades && state.upgrades.copperSpout);
     const spoutCard  = mk('div','upgrade-card' + (spoutOwned ? ' bought' : ''));
-    spoutCard.innerHTML = `<div class="ug-name">🪙 Copper Spout</div><div class="ug-desc">Upgrade the can: fill time reduced to 8s, capacity increases to 2 charges.</div><div class="ug-bottom"><span class="ug-cost">🪙800</span><button class="ug-btn"${spoutOwned||state.coins<800?' disabled':''}>${spoutOwned?'Owned':'Buy'}</button></div>`;
+    spoutCard.innerHTML = `<div class="ug-name">${coinHTML()} Copper Spout</div><div class="ug-desc">Upgrade the can: fill time reduced to 8s, capacity increases to 2 charges.</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}800</span><button class="ug-btn"${spoutOwned||state.coins<800?' disabled':''}>${spoutOwned?'Owned':'Buy'}</button></div>`;
     if (!spoutOwned) {
       spoutCard.querySelector('.ug-btn').addEventListener('click', e => {
         e.stopPropagation();
@@ -1371,7 +1380,7 @@ function renderItems() {
         state.coins -= 800;
         if (!state.upgrades) state.upgrades = {};
         state.upgrades.copperSpout = true;
-        log('🪙 Copper Spout installed — fill time 8s, capacity 2');
+        log(`${coinHTML()} Copper Spout installed — fill time 8s, capacity 2`);
         updateCoins(); renderInventory(); renderItems(); save();
       });
     }
@@ -1380,7 +1389,7 @@ function renderItems() {
 
   // Cage
   const cageCard = mk('div','upgrade-card');
-  cageCard.innerHTML = `<div class="ug-name">🔒 Cage</div><div class="ug-desc">Drag from inventory onto a tile for 75% crow resistance. Stays until removed.</div><div class="ug-bottom"><span class="ug-cost">🪙250</span><button class="ug-btn cage-buy-btn"${state.coins<250?' disabled':''}>Buy</button></div>`;
+  cageCard.innerHTML = `<div class="ug-name">🔒 Cage</div><div class="ug-desc">Drag from inventory onto a tile for 75% crow resistance. Stays until removed.</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}250</span><button class="ug-btn cage-buy-btn"${state.coins<250?' disabled':''}>Buy</button></div>`;
   cageCard.querySelector('.cage-buy-btn').addEventListener('click', e => {
     e.stopPropagation();
     if (state.coins < 250) return;
@@ -1391,7 +1400,7 @@ function renderItems() {
 
   // Common Fertilizer
   const fertCard = mk('div','upgrade-card');
-  fertCard.innerHTML = `<div class="ug-name">🌿 Common Fertilizer</div><div class="ug-desc">Drag from inventory onto any tile. Crops grown there are 25% faster permanently.</div><div class="ug-bottom"><span class="ug-cost">🪙500</span><button class="ug-btn fert-buy-btn"${state.coins<500?' disabled':''}>Buy</button></div>`;
+  fertCard.innerHTML = `<div class="ug-name">🌿 Common Fertilizer</div><div class="ug-desc">Drag from inventory onto any tile. Crops grown there are 25% faster permanently.</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}500</span><button class="ug-btn fert-buy-btn"${state.coins<500?' disabled':''}>Buy</button></div>`;
   fertCard.querySelector('.fert-buy-btn').addEventListener('click', e => {
     e.stopPropagation();
     if (state.coins < 500) return;
@@ -1402,7 +1411,7 @@ function renderItems() {
 
   // Uncommon Fertilizer
   const ufertCard = mk('div','upgrade-card');
-  ufertCard.innerHTML = `<div class="ug-name">⚗️ Uncommon Fertilizer</div><div class="ug-desc">Drag from inventory onto any tile. Crops grown there are 40% faster permanently.</div><div class="ug-bottom"><span class="ug-cost">🪙2000</span><button class="ug-btn ufert-buy-btn"${state.coins<2000?' disabled':''}>Buy</button></div>`;
+  ufertCard.innerHTML = `<div class="ug-name">⚗️ Uncommon Fertilizer</div><div class="ug-desc">Drag from inventory onto any tile. Crops grown there are 40% faster permanently.</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}2000</span><button class="ug-btn ufert-buy-btn"${state.coins<2000?' disabled':''}>Buy</button></div>`;
   ufertCard.querySelector('.ufert-buy-btn').addEventListener('click', e => {
     e.stopPropagation();
     if (state.coins < 2000) return;
@@ -1440,7 +1449,7 @@ function renderUpgrades() {
     if (bought && state.hideBoughtUpgrades) return;
     const canAfford = state.coins >= u.cost && !bought;
     const card = mk('div','upgrade-card' + (bought ? ' bought' : ''));
-    card.innerHTML = `<div class="ug-name">${u.name}</div><div class="ug-desc">${u.desc}</div><div class="ug-bottom"><span class="ug-cost">🪙${u.cost.toLocaleString()}</span><button class="ug-btn"${bought||!canAfford?' disabled':''}>${bought?'Owned':'Buy'}</button></div>`;
+    card.innerHTML = `<div class="ug-name">${u.name}</div><div class="ug-desc">${u.desc}</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}${u.cost.toLocaleString()}</span><button class="ug-btn"${bought||!canAfford?' disabled':''}>${bought?'Owned':'Buy'}</button></div>`;
     if (!bought) {
       card.querySelector('.ug-btn').addEventListener('click', e => {
         e.stopPropagation();
@@ -1527,14 +1536,14 @@ function tickSellBox() {
       } else {
         coins = Math.round(SEEDS[item.seed].sell * getSellMult() * (item.bonus || 1));
       }
-      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for 🪙${coins}${item.fungal ? ' (fungal)' : ''}`);
+      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${coins}${item.fungal ? ' (fungal)' : ''}`);
       totalCoins += coins;
       sold++;
     }
     if (sold > 0) {
       const sb = document.getElementById('sell-box');
       const r  = sb.getBoundingClientRect();
-      showPop('+🪙' + totalCoins, r.left + r.width / 2, r.top - 6);
+      showPop(`+${coinHTML()}${totalCoins}`, r.left + r.width / 2, r.top - 6);
       addCoins(totalCoins);
     }
     state.sellNextAt = state.sellQueue.length ? Date.now() + getSellInterval() : 0;
@@ -2299,7 +2308,7 @@ function showRotCureMenu(idx, cost, x, y) {
   header.textContent = '🍂 Root Rot — cure or harvest fast';
   menu.appendChild(header);
   const btn = mk('button'); btn.className = 'tmenu-btn';
-  btn.textContent = `💊 Cure — 🪙${cost}`;
+  btn.innerHTML = `💊 Cure — ${coinHTML()}${cost}`;
   if (state.coins < cost) { btn.disabled = true; btn.style.opacity = '0.4'; }
   btn.addEventListener('mousedown', e => {
     e.stopPropagation();
@@ -2337,7 +2346,7 @@ function showFungalCureMenu(idx, cost, x, y) {
   header.textContent = '🍄 Fungal Bloom';
   menu.appendChild(header);
   const btn = mk('button'); btn.className = 'tmenu-btn';
-  btn.textContent = `🧹 Clear — 🪙${cost}`;
+  btn.innerHTML = `🧹 Clear — ${coinHTML()}${cost}`;
   if (state.coins < cost) { btn.disabled = true; btn.style.opacity = '0.4'; }
   btn.addEventListener('mousedown', e => {
     e.stopPropagation();
@@ -2453,7 +2462,7 @@ function onTileDown(e) {
         log('💊 Root rot cured.');
         updateCoins(); renderTile(idx); save();
       } else {
-        log(`💊 Need 🪙${cureCost} to cure root rot.`);
+        log(`💊 Need ${coinHTML()}${cureCost} to cure root rot.`);
       }
     } else {
       showRotCureMenu(idx, cureCost, e.clientX + 4, e.clientY + 4);
@@ -2669,7 +2678,7 @@ window.addEventListener('resize', () => {
 // FLOAT POP
 // ══════════════════════════════
 function showPop(text, x, y) {
-  const el = mk('div','fpop'); el.textContent = text;
+  const el = mk('div','fpop'); el.innerHTML = text;
   el.style.left = x + 'px'; el.style.top = y + 'px';
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 1250);
@@ -2766,6 +2775,11 @@ lastLocustCheck = Date.now();
 lastBlightCheck = Date.now();
 lastFungalCheck = Date.now();
 lastFungalSpreadCheck = Date.now();
+(function checkSpritesLoaded() {
+  const img = new Image();
+  img.onerror = () => console.error('[BlissGarden] sprites.png failed to load — check that sprites.png exists in the same directory as index.html');
+  img.src = './sprites.png';
+})();
 buildGrid();
 renderAllTiles();
 renderInventory();
