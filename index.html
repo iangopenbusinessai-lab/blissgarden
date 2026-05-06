@@ -219,6 +219,20 @@ body {
 .hawk-anim { position:fixed; font-size:28px; z-index:9990; pointer-events:none; animation:hawkFly 2s linear forwards; left:-60px; }
 @keyframes hawkFly { from{left:-60px} to{left:calc(100vw + 60px)} }
 
+/* ── LOCUST SWARM ── */
+.locust-anim { position:fixed; font-size:20px; z-index:9990; pointer-events:none; animation:locustFly 5s linear forwards; left:-40px; }
+@keyframes locustFly { from{left:-40px} to{left:calc(100vw + 40px)} }
+
+/* ── BLIGHT STORM ── */
+.blight-cloud { position:fixed; top:0; left:-40%; width:60%; height:100%; pointer-events:none; z-index:9985; animation:blightSweep 3s ease-in-out forwards; background:radial-gradient(ellipse at 50% 40%,rgba(40,20,60,.72) 0%,rgba(20,10,40,.38) 55%,transparent 100%); }
+@keyframes blightSweep { 0%{left:-60%;opacity:0} 15%{opacity:1} 75%{opacity:.85} 100%{left:110%;opacity:0} }
+
+/* ── FUNGAL TILE ── */
+.tile.tile-fungal { background-color:#4a1e6a; border-color:#9b59d0; }
+.tile.tile-fungal.ready { animation:fungalPulse 1.1s ease-in-out infinite; }
+@keyframes fungalPulse { 0%,100%{border-color:#9b59d0;box-shadow:none} 50%{border-color:#d080ff;box-shadow:0 0 8px rgba(180,80,255,.5)} }
+.tile .t-fungal-icon { position:absolute; top:2px; left:2px; font-size:13px; opacity:.9; pointer-events:none; }
+
 /* ── FERTILIZED TILE ── */
 .tile.tile-fertilized  { background-color:#6e3d18; }
 .tile.tile-ufertilized { background-color:#4a2e0a; }
@@ -488,6 +502,24 @@ const UPGRADES = [
   { id:'steelSellBox',   name:'Steel Sell Box',          desc:'Sells 3 items per interval. Reinforced steel.',      cost:20000,   type:'steelSellBox',               chain:'ironSellBox'     },
   { id:'titaniumSellBox',name:'Titanium Sell Box',       desc:'Sells 5 items per interval. Titanium alloy.',        cost:100000,  type:'titaniumSellBox',            chain:'steelSellBox'    },
   { id:'diamondSellBox', name:'Diamond Sell Box',        desc:'Sells 8 items per interval. Diamond-lined.',         cost:500000,  type:'diamondSellBox',             chain:'titaniumSellBox' },
+  // ── STAGE 2 MITIGATION ──
+  { id:'scarecrowCoat',  name:'Scarecrow Coat 🧥',       desc:'Crows deterred 30% more often (additive with cage bonus).',  cost:8000,   type:'mitigation', stage2:true, chain:null             },
+  { id:'hawkNet',        name:'Hawk Net 🕸️',              desc:'Hawks steal 1 crop instead of 2.',                           cost:25000,  type:'mitigation', stage2:true, chain:null             },
+  { id:'groundMesh',     name:'Ground Mesh 🪤',           desc:'Mole spawn chance reduced 40%.',                             cost:12000,  type:'mitigation', stage2:true, chain:null             },
+  { id:'quickSoil',      name:'Quick Soil 🪨',            desc:'Mound recovery time permanently 5s instead of 20s.',         cost:30000,  type:'mitigation', stage2:true, chain:null             },
+  { id:'herbicideI',     name:'Herbicide I 🧴',           desc:'Thorned weed spawn chance reduced 25%.',                     cost:15000,  type:'mitigation', stage2:true, chain:null             },
+  { id:'herbicideII',    name:'Herbicide II 🧴🧴',        desc:'Thorned weeds never spread.',                                cost:60000,  type:'mitigation', stage2:true, chain:'herbicideI'     },
+  // ── STAGE 3 MITIGATION ──
+  { id:'soilTreatment',  name:'Soil Treatment 💉',        desc:'Root rot chance reduced 40%.',                               cost:150000,  type:'mitigation', stage3:true, chain:null               },
+  { id:'fastCure',       name:'Fast Cure ⚕️',             desc:'Root rot cure cost -60%, cures instantly on click.',         cost:400000,  type:'mitigation', stage3:true, chain:'soilTreatment'    },
+  { id:'locustWard',     name:'Locust Ward 🔔',           desc:'Locust swarm chance -50% (stacks with scarecrow).',          cost:200000,  type:'mitigation', stage3:true, chain:null               },
+  { id:'cropShield',     name:'Crop Shield 🛡️',           desc:'Locust swarm sets crops back 15% instead of 30%.',           cost:600000,  type:'mitigation', stage3:true, chain:'locustWard'       },
+  { id:'weathervane',    name:'Weathervane 🌬️',           desc:'Blight storm chance reduced 40%.',                           cost:250000,  type:'mitigation', stage3:true, chain:null               },
+  { id:'soilAnchor',     name:'Soil Anchor ⚓',           desc:'Fertilizer tiles immune to blight storms.',                  cost:700000,  type:'mitigation', stage3:true, chain:'weathervane'      },
+  { id:'antifungalSpray',name:'Antifungal Spray 🧪',      desc:'Fungal bloom chance reduced 50%.',                           cost:350000,  type:'mitigation', stage3:true, chain:null               },
+  { id:'containment',    name:'Containment 🚧',           desc:'Fungal bloom cannot spread past its origin tile.',           cost:900000,  type:'mitigation', stage3:true, chain:'antifungalSpray'  },
+  { id:'ironGreenhouse', name:'Iron Greenhouse 🏠',        desc:'All Stage 2 & 3 event chances reduced 20% globally.',        cost:2000000, type:'mitigation', stage3:true, chain:null               },
+  { id:'masterFarmer',   name:'Master Farmer 👨‍🌾',         desc:'Weeds and thorned weeds auto-clear after 10s.',              cost:5000000, type:'mitigation', stage3:true, chain:null               },
 ];
 
 // ══════════════════════════════
@@ -530,6 +562,10 @@ let state = {
   mounds: {},
   rotTiles: {},
   firstRotEver: false,
+  firstLocustEver: false,
+  firstBlightEver: false,
+  fungalTiles: {},
+  firstFungalEver: false,
   hideBoughtUpgrades: false,
 };
 let nextId = 0, selectedTile = null, panelExpanded = true, panelWidth = 220;
@@ -539,6 +575,10 @@ let lastWeedCheck = 0;
 let lastHawkCheck = 0;
 let lastMoleCheck = 0;
 let lastRotCheck = 0;
+let lastLocustCheck = 0;
+let lastBlightCheck = 0;
+let lastFungalCheck = 0;
+let lastFungalSpreadCheck = 0;
 const WEED_CLICKS = 20;
 const THORNED_WEED_CLICKS = 50;
 let prevReadyState = {};
@@ -549,8 +589,8 @@ let prevReadyState = {};
 let drag = null;
 const ghost = document.getElementById('ghost');
 
-function startDrag(seed, source, bonus = 1.0, drowned = false) {
-  drag = { seed, source, bonus, drowned };
+function startDrag(seed, source, bonus = 1.0, drowned = false, fungal = false) {
+  drag = { seed, source, bonus, drowned, fungal };
   ghost.innerHTML = '';
   ghost.appendChild(makeSpriteDiv(seed, source === 'seedInventory' ? 'seed' : 'grown', 64));
   ghost.style.display = 'block';
@@ -609,8 +649,8 @@ function load() {
     state.seedInventory   = d.seedInventory   ?? {};
     state.bagInventory    = d.bagInventory    ?? {};
     state.sellQueue       = (d.sellQueue || []).map(item => {
-      if (typeof item === 'string') return { seed: item, bonus: 1, drowned: false };
-      return { seed: item.seed, bonus: item.bonus ?? 1, drowned: item.drowned ?? false };
+      if (typeof item === 'string') return { seed: item, bonus: 1, drowned: false, fungal: false };
+      return { seed: item.seed, bonus: item.bonus ?? 1, drowned: item.drowned ?? false, fungal: item.fungal ?? false };
     });
     state.sellNextAt      = d.sellNextAt      ?? 0;
     state.upgrades        = d.upgrades        ?? {};
@@ -618,7 +658,7 @@ function load() {
     if (state.upgrades.crankUpI && !state.upgrades.ironCrank) state.upgrades.ironCrank = true;
     state.loose           = (d.loose || []).map(item => ({
       seed: item.seed, id: item.id, x: item.x, y: item.y,
-      bonus: item.bonus ?? 1.0, drowned: item.drowned ?? false
+      bonus: item.bonus ?? 1.0, drowned: item.drowned ?? false, fungal: item.fungal ?? false
     }));
     state.expanded        = d.expanded        ?? false;
     state.expandedBottom  = d.expandedBottom  ?? false;
@@ -646,6 +686,10 @@ function load() {
     state.mounds              = d.mounds              ?? {};
     state.rotTiles            = d.rotTiles            ?? {};
     state.firstRotEver        = d.firstRotEver        ?? false;
+    state.firstLocustEver     = d.firstLocustEver     ?? false;
+    state.firstBlightEver     = d.firstBlightEver     ?? false;
+    state.fungalTiles         = d.fungalTiles         ?? {};
+    state.firstFungalEver     = d.firstFungalEver     ?? false;
     state.hideBoughtUpgrades  = d.hideBoughtUpgrades  ?? false;
     nextId                = d.nextId          ?? 0;
     panelExpanded         = d.panelExpanded   ?? true;
@@ -936,16 +980,19 @@ function renderTile(idx) {
   const isFertilized   = !!(state.fertilizedTiles && state.fertilizedTiles[idx]);
   const isUFertilized  = !!(state.uncommonFertilizedTiles && state.uncommonFertilizedTiles[idx]);
   const isRotInfected  = !!(state.rotTiles && state.rotTiles[idx] && state.rotTiles[idx].infectedAt !== undefined && state.rotTiles[idx].deadAt === undefined);
+  const isFungal       = !!(state.fungalTiles && state.fungalTiles[idx] !== undefined);
 
   if (isRotInfected) el.classList.add('tile-rot');
   if (isCaged)       el.classList.add('tile-caged');
   if (isUFertilized) el.classList.add('tile-ufertilized');
   else if (isFertilized) el.classList.add('tile-fertilized');
+  if (isFungal)      el.classList.add('tile-fungal');
 
   if (!td) {
     if (isCaged)       { const c = mk('div','t-cage-icon');  c.textContent='🔒'; el.appendChild(c); }
     if (isUFertilized) { const f = mk('div','t-ufert-icon'); f.textContent='⚗️'; el.appendChild(f); }
     else if (isFertilized) { const f = mk('div','t-fert-icon'); f.textContent='🌿'; el.appendChild(f); }
+    if (isFungal) { const fi = mk('div','t-fungal-icon'); fi.textContent='🍄'; el.appendChild(fi); }
     return;
   }
 
@@ -1000,6 +1047,7 @@ function renderTile(idx) {
       const rt = mk('div','t-rot-timer'); rt.dataset.rotTimerIdx = idx; rt.textContent = fmt(rem); el.appendChild(rt);
     }
   }
+  if (isFungal) { const fi = mk('div','t-fungal-icon'); fi.textContent='🍄'; el.appendChild(fi); }
 }
 
 function mk(tag, cls) { const el = document.createElement(tag); if (cls) el.className = cls; return el; }
@@ -1383,7 +1431,10 @@ function renderUpgrades() {
   const container = document.getElementById('upgrades-list');
   container.innerHTML = '';
   const sorted = [...UPGRADES].sort((a,b) => a.cost - b.cost);
+  const currentStage = getCurrentStage().stage;
   sorted.forEach(u => {
+    if (u.stage2 && currentStage < 2) return;
+    if (u.stage3 && currentStage < 3) return;
     if (u.chain !== null && u.chain !== undefined && !state.upgrades[u.chain]) return;
     const bought    = !!state.upgrades[u.id];
     if (bought && state.hideBoughtUpgrades) return;
@@ -1428,8 +1479,8 @@ function renderUpgrades() {
 // ══════════════════════════════
 // SELL BOX
 // ══════════════════════════════
-function addToSellQueue(seed, bonus = 1.0, drowned = false) {
-  state.sellQueue.push({ seed, bonus, drowned });
+function addToSellQueue(seed, bonus = 1.0, drowned = false, fungal = false) {
+  state.sellQueue.push({ seed, bonus, drowned, fungal });
   if (state.sellQueue.length === 1) state.sellNextAt = Date.now() + getSellInterval();
   renderSellBox(); save();
 }
@@ -1469,12 +1520,14 @@ function tickSellBox() {
     for (let s = 0; s < maxSell && state.sellQueue.length > 0; s++) {
       const item = state.sellQueue.shift();
       let coins;
-      if (item.drowned) {
+      if (item.fungal) {
+        coins = 0;
+      } else if (item.drowned) {
         coins = Math.round(SEEDS[item.seed].sell * (item.bonus || 1));
       } else {
         coins = Math.round(SEEDS[item.seed].sell * getSellMult() * (item.bonus || 1));
       }
-      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for 🪙${coins}`);
+      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for 🪙${coins}${item.fungal ? ' (fungal)' : ''}`);
       totalCoins += coins;
       sold++;
     }
@@ -1600,8 +1653,8 @@ function updateModeIndicator() {
 // ══════════════════════════════
 // LOOSE CROPS
 // ══════════════════════════════
-function dropLoose(seed, x, y, bonus = 1.0, drowned = false) {
-  state.loose.push({ seed, id: nextId++, x, y, bonus, drowned });
+function dropLoose(seed, x, y, bonus = 1.0, drowned = false, fungal = false) {
+  state.loose.push({ seed, id: nextId++, x, y, bonus, drowned, fungal });
   renderLoose(); save();
 }
 
@@ -1616,9 +1669,9 @@ function renderLoose() {
       e.stopPropagation();
       const i = state.loose.findIndex(g => g.id === item.id);
       if (i === -1) return;
-      const s = state.loose[i].seed, b = state.loose[i].bonus || 1.0, dr = state.loose[i].drowned || false;
+      const s = state.loose[i].seed, b = state.loose[i].bonus || 1.0, dr = state.loose[i].drowned || false, fg = state.loose[i].fungal || false;
       state.loose.splice(i, 1); renderLoose(); save();
-      startDrag(s, 'loose', b, dr); moveGhost(e.clientX, e.clientY);
+      startDrag(s, 'loose', b, dr, fg); moveGhost(e.clientX, e.clientY);
     });
     document.body.appendChild(el);
   });
@@ -1634,11 +1687,14 @@ function crowTick() {
   const now = Date.now();
   if (now - lastCrowCheck < 10000) return;
   lastCrowCheck = now;
-  const chance = stage >= 2 ? 0.08 : 0.05;
+  let chance = stage >= 2 ? 0.08 : 0.05;
+  if (state.upgrades.scarecrowCoat)  chance *= 0.70;
+  if (state.upgrades.ironGreenhouse) chance *= 0.80;
   if (Math.random() < chance) crowAttack();
 }
 
 function crowAttack() {
+  const cageBlock = state.upgrades.scarecrowCoat ? Math.min(1, 0.75 + 0.30) : 0.75;
   let target = null;
   if (state.loose.length > 0) {
     const sorted = [...state.loose].sort((a,b) => SEEDS[b.seed].sell - SEEDS[a.seed].sell);
@@ -1648,7 +1704,7 @@ function crowAttack() {
     const cands = [];
     for (let i = 0; i < tileCount(); i++) {
       if (!state.tiles[i] || !isReady(state.tiles[i], i)) continue;
-      if (state.cages.includes(i) && Math.random() < 0.75) continue;
+      if (state.cages.includes(i) && Math.random() < cageBlock) continue;
       cands.push(i);
     }
     if (cands.length) target = { type:'tile', idx: cands[Math.floor(Math.random()*cands.length)] };
@@ -1657,7 +1713,7 @@ function crowAttack() {
     const cands = [];
     for (let i = 0; i < tileCount(); i++) {
       if (!state.tiles[i] || isReady(state.tiles[i], i)) continue;
-      if (state.cages.includes(i) && Math.random() < 0.75) continue;
+      if (state.cages.includes(i) && Math.random() < cageBlock) continue;
       cands.push(i);
     }
     if (cands.length) target = { type:'tile', idx: cands[Math.floor(Math.random()*cands.length)] };
@@ -1705,7 +1761,8 @@ function hawkTick() {
   const interval = stage >= 3 ? 10000 : 15000;
   if (now - lastHawkCheck < interval) return;
   lastHawkCheck = now;
-  const chance = stage >= 3 ? 0.06 : 0.05;
+  let chance = stage >= 3 ? 0.06 : 0.05;
+  if (state.upgrades.ironGreenhouse) chance *= 0.80;
   if (Math.random() < chance) hawkAttack();
 }
 
@@ -1726,7 +1783,7 @@ function hawkAttack() {
     targets.push({ type:'tile', idx:i, val: SEEDS[state.tiles[i].seed].sell });
   }
   targets.sort((a, b) => b.val - a.val);
-  const toSteal = targets.slice(0, 2);
+  const toSteal = targets.slice(0, state.upgrades.hawkNet ? 1 : 2);
   if (!toSteal.length) return;
 
   if (!state.firstHawkEver) {
@@ -1768,7 +1825,9 @@ function moleTick() {
   const now = Date.now();
   if (now - lastMoleCheck < 45000) return;
   lastMoleCheck = now;
-  if (Math.random() < 0.08) moleAttack();
+  let moleChance = state.upgrades.groundMesh ? 0.08 * 0.60 : 0.08;
+  if (state.upgrades.ironGreenhouse) moleChance *= 0.80;
+  if (Math.random() < moleChance) moleAttack();
 }
 
 function moleAttack() {
@@ -1795,7 +1854,7 @@ function moleAttack() {
   if (state.tilesWatered) delete state.tilesWatered[idx];
   if (state.rotTiles) delete state.rotTiles[idx];
   if (!state.mounds) state.mounds = {};
-  state.mounds[idx] = Date.now() + 20000;
+  state.mounds[idx] = Date.now() + (state.upgrades.quickSoil ? 5000 : 20000);
   log(`🐭 A mole uprooted a ${cropName}! It fell loose nearby.`);
   renderTile(idx); save();
 }
@@ -1845,7 +1904,10 @@ function rootRotSpawnTick() {
   const now = Date.now();
   if (now - lastRotCheck < 180000) return;
   lastRotCheck = now;
-  if (Math.random() < 0.10) rootRotInfect();
+  let rotChance = 0.10;
+  if (state.upgrades.soilTreatment)  rotChance *= 0.60;
+  if (state.upgrades.ironGreenhouse) rotChance *= 0.80;
+  if (Math.random() < rotChance) rootRotInfect();
 }
 
 function rootRotInfect() {
@@ -1881,10 +1943,194 @@ function rootRotInfect() {
 }
 
 // ══════════════════════════════
+// LOCUST SWARM (Stage 3+)
+// ══════════════════════════════
+function locustTick() {
+  if (!state.mature || getCurrentStage().stage < 3) return;
+  const now = Date.now();
+  if (now - lastLocustCheck < 30000) return;
+  lastLocustCheck = now;
+  let chance = 0.03;
+  if (state.items && state.items.scarecrow) chance *= 0.50;
+  if (state.upgrades.locustWard)            chance *= 0.50;
+  if (state.upgrades.ironGreenhouse)        chance *= 0.80;
+  if (Math.random() < chance) locustAttack();
+}
+
+function locustAttack() {
+  if (!state.firstLocustEver) {
+    state.firstLocustEver = true;
+    showBanner('🪲 Locusts have descended on your farm.');
+  }
+
+  // Destroy all loose crops
+  if (state.loose.length > 0) {
+    state.loose = [];
+    renderLoose();
+  }
+
+  // Each growing tile loses 30% of current progress
+  const now = Date.now();
+  for (let i = 0; i < tileCount(); i++) {
+    const td = state.tiles[i];
+    if (!td || isReady(td, i)) continue;
+    const wf = waterFactor(i);
+    const ff = fertFactor(i);
+    const rf = rotFactor(i);
+    const gt = SEEDS[td.seed].grow * getGrowMult() * wf * ff * rf;
+    const elapsed = (now - td.plantedAt) / 1000;
+    const progress = Math.min(1, elapsed / gt);
+    const setback = state.upgrades.cropShield ? 0.15 : 0.30;
+    const newProgress = Math.max(0, progress - setback);
+    td.plantedAt = now - newProgress * gt * 1000;
+  }
+
+  log('🪲 A locust swarm devastated the farm!');
+  renderAllTiles();
+  animateLocust();
+}
+
+function animateLocust() {
+  const { top: farmTop, height: farmH } = document.getElementById('game-area').getBoundingClientRect();
+  const rows = 8;
+  for (let r = 0; r < rows; r++) {
+    const el = mk('div', 'locust-anim');
+    el.textContent = '🪲';
+    el.style.top = (farmTop + (r / (rows - 1)) * farmH * 0.85) + 'px';
+    el.style.animationDelay = (r * 0.12) + 's';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5500);
+  }
+}
+
+// ══════════════════════════════
+// BLIGHT STORM (Stage 3+)
+// ══════════════════════════════
+function blightTick() {
+  if (!state.mature || getCurrentStage().stage < 3) return;
+  const now = Date.now();
+  if (now - lastBlightCheck < 300000) return;
+  lastBlightCheck = now;
+  let blightChance = 0.15;
+  if (state.upgrades.weathervane)    blightChance *= 0.60;
+  if (state.upgrades.ironGreenhouse) blightChance *= 0.80;
+  if (Math.random() < blightChance) blightAttack();
+}
+
+function blightAttack() {
+  if (!state.firstBlightEver) {
+    state.firstBlightEver = true;
+    showBanner('🌪️ Blight storms are rolling in.');
+  }
+
+  // Strip all watered tiles
+  if (state.tilesWatered) {
+    const waterKeys = Object.keys(state.tilesWatered);
+    waterKeys.forEach(k => { delete state.tilesWatered[k]; });
+  }
+
+  // 25% chance each fertilized tile loses its fertilizer (immune with Soil Anchor)
+  if (state.fertilizedTiles && !state.upgrades.soilAnchor) {
+    Object.keys(state.fertilizedTiles).forEach(k => {
+      if (Math.random() < 0.25) delete state.fertilizedTiles[k];
+    });
+  }
+
+  log('🌪️ A blight storm stripped your soil!');
+  renderAllTiles();
+  animateBlight();
+}
+
+function animateBlight() {
+  const el = mk('div', 'blight-cloud');
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+// ══════════════════════════════
+// FUNGAL BLOOM (Stage 3+)
+// ══════════════════════════════
+function fungalSpawnTick() {
+  if (!state.mature || getCurrentStage().stage < 3) return;
+  const now = Date.now();
+  if (now - lastFungalCheck < 240000) return;
+  lastFungalCheck = now;
+  let fungalChance = 0.08;
+  if (state.upgrades.antifungalSpray) fungalChance *= 0.50;
+  if (state.upgrades.ironGreenhouse)  fungalChance *= 0.80;
+  if (Math.random() < fungalChance) fungalBloom();
+}
+
+function fungalBloom() {
+  const cands = [];
+  for (let i = 0; i < tileCount(); i++) {
+    if (state.fungalTiles && state.fungalTiles[i] !== undefined) continue;
+    if (state.weeds && state.weeds[i] !== undefined) continue;
+    if (state.thornedWeeds && state.thornedWeeds[i] !== undefined) continue;
+    if (state.mounds && state.mounds[i] !== undefined) continue;
+    if (state.rotTiles && state.rotTiles[i] && state.rotTiles[i].deadAt !== undefined) continue;
+    cands.push(i);
+  }
+  if (!cands.length) return;
+
+  if (!state.firstFungalEver) {
+    state.firstFungalEver = true;
+    showBanner('🍄 A fungal bloom has taken root.');
+  }
+
+  if (!state.fungalTiles) state.fungalTiles = {};
+  const idx = cands[Math.floor(Math.random() * cands.length)];
+  state.fungalTiles[idx] = { spawnedAt: Date.now() };
+  log('🍄 Fungal bloom appeared!');
+  renderTile(idx); save();
+}
+
+function fungalSpreadTick() {
+  if (!state.fungalTiles) return;
+  if (state.upgrades.containment) return;
+  const total = Object.keys(state.fungalTiles).length;
+  if (total === 0 || total >= 4) return;
+  const now = Date.now();
+  if (now - lastFungalSpreadCheck < 30000) return;
+  lastFungalSpreadCheck = now;
+  fungalSpread();
+}
+
+function fungalSpread() {
+  if (!state.fungalTiles) return;
+  const fungalIdxs = Object.keys(state.fungalTiles).map(Number);
+  if (fungalIdxs.length >= 4) return;
+  const { cols } = getGridDims();
+  const tc = tileCount();
+  const adjSet = new Set();
+  fungalIdxs.forEach(idx => {
+    const r = Math.floor(idx / cols), c = idx % cols;
+    [[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([nr,nc]) => {
+      if (nr < 0 || nc < 0 || nc >= cols) return;
+      const ni = nr * cols + nc;
+      if (ni >= tc) return;
+      if (state.fungalTiles[ni] !== undefined) return;
+      if (state.weeds && state.weeds[ni] !== undefined) return;
+      if (state.thornedWeeds && state.thornedWeeds[ni] !== undefined) return;
+      if (state.mounds && state.mounds[ni] !== undefined) return;
+      if (state.rotTiles && state.rotTiles[ni] && state.rotTiles[ni].deadAt !== undefined) return;
+      adjSet.add(ni);
+    });
+  });
+  if (!adjSet.size) return;
+  const adjArr = [...adjSet];
+  const target = adjArr[Math.floor(Math.random() * adjArr.length)];
+  state.fungalTiles[target] = { spawnedAt: Date.now() };
+  log('🍄 Fungal bloom spread.');
+  renderTile(target); save();
+}
+
+// ══════════════════════════════
 // THORNED WEED TICK (Stage 2+)
 // ══════════════════════════════
 function thornedWeedTick() {
   if (!state.thornedWeeds) return;
+  if (state.upgrades.herbicideII) return;
   const stage = getCurrentStage().stage;
   if (stage < 2) return;
   const spreadMs = stage >= 3 ? 30000 : 60000;
@@ -1923,6 +2169,33 @@ function thornedWeedTick() {
 }
 
 // ══════════════════════════════
+// MASTER FARMER AUTO-CLEAR
+// ══════════════════════════════
+function masterFarmerTick() {
+  if (!state.upgrades.masterFarmer) return;
+  const now = Date.now();
+  const MS = 10000;
+  let changed = false;
+  if (state.weeds) {
+    Object.keys(state.weeds).forEach(k => {
+      const idx = parseInt(k);
+      if (now - (state.weeds[idx].spawnedAt || now - MS) >= MS) {
+        delete state.weeds[idx]; renderTile(idx); changed = true;
+      }
+    });
+  }
+  if (state.thornedWeeds) {
+    Object.keys(state.thornedWeeds).forEach(k => {
+      const idx = parseInt(k);
+      if (now - (state.thornedWeeds[idx].spawnedAt || now - MS) >= MS) {
+        delete state.thornedWeeds[idx]; renderTile(idx); changed = true;
+      }
+    });
+  }
+  if (changed) save();
+}
+
+// ══════════════════════════════
 // WEEDS
 // ══════════════════════════════
 function weedTick() {
@@ -1930,7 +2203,8 @@ function weedTick() {
   const now = Date.now();
   if (now - lastWeedCheck < 8000) return;
   lastWeedCheck = now;
-  const chance = getCurrentStage().stage >= 3 ? 0.18 : 0.12;
+  let chance = getCurrentStage().stage >= 3 ? 0.18 : 0.12;
+  if (state.upgrades.ironGreenhouse) chance *= 0.80;
   if (Math.random() < chance) weedSpawn();
 }
 
@@ -1941,12 +2215,15 @@ function weedSpawn() {
     if (!state.tiles[i] &&
         !(state.weeds && state.weeds[i] !== undefined) &&
         !(state.thornedWeeds && state.thornedWeeds[i] !== undefined) &&
-        !(state.mounds && state.mounds[i] !== undefined)) empty.push(i);
+        !(state.mounds && state.mounds[i] !== undefined) &&
+        !(state.fungalTiles && state.fungalTiles[i] !== undefined)) empty.push(i);
   }
   if (!empty.length) return;
 
   const stage = getCurrentStage().stage;
-  const spawnThorned = stage >= 3 || (stage >= 2 && Math.random() < 0.30);
+  let thornedChance = 0.30;
+  if (state.upgrades.herbicideI) thornedChance *= 0.75;
+  const spawnThorned = stage >= 3 || (stage >= 2 && Math.random() < thornedChance);
   if (spawnThorned) {
     // Thorned weed — cage 60% protection
     const cands = empty.filter(i => !state.cages.includes(i) || Math.random() > 0.60);
@@ -1963,7 +2240,7 @@ function weedSpawn() {
   } else {
     const idx = empty[Math.floor(Math.random() * empty.length)];
     if (!state.weeds) state.weeds = {};
-    state.weeds[idx] = { clicks: 0 };
+    state.weeds[idx] = { clicks: 0, spawnedAt: Date.now() };
     if (!state.firstWeedEver) {
       state.firstWeedEver = true;
       showBanner('🌿 Weeds are beginning to appear.');
@@ -2052,6 +2329,35 @@ function showRotCureMenu(idx, cost, x, y) {
   menu.style.display = 'block';
 }
 
+function showFungalCureMenu(idx, cost, x, y) {
+  const menu = document.getElementById('tile-menu');
+  menu.innerHTML = '';
+  const header = mk('div');
+  header.style.cssText = 'color:rgba(190,100,255,.9);font-size:10px;font-weight:700;padding:4px 8px 2px';
+  header.textContent = '🍄 Fungal Bloom';
+  menu.appendChild(header);
+  const btn = mk('button'); btn.className = 'tmenu-btn';
+  btn.textContent = `🧹 Clear — 🪙${cost}`;
+  if (state.coins < cost) { btn.disabled = true; btn.style.opacity = '0.4'; }
+  btn.addEventListener('mousedown', e => {
+    e.stopPropagation();
+    if (state.coins < cost) return;
+    state.coins -= cost;
+    if (state.fungalTiles) delete state.fungalTiles[idx];
+    if (state.tiles[idx]) {
+      state.tiles[idx] = null;
+      if (state.tilesWatered) delete state.tilesWatered[idx];
+      if (state.rotTiles)     delete state.rotTiles[idx];
+    }
+    log('✅ Fungal tile cleared.');
+    updateCoins(); renderTile(idx); save(); hideTileMenu();
+  });
+  menu.appendChild(btn);
+  menu.style.left = Math.min(x, window.innerWidth  - 200) + 'px';
+  menu.style.top  = Math.min(y, window.innerHeight - 80)  + 'px';
+  menu.style.display = 'block';
+}
+
 // ══════════════════════════════
 // TILE INTERACTION
 // ══════════════════════════════
@@ -2094,11 +2400,14 @@ function onTileDown(e) {
 
   const td = state.tiles[idx];
 
+  const _isFungal = !!(state.fungalTiles && state.fungalTiles[idx] !== undefined);
+
   if (!td) {
     deselect();
     const _caged = state.cages && state.cages.includes(idx);
     const _fert  = !!(state.fertilizedTiles && state.fertilizedTiles[idx]);
     if (_caged || _fert) showTileMenu(idx, e.clientX + 4, e.clientY + 4);
+    else if (_isFungal) showFungalCureMenu(idx, 50, e.clientX + 4, e.clientY + 4);
     return;
   }
 
@@ -2112,9 +2421,9 @@ function onTileDown(e) {
     state.tiles[idx] = null;
     if (state.tilesWatered) delete state.tilesWatered[idx];
     renderTile(idx); save();
-    log(`${SEEDS[seed].icon} ${SEEDS[seed].name} harvested`);
+    log(`${SEEDS[seed].icon} ${SEEDS[seed].name} harvested${_isFungal ? ' (fungal — 0 coins)' : ''}`);
     if (rotInf) log('🍂 Infected — sells for 50% base value');
-    startDrag(seed, 'tile', bonus, drowned); moveGhost(e.clientX, e.clientY);
+    startDrag(seed, 'tile', bonus, drowned, _isFungal); moveGhost(e.clientX, e.clientY);
     return;
   }
 
@@ -2124,8 +2433,34 @@ function onTileDown(e) {
 
   // Show cure menu if tile is rot-infected
   if (state.rotTiles && state.rotTiles[idx] && state.rotTiles[idx].infectedAt !== undefined && state.rotTiles[idx].deadAt === undefined) {
-    const cureCost = Math.ceil(SEEDS[td.seed].sell * 0.10);
-    showRotCureMenu(idx, cureCost, e.clientX + 4, e.clientY + 4);
+    const baseCost  = Math.ceil(SEEDS[td.seed].sell * 0.10);
+    const cureCost  = state.upgrades.fastCure ? Math.ceil(baseCost * 0.40) : baseCost;
+    if (state.upgrades.fastCure) {
+      if (state.coins >= cureCost) {
+        state.coins -= cureCost;
+        const oldRF = rotFactor(idx);
+        delete state.rotTiles[idx];
+        const newRF = rotFactor(idx);
+        if (oldRF !== newRF) {
+          const base = SEEDS[td.seed].grow, gm = getGrowMult(), wf = waterFactor(idx), ff = fertFactor(idx);
+          const oldGT = base * gm * wf * ff * oldRF, newGT = base * gm * wf * ff * newRF;
+          if (oldGT > 0) {
+            const elapsed = (Date.now() - td.plantedAt) / 1000;
+            const oldRem = Math.max(0, oldGT - elapsed);
+            td.plantedAt = Date.now() - (newGT - oldRem * (newGT / oldGT)) * 1000;
+          }
+        }
+        log('💊 Root rot cured.');
+        updateCoins(); renderTile(idx); save();
+      } else {
+        log(`💊 Need 🪙${cureCost} to cure root rot.`);
+      }
+    } else {
+      showRotCureMenu(idx, cureCost, e.clientX + 4, e.clientY + 4);
+    }
+  } else if (_isFungal) {
+    const clearCost = Math.ceil(SEEDS[td.seed].sell * 0.10);
+    showFungalCureMenu(idx, clearCost, e.clientX + 4, e.clientY + 4);
   }
 }
 
@@ -2315,11 +2650,11 @@ document.addEventListener('mouseup', e => {
     });
   } else {
     if (hit(e.clientX, e.clientY, sellBox)) {
-      addToSellQueue(seed, bonus || 1.0, drowned || false);
+      addToSellQueue(seed, bonus || 1.0, drowned || false, drag.fungal || false);
     } else if (panelExpanded && hit(e.clientX, e.clientY, panel)) {
       addInventory(seed); renderInventory(); save();
     } else {
-      dropLoose(seed, e.clientX, e.clientY, bonus || 1.0, drowned || false);
+      dropLoose(seed, e.clientX, e.clientY, bonus || 1.0, drowned || false, drag.fungal || false);
     }
   }
   endDrag();
@@ -2409,6 +2744,11 @@ setInterval(() => {
   moundTick();
   rotTick();
   rootRotSpawnTick();
+  locustTick();
+  blightTick();
+  fungalSpawnTick();
+  fungalSpreadTick();
+  masterFarmerTick();
 }, 1000);
 
 setInterval(save, 10000);
@@ -2422,6 +2762,10 @@ lastWeedCheck = Date.now();
 lastHawkCheck = Date.now();
 lastMoleCheck = Date.now();
 lastRotCheck = Date.now();
+lastLocustCheck = Date.now();
+lastBlightCheck = Date.now();
+lastFungalCheck = Date.now();
+lastFungalSpreadCheck = Date.now();
 buildGrid();
 renderAllTiles();
 renderInventory();
