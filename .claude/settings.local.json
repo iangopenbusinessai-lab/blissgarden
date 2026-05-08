@@ -4,7 +4,8 @@
       "Bash(git add *)",
       "Bash(node -e ' *)",
       "Bash(identify sprites.png)",
-      "Bash(python3 -c \"from PIL import Image; img=Image.open\\('sprites.png'\\); print\\(img.size\\)\")"
+      "Bash(python3 -c \"from PIL import Image; img=Image.open\\('sprites.png'\\); print\\(img.size\\)\")",
+      "Bash(python3 *)"
     ]
   }
 }

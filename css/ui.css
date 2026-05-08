@@ -1,0 +1,207 @@
+/* ── TOP BAR ── */
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: 44px; z-index: 300;
+  display: flex; align-items: center; padding: 0 12px; pointer-events: none;
+}
+#coins {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(0,0,0,.2); border-radius: 20px;
+  padding: 4px 12px 4px 8px; color: #fff; font-size: 15px; font-weight: 700;
+  pointer-events: all;
+}
+#stage-display {
+  position: fixed; top: 0; left: 0; right: var(--pw); height: 44px; z-index: 300;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,.82); font-size: 12px; font-weight: 600;
+  letter-spacing: .3px; pointer-events: none; white-space: nowrap;
+}
+
+/* ── RIGHT PANEL ── */
+#panel {
+  position: fixed; right: 0; top: 0; bottom: 0; width: var(--pw);
+  background: #8B5E3C; z-index: 200; display: flex; flex-direction: row;
+  transition: width .22s ease; overflow: hidden;
+}
+#panel.resizing { transition: none !important; }
+#panel.drop-hi  { background: #7a5030; }
+#panel-tab {
+  width: 24px; min-width: 24px; background: #6e4626;
+  cursor: ew-resize; display: flex; align-items: center;
+  justify-content: center; color: rgba(255,255,255,.55);
+  font-size: 13px; flex-shrink: 0; z-index: 1;
+}
+#panel-tab:hover { background: #623e20; }
+#panel-content {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  display: flex; flex-direction: column; min-width: 0; padding-top: 44px;
+}
+.panel-label {
+  color: rgba(255,255,255,.45); font-size: 9px; font-weight: 700;
+  letter-spacing: 2.5px; text-transform: uppercase; padding: 12px 12px 5px;
+}
+.panel-divider { height: 1px; background: rgba(255,255,255,.1); margin: 10px 0 2px; }
+
+/* ── UPGRADE / ITEM CARDS ── */
+.upgrade-card { margin: 4px 10px; background: rgba(0,0,0,.15); border-radius: 6px; padding: 8px 10px; color: #fff; }
+.upgrade-card.bought { opacity: .45; }
+.ug-name  { font-size: 12px; font-weight: 700; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ug-desc  { font-size: 10px; opacity: .6; margin-bottom: 6px; line-height: 1.35; }
+.ug-bottom { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.ug-cost  { font-size: 11px; opacity: .8; }
+.ug-btn   { background: #5A8A3C; color: #fff; border: none; border-radius: 4px; padding: 3px 10px; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.ug-btn:hover:not(:disabled) { background: #4a7a2c; }
+.ug-btn:disabled { background: rgba(0,0,0,.22); color: rgba(255,255,255,.35); cursor: default; }
+.ug-btn.active   { background: #3a6aac; }
+
+/* ── SEED ROWS ── */
+.seed-row { display: flex; align-items: center; gap: 9px; padding: 9px 12px; color: #fff; }
+.seed-row:hover { background: rgba(0,0,0,.12); }
+.seed-row .sr-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.seed-row .sr-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.seed-row .sr-name { font-size: 12px; font-weight: 700; }
+.seed-row .sr-meta { font-size: 10px; opacity: .6; margin-top: 1px; }
+.seed-buy-btn { background: #5A8A3C; color: #fff; border: none; border-radius: 4px; padding: 3px 9px; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.seed-buy-btn:hover:not(:disabled) { background: #4a7a2c; }
+.seed-buy-btn:disabled { background: rgba(0,0,0,.22); color: rgba(255,255,255,.35); cursor: default; }
+
+/* ── INVENTORY ── */
+#inv-grid { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 12px 14px; }
+.inv-icon { position: relative; width: 42px; height: 42px; background: rgba(0,0,0,.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: grab; }
+.inv-icon:active { cursor: grabbing; }
+.inv-badge { position: absolute; top: -5px; right: -5px; background: #b03020; color: #fff; font-size: 9px; font-weight: 700; border-radius: 10px; padding: 1px 4px; min-width: 15px; text-align: center; line-height: 13px; pointer-events: none; }
+.inv-icon::after { content: attr(data-name); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.8); color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .15s; z-index: 999; }
+.inv-icon:hover::after { opacity: 1; }
+#inv-empty { color: rgba(255,255,255,.28); font-size: 11px; font-style: italic; padding: 6px 12px; }
+
+/* ── SEED INVENTORY SLOTS ── */
+.inv-seed-slot { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.inv-seed-icon { position: relative; width: 42px; height: 42px; background: rgba(0,0,0,.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: grab; border: 1px solid rgba(255,255,255,.1); }
+.inv-seed-icon:active { cursor: grabbing; }
+.inv-seed-icon::after { content: attr(data-name); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.8); color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .15s; z-index: 999; }
+.inv-seed-icon:hover::after { opacity: 1; }
+.inv-seed-sell { background: #5A6A2C; color: #fff; border: none; border-radius: 4px; padding: 2px 5px; font-size: 9px; font-weight: 700; cursor: pointer; white-space: nowrap; width: 42px; text-align: center; }
+.inv-seed-sell:hover { background: #4a5a1c; }
+
+/* ── BAG INVENTORY SLOTS ── */
+.inv-bag-slot { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.inv-bag-icon { position: relative; width: 42px; height: 42px; background: rgba(80,50,20,.4); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; border: 1px solid rgba(255,200,100,.25); }
+.inv-bag-icon::after { content: attr(data-name); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.8); color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .15s; z-index: 999; }
+.inv-bag-icon:hover::after { opacity: 1; }
+.inv-bag-open { background: #8B6020; color: #fff; border: none; border-radius: 4px; padding: 2px 5px; font-size: 9px; font-weight: 700; cursor: pointer; white-space: nowrap; width: 42px; text-align: center; }
+.inv-bag-open:hover { background: #7a5010; }
+
+/* ── SELL BOX ── */
+#sell-box {
+  position: fixed; bottom: 0;
+  left: calc((100vw - var(--pw)) / 2); transform: translateX(-50%);
+  z-index: 250; min-width: 200px; height: 84px;
+  background-color: #8B6343;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 17px, rgba(0,0,0,.22) 17px, rgba(0,0,0,.22) 19px);
+  border: 2px solid #5a3d20; border-bottom: none;
+  display: flex; align-items: center; justify-content: center;
+}
+#sell-box.drop-hi { background-color: #a07848; }
+#sell-box.iron {
+  background-color: #3a424e;
+  background-image:
+    radial-gradient(circle at 8px 8px, #4a5460 5px, transparent 6px),
+    radial-gradient(circle at calc(100% - 8px) 8px, #4a5460 5px, transparent 6px),
+    radial-gradient(circle at 8px calc(100% - 8px), #4a5460 5px, transparent 6px),
+    radial-gradient(circle at calc(100% - 8px) calc(100% - 8px), #4a5460 5px, transparent 6px),
+    repeating-linear-gradient(to bottom, transparent 0, transparent 17px, rgba(0,0,0,.3) 17px, rgba(0,0,0,.3) 19px);
+  border-color: #252c38;
+}
+#sell-box.iron #sell-center { color: #a8bcc8; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+#sell-box.steel {
+  background-color: #2e3a4a;
+  background-image:
+    repeating-linear-gradient(to bottom, transparent 0, transparent 17px, rgba(0,0,0,.3) 17px, rgba(0,0,0,.3) 19px),
+    radial-gradient(circle at 30% 30%, rgba(100,130,160,.15) 0, transparent 70%);
+  border-color: #1a2530;
+}
+#sell-box.steel #sell-center { color: #8ab8d0; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+#sell-box.titanium {
+  background-color: #2a3060;
+  background-image:
+    repeating-linear-gradient(to bottom, transparent 0, transparent 17px, rgba(0,0,0,.25) 17px, rgba(0,0,0,.25) 19px),
+    linear-gradient(135deg, rgba(80,100,180,.15) 0, transparent 50%, rgba(80,100,180,.1) 100%);
+  border-color: #1a2050;
+}
+#sell-box.titanium #sell-center { color: #7ab0f0; text-shadow: 0 1px 4px rgba(50,80,200,.5); }
+#sell-box.diamond {
+  background-color: #1a2850;
+  background-image:
+    repeating-linear-gradient(to bottom, transparent 0, transparent 17px, rgba(0,0,0,.2) 17px, rgba(0,0,0,.2) 19px),
+    radial-gradient(circle at 50% 50%, rgba(80,160,255,.12) 0, transparent 70%);
+  border-color: #0a30a0; box-shadow: 0 0 18px rgba(80,160,255,.25);
+}
+#sell-box.diamond #sell-center { color: #60c8ff; text-shadow: 0 0 8px rgba(80,160,255,.7); }
+#sell-center {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  color: #f5e6ce; white-space: nowrap; pointer-events: none;
+}
+#sell-queue-row {
+  position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 2px; align-items: center;
+  max-width: 92%; flex-wrap: nowrap; overflow: hidden;
+}
+.sq-icon { cursor: grab; display: flex; align-items: center; justify-content: center; }
+.sq-icon:active { cursor: grabbing; }
+#sell-cd { position: absolute; bottom: 7px; right: 10px; font-size: 10px; color: rgba(255,255,255,.5); pointer-events: none; }
+
+/* ── CRANK ── */
+#crank-box { position: fixed; bottom: 0; height: 84px; z-index: 250; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 0 6px; }
+#crank-label { font-size: 12px; font-weight: 700; color: #f5e6ce; text-shadow: 0 1px 3px rgba(0,0,0,.5); white-space: nowrap; }
+#crank-svg { cursor: pointer; display: block; filter: drop-shadow(0 3px 6px rgba(0,0,0,.4)); transform-origin: 30px 30px; transition: filter .1s; }
+#crank-svg:hover  { filter: drop-shadow(0 3px 8px rgba(0,0,0,.55)) brightness(1.12); }
+#crank-svg:active { filter: drop-shadow(0 1px 3px rgba(0,0,0,.35)) brightness(.88); }
+#crank-box.iron     #crank-svg        { filter: drop-shadow(0 3px 7px rgba(0,0,0,.55)) grayscale(.9) brightness(.72); }
+#crank-box.iron     #crank-svg:hover  { filter: drop-shadow(0 3px 9px rgba(0,0,0,.65)) grayscale(.9) brightness(.88); }
+#crank-box.iron     #crank-svg:active { filter: drop-shadow(0 1px 3px rgba(0,0,0,.4)) grayscale(.9) brightness(.55); }
+#crank-box.iron     #crank-label      { color: #b0bcc8; }
+#crank-box.steel    #crank-svg        { filter: drop-shadow(0 3px 7px rgba(0,0,0,.65)) grayscale(.8) brightness(.55); }
+#crank-box.steel    #crank-svg:hover  { filter: drop-shadow(0 3px 9px rgba(0,0,0,.7)) grayscale(.8) brightness(.7); }
+#crank-box.steel    #crank-svg:active { filter: drop-shadow(0 1px 3px rgba(0,0,0,.5)) grayscale(.8) brightness(.4); }
+#crank-box.steel    #crank-label      { color: #8a9aaa; }
+#crank-box.titanium #crank-svg        { filter: drop-shadow(0 3px 9px rgba(70,100,200,.45)) hue-rotate(200deg) saturate(1.3) brightness(.75); }
+#crank-box.titanium #crank-svg:hover  { filter: drop-shadow(0 3px 11px rgba(70,100,200,.6)) hue-rotate(200deg) saturate(1.5) brightness(.9); }
+#crank-box.titanium #crank-svg:active { filter: drop-shadow(0 1px 4px rgba(70,100,200,.3)) hue-rotate(200deg) saturate(1.2) brightness(.6); }
+#crank-box.titanium #crank-label      { color: #90b0d8; }
+#crank-box.diamond  #crank-svg        { filter: drop-shadow(0 4px 14px rgba(80,160,255,.65)) hue-rotate(210deg) saturate(2.2) brightness(1.15); }
+#crank-box.diamond  #crank-svg:hover  { filter: drop-shadow(0 4px 18px rgba(80,160,255,.85)) hue-rotate(210deg) saturate(2.5) brightness(1.3); }
+#crank-box.diamond  #crank-svg:active { filter: drop-shadow(0 2px 6px rgba(80,160,255,.4)) hue-rotate(210deg) saturate(2) brightness(.9); }
+#crank-box.diamond  #crank-label      { color: #70c0ff; }
+
+/* ── WELL ── */
+#well { position: fixed; bottom: 20px; right: calc(var(--pw) + 20px); z-index: 240; display: none; flex-direction: column; align-items: center; gap: 4px; transition: right .22s ease; }
+#well:hover { filter: brightness(1.1); }
+#well.well-active svg { filter: drop-shadow(0 0 6px #4ab8ff); }
+#well-label { font-size: 11px; font-weight: 700; color: #6cf; text-shadow: 0 1px 3px rgba(0,0,0,.5); white-space: nowrap; }
+
+/* ── LOG PANEL ── */
+#log-panel { position: fixed; bottom: 0; left: 0; width: 250px; max-height: 164px; background: rgba(0,0,0,.48); border-radius: 0 8px 0 0; z-index: 190; display: flex; flex-direction: column; overflow: hidden; }
+#log-inner { overflow-y: auto; flex: 1; padding: 5px 8px 6px; display: flex; flex-direction: column; gap: 1px; }
+#log-inner::-webkit-scrollbar { width: 3px; }
+#log-inner::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius: 3px; }
+.log-line { font-size: 10.5px; color: rgba(255,255,255,.82); line-height: 1.45; }
+
+/* ── MODE INDICATOR ── */
+#mode-ind { position: fixed; bottom: 172px; left: 8px; background: rgba(0,0,0,.65); color: #fff; font-size: 11px; padding: 4px 9px; border-radius: 5px; display: none; z-index: 270; pointer-events: none; }
+
+/* ── SETTINGS ── */
+#settings-btn { position: fixed; top: 7px; right: calc(var(--pw) + 8px); z-index: 310; width: 30px; height: 30px; background: rgba(0,0,0,.2); border: none; border-radius: 50%; color: #fff; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; pointer-events: all; }
+#settings-btn:hover { background: rgba(0,0,0,.38); }
+#mute-btn { position: fixed; top: 7px; right: calc(var(--pw) + 46px); z-index: 310; width: 30px; height: 30px; background: rgba(0,0,0,.2); border: none; border-radius: 50%; color: #fff; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; pointer-events: all; }
+#mute-btn:hover { background: rgba(0,0,0,.38); }
+#settings-backdrop { position: fixed; inset: 0; z-index: 900; background: rgba(0,0,0,.55); display: none; }
+#settings-panel { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 901; background: #6B4432; border: 2px solid #3d2010; border-radius: 10px; padding: 22px 26px 20px; min-width: 220px; color: #fff; display: none; }
+#settings-panel h2 { font-size: 15px; font-weight: 700; margin-bottom: 18px; letter-spacing: .5px; }
+#reset-btn { width: 100%; background: #b03020; color: #fff; border: none; border-radius: 6px; padding: 9px 0; font-size: 13px; font-weight: 700; cursor: pointer; }
+#reset-btn:hover { background: #922010; }
+
+/* ── COIN ── */
+.coin { display: inline-block; width: 16px; height: 16px; background: radial-gradient(circle at 35% 35%, #F5C518, #D4A017); border: 1.5px solid #A07800; border-radius: 50%; vertical-align: middle; flex-shrink: 0; position: relative; top: -1px; }
+
+/* ── GHOST ── */
+#ghost { position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); display: none; }

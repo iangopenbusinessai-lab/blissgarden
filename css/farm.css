@@ -1,0 +1,121 @@
+/* ── GRID ── */
+#farm-grid { display: grid; grid-template-columns: repeat(3,100px); gap: 3px; }
+
+/* ── TILE BASE ── */
+.tile {
+  width: 100px; height: 100px;
+  background-color: #8B5E3C;
+  background-image:
+    radial-gradient(rgba(0,0,0,.13) 1px, transparent 1px),
+    radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+    radial-gradient(rgba(0,0,0,.07) 1px, transparent 1px);
+  background-size: 9px 9px, 14px 14px, 6px 6px;
+  background-position: 0 0, 5px 5px, 2px 7px;
+  border: 2px solid #5A8A3C; border-radius: 6px;
+  position: relative; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; cursor: default;
+}
+
+/* ── TILE ANIMATIONS ── */
+.tile.ready { animation: tileReadyPulse 0.8s ease-in-out infinite; }
+.tile.ready .t-icon { animation: cropReadyBounce 0.5s ease-in-out alternate infinite; }
+.tile:not(.ready) .t-icon { animation: cropGrowSway 2s ease-in-out alternate infinite; }
+
+@keyframes tileReadyPulse {
+  0%,100% { border-color: rgba(90,138,60,0.6); box-shadow: none; }
+  50%      { border-color: rgba(127,209,96,1);  box-shadow: 0 0 8px rgba(127,209,96,.5); }
+}
+@keyframes cropReadyBounce { from { transform: translateY(0); } to { transform: translateY(-6px); } }
+@keyframes cropGrowSway    { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
+
+/* ── TILE STATES ── */
+.tile.drop-hi          { background-color: #a07040; }
+.tile.tile-watered     { border-color: #4A9FD4; }
+.tile.tile-caged       { box-shadow: inset 0 0 0 2px rgba(160,160,200,.55); }
+.tile.tile-drowned     { filter: brightness(0.65); }
+.tile.tile-weed        { background-color: #3a6a20; cursor: pointer; }
+.tile.tile-weed:hover  { background-color: #4a7a28; }
+.tile.tile-thorned     { background-color: #2a5a10; cursor: pointer; }
+.tile.tile-thorned:hover { background-color: #3a6a18; }
+.tile.tile-mound       { background-color: #6a4428; cursor: pointer; }
+.tile.tile-mound:hover { background-color: #7a5438; }
+.tile.tile-rot         { background-color: #7a5428; border-color: #8a7040; }
+.tile.tile-rotdead     { background-color: #3a2a1a; cursor: default; }
+.tile.tile-fungal      { background-color: #4a1e6a; border-color: #9b59d0; }
+.tile.tile-fungal.ready { animation: fungalPulse 1.1s ease-in-out infinite; }
+.tile.tile-fertilized  { background-color: #6e3d18; }
+.tile.tile-ufertilized { background-color: #4a2e0a; }
+
+@keyframes fungalPulse {
+  0%,100% { border-color: #9b59d0; box-shadow: none; }
+  50%      { border-color: #d080ff; box-shadow: 0 0 8px rgba(180,80,255,.5); }
+}
+
+/* ── TILE INNER ELEMENTS ── */
+.tile .t-icon        { display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.tile .t-timer       { font-size: 11px; color: rgba(255,255,255,.85); font-weight: 700; margin-top: 3px; pointer-events: none; }
+.tile .t-xbtn        { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); width: 22px; height: 22px; background: rgba(180,35,35,.9); color: #fff; border-radius: 50%; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; }
+.tile .t-cage-rm     { position: absolute; top: -13px; right: 2px; width: 22px; height: 22px; background: rgba(30,60,140,.9); color: #fff; border-radius: 50%; font-size: 11px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; }
+.tile .t-cage-icon   { position: absolute; bottom: 2px; right: 3px; font-size: 12px; opacity: .7; pointer-events: none; }
+.tile .t-water-icon  { position: absolute; bottom: 2px; left: 3px; font-size: 12px; opacity: .7; pointer-events: none; }
+.tile .t-drown-icon  { position: absolute; bottom: 2px; left: 3px; font-size: 12px; pointer-events: none; }
+.tile .t-fert-icon   { position: absolute; top: 2px; right: 3px; font-size: 11px; opacity: .85; pointer-events: none; }
+.tile .t-ufert-icon  { position: absolute; top: 2px; right: 3px; font-size: 11px; opacity: .85; pointer-events: none; }
+.tile .t-fungal-icon { position: absolute; top: 2px; left: 2px; font-size: 13px; opacity: .9; pointer-events: none; }
+.tile .t-weed-icon   { font-size: 36px; line-height: 1; pointer-events: none; }
+.tile .t-weed-count  { font-size: 11px; color: rgba(255,255,255,.85); font-weight: 700; margin-top: 3px; pointer-events: none; }
+.tile .t-thorned-icon  { font-size: 30px; line-height: 1; pointer-events: none; }
+.tile .t-thorned-count { font-size: 11px; color: rgba(255,255,255,.85); font-weight: 700; margin-top: 3px; pointer-events: none; }
+.tile .t-mound-icon  { font-size: 30px; line-height: 1; pointer-events: none; }
+.tile .t-mound-timer { font-size: 11px; color: rgba(255,255,255,.85); font-weight: 700; margin-top: 3px; pointer-events: none; }
+.tile .t-rot-icon    { position: absolute; top: 2px; left: 2px; font-size: 16px; pointer-events: none; }
+.tile .t-rot-timer   { position: absolute; bottom: 2px; left: 3px; font-size: 9px; color: rgba(255,200,60,.9); font-weight: 700; pointer-events: none; }
+.tile .t-rotdead-icon  { font-size: 28px; line-height: 1; pointer-events: none; }
+.tile .t-rotdead-timer { font-size: 11px; color: rgba(255,255,255,.85); font-weight: 700; margin-top: 3px; pointer-events: none; }
+
+/* ── WEED HIT FLASH ── */
+.tile-weed-hit::after {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(255,255,255,.75); border-radius: 4px;
+  animation: weedFlashAnim 80ms ease-out forwards; pointer-events: none;
+}
+@keyframes weedFlashAnim { from { opacity: 1; } to { opacity: 0; } }
+
+/* ── LOOSE CROP ── */
+.loose-crop {
+  position: fixed; cursor: grab; z-index: 50;
+  transform: translate(-50%,-50%); pointer-events: all;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.3));
+  display: flex; align-items: center; justify-content: center;
+}
+.loose-crop:active { cursor: grabbing; }
+
+@keyframes looseLandAnim {
+  0%   { transform: scale(0.5); }
+  65%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.loose-land { animation: looseLandAnim 200ms ease-out forwards; }
+
+/* ── SELL BOX BOUNCE ── */
+@keyframes sellBoxBounce {
+  0%   { transform: translateX(-50%) scale(1); }
+  40%  { transform: translateX(-50%) scale(1.06); }
+  100% { transform: translateX(-50%) scale(1); }
+}
+.sell-bounce { animation: sellBoxBounce 100ms ease-out; }
+
+/* ── TILE CONTEXT MENU ── */
+#tile-menu {
+  position: fixed; z-index: 500; background: #5e3018;
+  border: 2px solid #3d2010; border-radius: 6px;
+  padding: 5px; display: none; min-width: 148px;
+}
+.tmenu-btn {
+  display: block; width: 100%; background: rgba(0,0,0,.18);
+  border: none; border-radius: 4px; color: #f5e6ce;
+  font-size: 11px; font-weight: 700; padding: 6px 10px;
+  cursor: pointer; text-align: left; white-space: nowrap; margin-bottom: 3px;
+}
+.tmenu-btn:last-child { margin-bottom: 0; }
+.tmenu-btn:hover { background: rgba(0,0,0,.35); }

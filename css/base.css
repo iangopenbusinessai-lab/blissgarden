@@ -1,0 +1,21 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  --pw: 220px;
+  width: 100vw; height: 100vh;
+  overflow: hidden;
+  background: #87CEEB;
+  font-family: system-ui, sans-serif;
+  user-select: none; -webkit-user-select: none;
+}
+
+#game-area {
+  position: fixed; top: 44px; left: 0; right: var(--pw); bottom: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: right .22s ease; z-index: 10;
+}
+
+#grass {
+  background: #5A8A3C; border-radius: 10px; padding: 22px;
+  position: relative; z-index: 2;
+}
