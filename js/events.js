@@ -70,6 +70,7 @@ function animateCrow() {
   el.textContent = '🐦‍⬛';
   el.style.top = (15 + Math.random() * 55) + 'vh';
   document.body.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
   setTimeout(() => el.remove(), 3200);
 }
 
@@ -126,6 +127,7 @@ function animateHawk() {
   el.textContent = '🦅';
   el.style.top = (10 + Math.random() * 50) + 'vh';
   document.body.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
   setTimeout(() => el.remove(), 2200);
 }
 
@@ -284,6 +286,7 @@ function animateLocust() {
     el.style.top = (farmTop + (r / (rows - 1)) * farmH * 0.85) + 'px';
     el.style.animationDelay = (r * 0.12) + 's';
     document.body.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
     setTimeout(() => el.remove(), 5500);
   }
 }
@@ -316,6 +319,7 @@ function blightAttack() {
 function animateBlight() {
   const el = mk('div','blight-cloud');
   document.body.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
   setTimeout(() => el.remove(), 3200);
 }
 

@@ -2,26 +2,47 @@ const SAVE_VERSION = 1;
 const SAVE_KEY = 'blissFarm_v1';
 const OLD_KEY  = 'littleFarm';
 
+let lastSavedHash = null;
+
 function save() {
+  const serialized = JSON.stringify({
+    version:   SAVE_VERSION,
+    meta:      STATE.meta,
+    plots:     STATE.plots,
+    sellQueue: STATE.sellQueue,
+    inventory: STATE.inventory,
+    upgrades:  STATE.upgrades,
+    settings:  STATE.settings,
+    milestones:STATE.milestones,
+  });
+  if (serialized === lastSavedHash) return;
   try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify({
-      version:   SAVE_VERSION,
-      meta:      STATE.meta,
-      plots:     STATE.plots,
-      sellQueue: STATE.sellQueue,
-      inventory: STATE.inventory,
-      upgrades:  STATE.upgrades,
-      settings:  STATE.settings,
-      milestones:STATE.milestones,
-    }));
-  } catch (_) {}
+    localStorage.setItem(SAVE_KEY, serialized);
+    lastSavedHash = serialized;
+  } catch (e) {
+    console.error('save: localStorage write failed', e);
+  }
 }
 
 function load() {
+  let raw;
   try {
-    const raw  = localStorage.getItem(SAVE_KEY);
-    const data = raw ? JSON.parse(raw) : null;
-    const d    = migrate(data);
+    raw = localStorage.getItem(SAVE_KEY);
+  } catch (e) {
+    console.error('load: localStorage read failed', e);
+    return;
+  }
+
+  let data;
+  try {
+    data = raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    console.error('load: save data corrupted, starting fresh', e);
+    return;
+  }
+
+  try {
+    const d = migrate(data);
     if (!d) return;
 
     const m = d.meta ?? {};
@@ -44,7 +65,9 @@ function load() {
     const s = d.settings ?? {};
     STATE.settings.muted        = s.muted        ?? false;
     STATE.settings.hidePurchased= s.hidePurchased ?? false;
-  } catch (_) {}
+  } catch (e) {
+    console.error('load: failed to apply save data, starting fresh', e);
+  }
 }
 
 function migrate(data) {
@@ -55,7 +78,9 @@ function migrate(data) {
   try {
     const raw = localStorage.getItem(OLD_KEY);
     old = raw ? JSON.parse(raw) : null;
-  } catch (_) {}
+  } catch (e) {
+    console.error('migrate: failed to read old save', e);
+  }
 
   if (!old) return data; // nothing to migrate; return whatever we had (null = fresh start)
 

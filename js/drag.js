@@ -6,7 +6,7 @@ window.DragSystem = (() => {
   const handlers = {};
 
   function ghost() { return document.getElementById('ghost'); }
-  function tileEls() { return document.querySelectorAll('.tile'); }
+  function tileEls() { return RenderFarm.tileNodes; }
   function hit(x, y, el) {
     const r = el.getBoundingClientRect();
     return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
@@ -20,7 +20,7 @@ window.DragSystem = (() => {
   }
 
   // ── Document events ──────────────────────────────────────────────────────
-  document.addEventListener('mousemove', e => {
+  function onMove(e) {
     const item = STATE.session.dragItem;
     if (!item) return;
     const g = ghost();
@@ -66,7 +66,7 @@ window.DragSystem = (() => {
       if (hit(e.clientX, e.clientY, sellBox))                          sellBox.classList.add('drop-hi');
       else if (panelExpanded && hit(e.clientX, e.clientY, panel))      panel.classList.add('drop-hi');
     }
-  });
+  }
 
   document.addEventListener('mouseup', e => {
     const item = STATE.session.dragItem;
@@ -209,12 +209,14 @@ window.DragSystem = (() => {
       g.innerHTML = '';
       if (ghostContent) g.appendChild(ghostContent);
       g.style.display = 'block';
+      document.addEventListener('mousemove', onMove);
     },
 
     end() {
       STATE.session.dragItem = null;
       ghost().style.display = 'none';
       clearHighlights();
+      document.removeEventListener('mousemove', onMove);
     },
 
     // register(sourceType, targetType, handler)

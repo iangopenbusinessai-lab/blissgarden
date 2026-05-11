@@ -3,39 +3,45 @@
 // ══════════════════════════════
 window.SEED_BAGS = window.BAGS; // data.js exports BAGS; existing code uses SEED_BAGS
 
-const SPRITE_ROW = {
-  potato:0, carrot:1, wheat:2, sunflower:3,
-  pumpkin:4, chard:5, moonbloom:6, starfruit:7,
-  thornvine:8, glowshroom:9, voidbloom:10, aetherfern:11, solarspike:12,
-};
-const SPRITE_COL = { seed:0, sprout:1, grown:2 };
+const ROW_MAP = {
+  potato:0, carrot:1, wheat:2, sunflower:3, pumpkin:4, chard:5, moonbloom:6,
+  starfruit:7, thornvine:8, glowshroom:9, voidbloom:10, aetherfern:11, solarspike:12,
+}
+const COL_MAP = { seed:0, sprout:1, grown:2 }
 
-function getSpriteStyle(cropId, stage, size = 64) {
-  const r = SPRITE_ROW[cropId] ?? 0, c = SPRITE_COL[stage] ?? 0;
-  const scale = size / 128;
+function getSpriteStyle(cropId, stage, size=64) {
+  const row = ROW_MAP[cropId]
+  const col = COL_MAP[stage]
+  if (row === undefined || col === undefined) {
+    console.error('getSpriteStyle: unknown cropId or stage', cropId, stage)
+    return {}
+  }
   return {
     backgroundImage:    "url('./sprites.png')",
-    backgroundPosition: `${Math.round(c * -128 * scale)}px ${Math.round(r * -128 * scale)}px`,
-    backgroundSize:     `${Math.round(384 * scale)}px ${Math.round(1664 * scale)}px`,
+    backgroundPosition: `${-(col*size)}px ${-(row*size)}px`,
+    backgroundSize:     `${size*3}px ${size*13}px`,
     backgroundRepeat:   'no-repeat',
-    width: size + 'px', height: size + 'px',
-    imageRendering: 'pixelated', flexShrink: '0',
-  };
+    width: size+'px', height: size+'px',
+    imageRendering: 'pixelated',
+    display: 'inline-block',
+    flexShrink: '0',
+  }
 }
 
-function makeSpriteDiv(cropId, stage, size = 64) {
-  const el = document.createElement('div');
-  Object.assign(el.style, getSpriteStyle(cropId, stage, size));
-  el.style.pointerEvents = 'none';
-  return el;
+function makeSpriteDiv(cropId, stage, size=64) {
+  const el = document.createElement('div')
+  Object.assign(el.style, getSpriteStyle(cropId, stage, size))
+  el.style.pointerEvents = 'none'
+  return el
 }
 
-function spriteHTML(cropId, stage, size = 64) {
-  const r = SPRITE_ROW[cropId] ?? 0, c = SPRITE_COL[stage] ?? 0;
-  const scale = size / 128;
-  const bx = Math.round(c * -128 * scale), by = Math.round(r * -128 * scale);
-  const bw = Math.round(384 * scale),       bh = Math.round(1664 * scale);
-  return `<span style="display:inline-block;width:${size}px;height:${size}px;background:url('./sprites.png') no-repeat ${bx}px ${by}px/${bw}px ${bh}px;image-rendering:pixelated;vertical-align:middle;flex-shrink:0;pointer-events:none"></span>`;
+function spriteHTML(cropId, stage, size=64) {
+  const row = ROW_MAP[cropId], col = COL_MAP[stage]
+  if (row === undefined || col === undefined) {
+    console.error('spriteHTML: unknown cropId or stage', cropId, stage)
+    return ''
+  }
+  return `<span style="display:inline-block;width:${size}px;height:${size}px;background:url('./sprites.png') no-repeat ${-(col*size)}px ${-(row*size)}px/${size*3}px ${size*13}px;image-rendering:pixelated;vertical-align:middle;flex-shrink:0;pointer-events:none"></span>`
 }
 
 const ITEM_ICONS = { water:'💧', cage:'🔒', fertilizer:'🌿', uncommonFert:'⚗️' };
@@ -85,7 +91,7 @@ var resizing = false, resizeStartX = 0, resizeStartW = 0, resizeMoved = false;
 // DOM HELPER
 // ══════════════════════════════
 function mk(tag, cls) { const el = document.createElement(tag); if (cls) el.className = cls; return el; }
-function tileEls() { return document.querySelectorAll('.tile'); }
+function tileEls() { return RenderFarm.tileNodes; }
 function hit(x, y, el) { const r = el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; }
 function coinHTML() { return '<span class="coin"></span>'; }
 
@@ -275,6 +281,7 @@ function showBanner(text) {
   el.className = 'world-banner';
   el.textContent = text;
   document.body.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
   setTimeout(() => el.remove(), 4200);
 }
 
@@ -741,6 +748,7 @@ function spawnHarvestPop(x, y, seed) {
   el.style.left = x + 'px'; el.style.top = y + 'px';
   el.appendChild(makeSpriteDiv(seed, 'grown', 56));
   document.body.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
   setTimeout(() => el.remove(), 200);
 }
 
@@ -748,6 +756,7 @@ function showPop(text, x, y) {
   const el = mk('div','fpop'); el.innerHTML = text;
   el.style.left = x + 'px'; el.style.top = y + 'px';
   document.body.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
   setTimeout(() => el.remove(), 1250);
 }
 
@@ -765,8 +774,8 @@ function applyPanelState() {
 // 50ms TICK (timers, sell, dirty renders)
 // ══════════════════════════════
 function updateTimers() {
-  const els = [...tileEls()];
-  for (let i = 0; i < tileCount(); i++) {
+  const nodes = RenderFarm.tileNodes;
+  for (let i = 0; i < nodes.length; i++) {
     const td = state.tiles[i];
     if (!td) continue;
     const wasReady = prevReadyState[i] || false;
@@ -775,7 +784,7 @@ function updateTimers() {
       prevReadyState[i] = true;
       RenderFarm.renderTile(i);
     } else if (!nowReady) {
-      const el = els[i]; if (!el) continue;
+      const el = nodes[i]; if (!el) continue;
       const timerEl = el.querySelector('.t-timer');
       if (timerEl) timerEl.textContent = fmt(remSec(td, i));
       prevReadyState[i] = false;
@@ -832,6 +841,7 @@ function init() {
   TimerManager.timers['fungal'].condition = cond(3);
   TimerManager.timers['sell'].fn        = tickSellBox;
   TimerManager.timers['sell'].condition = () => true;
+  TimerManager.timers['sell'].interval  = () => getSellInterval();
   TimerManager.timers['save'].fn        = save;
   TimerManager.timers['save'].condition = () => true;
 
@@ -935,14 +945,13 @@ function init() {
     });
   }());
 
-  // 50ms fast tick (timers + sky)
-  setInterval(() => {
+  TimerManager.register('display', { interval: 50, condition: () => true, fn: () => {
     updateTimers();
     RenderSellbox.updateSellTimer();
     RenderSellbox.updateCrankLabel();
     canTick();
     RenderEnv.updateSky();
-  }, 50);
+  }});
 
   // Initial render
   RenderFarm.renderGrid();
@@ -965,9 +974,8 @@ function init() {
     prevReadyState[i] = td ? isReady(td, i) : false;
   }
 
-  // Verify sprites
   const img = new Image();
-  img.onerror = () => console.error('[BlissGarden] sprites.png not found');
+  img.onerror = () => console.error('sprites.png not found at ./sprites.png');
   img.src = './sprites.png';
 }
 

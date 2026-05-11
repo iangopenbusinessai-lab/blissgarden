@@ -1,10 +1,10 @@
 window.RenderFarm = (() => {
+  const tileNodes = []; // indexed by tile idx; rebuilt only on buildGrid()
+
   function renderTile(idx) {
-    const els = document.querySelectorAll('.tile');
-    const el  = els[idx];
+    const el = tileNodes[idx];
     if (!el) return;
 
-    // Clear children (DOM-only, never innerHTML string replacement)
     while (el.firstChild) el.removeChild(el.firstChild);
     el.className = 'tile';
 
@@ -64,10 +64,10 @@ window.RenderFarm = (() => {
     if (isFungal)      el.classList.add('tile-fungal');
 
     if (!td) {
-      if (isCaged)       { const c = mk('div','t-cage-icon');  c.textContent='🔒'; el.appendChild(c); }
-      if (isUFertilized) { const f = mk('div','t-ufert-icon'); f.textContent='⚗️'; el.appendChild(f); }
-      else if (isFertilized) { const f = mk('div','t-fert-icon'); f.textContent='🌿'; el.appendChild(f); }
-      if (isFungal) { const fi = mk('div','t-fungal-icon'); fi.textContent='🍄'; el.appendChild(fi); }
+      if (isCaged)           { const c = mk('div','t-cage-icon');  c.textContent='🔒'; el.appendChild(c); }
+      if (isUFertilized)     { const f = mk('div','t-ufert-icon'); f.textContent='⚗️'; el.appendChild(f); }
+      else if (isFertilized) { const f = mk('div','t-fert-icon');  f.textContent='🌿'; el.appendChild(f); }
+      if (isFungal)          { const fi = mk('div','t-fungal-icon'); fi.textContent='🍄'; el.appendChild(fi); }
       return;
     }
 
@@ -75,7 +75,7 @@ window.RenderFarm = (() => {
     if (rdy) {
       el.classList.add('ready');
     } else {
-      if (isWatered) el.classList.add('tile-watered');
+      if (isWatered)  el.classList.add('tile-watered');
       if (td.drowned) el.classList.add('tile-drowned');
     }
 
@@ -112,9 +112,9 @@ window.RenderFarm = (() => {
       }
     }
 
-    if (isUFertilized)      { const f = mk('div','t-ufert-icon'); f.textContent='⚗️'; el.appendChild(f); }
-    else if (isFertilized)  { const f = mk('div','t-fert-icon');  f.textContent='🌿'; el.appendChild(f); }
-    if (isCaged)            { const c = mk('div','t-cage-icon');  c.textContent='🔒'; el.appendChild(c); }
+    if (isUFertilized)     { const f = mk('div','t-ufert-icon'); f.textContent='⚗️'; el.appendChild(f); }
+    else if (isFertilized) { const f = mk('div','t-fert-icon');  f.textContent='🌿'; el.appendChild(f); }
+    if (isCaged) { const c = mk('div','t-cage-icon'); c.textContent='🔒'; el.appendChild(c); }
     if (isRotInfected) {
       const ri = mk('div','t-rot-icon'); ri.textContent = '🍂'; el.appendChild(ri);
       if (!rdy) {
@@ -127,9 +127,10 @@ window.RenderFarm = (() => {
   }
 
   function renderGrid() {
-    for (let i = 0; i < tileCount(); i++) renderTile(i);
+    for (let i = 0; i < tileNodes.length; i++) renderTile(i);
   }
 
+  // Only called on init and expansion upgrades — innerHTML on grid container is allowed here.
   function buildGrid() {
     const grid = document.getElementById('farm-grid');
     const { cols, rows } = getGridDims();
@@ -137,13 +138,15 @@ window.RenderFarm = (() => {
     grid.style.gridTemplateRows    = `repeat(${rows}, 100px)`;
     while (state.tiles.length < tileCount()) state.tiles.push(null);
     grid.innerHTML = '';
+    tileNodes.length = 0;
     for (let i = 0; i < tileCount(); i++) {
       const el = document.createElement('div');
       el.className = 'tile'; el.dataset.idx = i;
       el.addEventListener('mousedown', onTileDown);
       grid.appendChild(el);
+      tileNodes.push(el);
     }
   }
 
-  return { renderTile, renderGrid, buildGrid };
+  return { renderTile, renderGrid, buildGrid, tileNodes };
 })();
