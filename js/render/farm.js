@@ -1,3 +1,5 @@
+var prevReadyState = {};
+
 window.RenderFarm = (() => {
   const tileNodes = []; // indexed by tile idx; rebuilt only on buildGrid()
 
@@ -150,3 +152,77 @@ window.RenderFarm = (() => {
 
   return { renderTile, renderGrid, buildGrid, tileNodes };
 })();
+
+function renderLoose() {
+  document.querySelectorAll('.loose-crop').forEach(el => el.remove());
+  state.loose.forEach(item => {
+    const el = mk('div','loose-crop');
+    el.appendChild(makeSpriteDiv(item.seed, 'grown', 48));
+    el.style.left = item.x + 'px'; el.style.top = item.y + 'px';
+    el.dataset.id = item.id;
+    el.addEventListener('mousedown', e => {
+      e.stopPropagation();
+      const i = state.loose.findIndex(g => g.id === item.id);
+      if (i === -1) return;
+      const { seed: s, bonus: b = 1.0, drowned: dr = false, fungal: fg = false } = state.loose[i];
+      state.loose.splice(i, 1); renderLoose(); save();
+      startDrag(s, 'loose', b, dr, fg); moveGhost(e.clientX, e.clientY);
+    });
+    document.body.appendChild(el);
+  });
+}
+
+function dropLoose(seed, x, y, bonus = 1.0, drowned = false, fungal = false) {
+  const id = nextId++;
+  state.loose.push({ seed, id, x, y, bonus, drowned, fungal });
+  sfx.drop();
+  renderLoose();
+  const el = document.querySelector(`.loose-crop[data-id="${id}"]`);
+  if (el) el.classList.add('loose-land');
+  save();
+}
+
+function spawnHarvestPop(x, y, seed) {
+  const el = mk('div','harvest-pop');
+  el.style.left = x + 'px'; el.style.top = y + 'px';
+  el.appendChild(makeSpriteDiv(seed, 'grown', 56));
+  document.body.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
+  setTimeout(() => el.remove(), 200);
+}
+
+function updateTimers() {
+  const nodes = RenderFarm.tileNodes;
+  for (let i = 0; i < nodes.length; i++) {
+    const td = state.tiles[i];
+    if (!td) continue;
+    const wasReady = prevReadyState[i] || false;
+    const nowReady = isReady(td, i);
+    if (!wasReady && nowReady) {
+      prevReadyState[i] = true;
+      RenderFarm.renderTile(i);
+    } else if (!nowReady) {
+      const el = nodes[i]; if (!el) continue;
+      const timerEl = el.querySelector('.t-timer');
+      if (timerEl) timerEl.textContent = fmt(remSec(td, i));
+      prevReadyState[i] = false;
+    }
+  }
+  document.querySelectorAll('.t-mound-timer').forEach(timerEl => {
+    const mIdx = parseInt(timerEl.dataset.moundIdx);
+    if (state.mounds && state.mounds[mIdx] !== undefined)
+      timerEl.textContent = fmt(Math.max(0, (state.mounds[mIdx] - Date.now()) / 1000));
+  });
+  document.querySelectorAll('.t-rot-timer').forEach(timerEl => {
+    const rIdx = parseInt(timerEl.dataset.rotTimerIdx);
+    const rot  = state.rotTiles && state.rotTiles[rIdx];
+    if (rot && rot.infectedAt !== undefined)
+      timerEl.textContent = fmt(Math.max(0, 90 - (Date.now() - rot.infectedAt) / 1000));
+  });
+  document.querySelectorAll('.t-rotdead-timer').forEach(timerEl => {
+    const rIdx = parseInt(timerEl.dataset.rotDeadIdx);
+    const rot  = state.rotTiles && state.rotTiles[rIdx];
+    if (rot && rot.deadAt !== undefined)
+      timerEl.textContent = fmt(Math.max(0, (rot.deadAt - Date.now()) / 1000));
+  });
+}

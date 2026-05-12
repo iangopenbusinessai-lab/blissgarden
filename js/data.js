@@ -146,3 +146,88 @@ window.UPGRADES = [
   { id:'ironGreenhouse', name:'Iron Greenhouse 🏠',        desc:'All Stage 2 & 3 event chances reduced 20% globally.',        cost:2000000, type:'mitigation', stage3:true, chain:null               },
   { id:'masterFarmer',   name:'Master Farmer 👨‍🌾',         desc:'Weeds and thorned weeds auto-clear after 10s.',              cost:5000000, type:'mitigation', stage3:true, chain:null               },
 ];
+
+// ── SEED_BAGS ALIAS ──
+window.SEED_BAGS = window.BAGS;
+
+// ── SPRITE MAPS ──
+const ROW_MAP = {
+  potato:0, carrot:1, wheat:2, sunflower:3, pumpkin:4, chard:5, moonbloom:6,
+  starfruit:7, thornvine:8, glowshroom:9, voidbloom:10, aetherfern:11, solarspike:12,
+};
+const COL_MAP = { seed:0, sprout:1, grown:2 };
+
+function getSpriteStyle(cropId, stage, size=64) {
+  const row = ROW_MAP[cropId], col = COL_MAP[stage];
+  if (row === undefined || col === undefined) {
+    console.error('getSpriteStyle: unknown cropId or stage', cropId, stage);
+    return {};
+  }
+  return {
+    backgroundImage:    "url('./sprites.png')",
+    backgroundPosition: `${-(col*size)}px ${-(row*size)}px`,
+    backgroundSize:     `${size*3}px ${size*13}px`,
+    backgroundRepeat:   'no-repeat',
+    width: size+'px', height: size+'px',
+    imageRendering: 'pixelated',
+    display: 'inline-block', flexShrink: '0',
+  };
+}
+function makeSpriteDiv(cropId, stage, size=64) {
+  const el = document.createElement('div');
+  Object.assign(el.style, getSpriteStyle(cropId, stage, size));
+  el.style.pointerEvents = 'none';
+  return el;
+}
+function spriteHTML(cropId, stage, size=64) {
+  const row = ROW_MAP[cropId], col = COL_MAP[stage];
+  if (row === undefined || col === undefined) {
+    console.error('spriteHTML: unknown cropId or stage', cropId, stage);
+    return '';
+  }
+  return `<span style="display:inline-block;width:${size}px;height:${size}px;background:url('./sprites.png') no-repeat ${-(col*size)}px ${-(row*size)}px/${size*3}px ${size*13}px;image-rendering:pixelated;vertical-align:middle;flex-shrink:0;pointer-events:none"></span>`;
+}
+
+const ITEM_ICONS = { water:'💧', cage:'🔒', fertilizer:'🌿', uncommonFert:'⚗️' };
+const MILESTONE_VALS = [100, 1000, 10000, 100000, 1000000];
+const STAGES = [
+  { stage:0, name:'Birth',         threshold:0,          log:null },
+  { stage:1, name:'Awakening',     threshold:50000,       log:'🌱 The farm stirs with new life.' },
+  { stage:2, name:'Flourishing',   threshold:500000,      log:'🌿 The land is truly alive.' },
+  { stage:3, name:'Abundance',     threshold:5000000,     log:'🌾 Harvests overflow the barn.' },
+  { stage:4, name:'Legacy',        threshold:50000000,    log:'🏡 This farm will be remembered.' },
+  { stage:5, name:'Transcendence', threshold:500000000,   log:'✨ The farm has become something beyond nature.' },
+];
+const WEED_CLICKS = 20;
+const THORNED_WEED_CLICKS = 50;
+
+function mk(tag, cls) { const el = document.createElement(tag); if (cls) el.className = cls; return el; }
+function tileEls() { return RenderFarm.tileNodes; }
+function hit(x, y, el) { const r = el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; }
+function coinHTML() { return '<span class="coin"></span>'; }
+
+function fmt(s) {
+  if (s <= 0) return '0s';
+  if (s < 1)  return s.toFixed(1) + 's';
+  if (s < 60) return Math.ceil(s) + 's';
+  if (s < 3600) { const m = Math.floor(s/60), sec = Math.ceil(s%60); return `${m}m${sec>0?' '+sec+'s':''}`; }
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60); return `${h}h${m>0?' '+m+'m':''}`;
+}
+function fmtElapsed(ms) {
+  const s = Math.floor(ms / 1000);
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  if (h > 0) return `${h}h ${m}m ${sec}s`;
+  if (m > 0) return `${m}m ${sec}s`;
+  return `${sec}s`;
+}
+function getGridDims() {
+  let cols = 3, rows = 3;
+  if (state.expanded)       cols = 4;
+  if (state.expandedBottom) rows = 4;
+  if (state.expand2ndCol)   cols = 5;
+  if (state.expand2ndRow)   rows = 5;
+  if (state.expand3rdCol)   cols = 6;
+  if (state.expand3rdRow)   rows = 6;
+  return { cols, rows };
+}
+function tileCount() { const { cols, rows } = getGridDims(); return cols * rows; }

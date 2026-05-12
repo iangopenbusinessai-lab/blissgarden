@@ -1,160 +1,180 @@
-const SAVE_VERSION = 1;
-const SAVE_KEY = 'blissFarm_v1';
-const OLD_KEY  = 'littleFarm';
+// ── FLAT GAME STATE ──
+var state = {
+  coins: 10, coinsEarned: 0, gameStartTime: Date.now(),
+  milestones: {}, stagesSeen: {}, mature: false,
+  tiles: Array(9).fill(null),
+  inventory: {}, seedInventory: {}, bagInventory: {},
+  sellQueue: [], sellNextAt: 0,
+  upgrades: {}, loose: [],
+  expanded: false, expandedBottom: false,
+  expand2ndCol: false, expand2ndRow: false,
+  expand3rdCol: false, expand3rdRow: false,
+  items: {}, cageCount: 0, cages: [],
+  canCharges: 0, canRefillAt: 0, tilesWatered: {},
+  fertCharges: 0, uncommonFertCharges: 0,
+  weeds: {}, fertilizedTiles: {}, uncommonFertilizedTiles: {},
+  firstWeedEver: false, firstCrowEver: false, firstHawkEver: false,
+  firstMoleEver: false, firstThornedEver: false,
+  thornedWeeds: {}, mounds: {}, rotTiles: {},
+  firstRotEver: false, firstLocustEver: false, firstBlightEver: false,
+  fungalTiles: {}, firstFungalEver: false,
+  hideBoughtUpgrades: false,
+};
 
-let lastSavedHash = null;
+var nextId = 0, selectedTile = null;
+var crankMult = 1.0, crankAngle = 0;
 
-function save() {
-  STATE.meta.lastSeen = Date.now();
-  const serialized = JSON.stringify({
-    version:   SAVE_VERSION,
-    meta:      STATE.meta,
-    plots:     STATE.plots,
-    sellQueue: STATE.sellQueue,
-    inventory: STATE.inventory,
-    upgrades:  STATE.upgrades,
-    settings:  STATE.settings,
-    milestones:STATE.milestones,
-  });
-  if (serialized === lastSavedHash) return;
+const KEY     = 'blissfarm10';
+const KEY_OLD = 'blissfarm9';
+
+window.save = function save() {
+  state.lastSeen = Date.now();
+  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth }));
+};
+
+window.load = function load() {
   try {
-    localStorage.setItem(SAVE_KEY, serialized);
-    lastSavedHash = serialized;
-  } catch (e) {
-    console.error('save: localStorage write failed', e);
-  }
-}
-
-function load() {
-  let raw;
-  try {
-    raw = localStorage.getItem(SAVE_KEY);
-  } catch (e) {
-    console.error('load: localStorage read failed', e);
-    return;
-  }
-
-  let data;
-  try {
-    data = raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    console.error('load: save data corrupted, starting fresh', e);
-    return;
-  }
-
-  try {
-    const d = migrate(data);
+    let raw = localStorage.getItem(KEY);
+    if (!raw) raw = localStorage.getItem(KEY_OLD);
+    const d = JSON.parse(raw || 'null');
     if (!d) return;
-
-    const m = d.meta ?? {};
-    STATE.meta.gold          = m.gold          ?? 10;
-    STATE.meta.allTimeGold   = m.allTimeGold   ?? 0;
-    STATE.meta.gameStartTime = m.gameStartTime ?? Date.now();
-    STATE.meta.stage         = m.stage         ?? 0;
-    STATE.meta.matureState   = m.matureState   ?? false;
-    STATE.meta.lastSeen      = m.lastSeen      ?? null;
-
-    STATE.plots     = d.plots     ?? Array(9).fill(null);
-    STATE.sellQueue = (d.sellQueue ?? []).map(normalizeQueueItem);
-    STATE.inventory = {
-      seeds: d.inventory?.seeds ?? {},
-      crops: d.inventory?.crops ?? {},
-      items: d.inventory?.items ?? {},
-    };
-    STATE.upgrades  = d.upgrades  ?? {};
-    STATE.milestones= d.milestones?? {};
-
-    const s = d.settings ?? {};
-    STATE.settings.muted        = s.muted        ?? false;
-    STATE.settings.hidePurchased= s.hidePurchased ?? false;
-
-    if (!STATE.meta.lastSeen) {
-      STATE.meta.lastSeen = Date.now(); // first load after this update; skip calculations
-    } else {
-      const elapsed = Date.now() - STATE.meta.lastSeen;
-      if (elapsed > 60000) applyOfflineProgress(elapsed);
+    state.coins           = d.coins           ?? 10;
+    state.coinsEarned     = d.coinsEarned     ?? 0;
+    state.gameStartTime   = d.gameStartTime   ?? Date.now();
+    state.milestones      = d.milestones      ?? {};
+    state.stagesSeen      = d.stagesSeen      ?? {};
+    state.mature          = d.mature          ?? false;
+    state.tiles           = d.tiles           ?? Array(9).fill(null);
+    state.inventory       = d.inventory       ?? {};
+    state.seedInventory   = d.seedInventory   ?? {};
+    state.bagInventory    = d.bagInventory    ?? {};
+    state.sellQueue       = (d.sellQueue || []).map(item =>
+      typeof item === 'string'
+        ? { seed: item, bonus: 1, drowned: false, fungal: false }
+        : { seed: item.seed, bonus: item.bonus ?? 1, drowned: item.drowned ?? false, fungal: item.fungal ?? false });
+    state.sellNextAt              = d.sellNextAt              ?? 0;
+    state.upgrades                = d.upgrades                ?? {};
+    if (state.upgrades.crankUpI && !state.upgrades.ironCrank) state.upgrades.ironCrank = true;
+    state.loose           = (d.loose || []).map(item => ({
+      seed: item.seed, id: item.id, x: item.x, y: item.y,
+      bonus: item.bonus ?? 1.0, drowned: item.drowned ?? false, fungal: item.fungal ?? false }));
+    state.expanded        = d.expanded        ?? false;
+    state.expandedBottom  = d.expandedBottom  ?? false;
+    state.expand2ndCol    = d.expand2ndCol    ?? false;
+    state.expand2ndRow    = d.expand2ndRow    ?? false;
+    state.expand3rdCol    = d.expand3rdCol    ?? false;
+    state.expand3rdRow    = d.expand3rdRow    ?? false;
+    state.items           = d.items           ?? {};
+    state.cageCount       = d.cageCount       ?? 0;
+    state.cages           = d.cages           ?? [];
+    state.canCharges      = d.canCharges  ?? (d.wellFull ? 1 : 0);
+    state.canRefillAt     = d.canRefillAt ?? ((!d.wellFull && d.wellRefillAt) ? d.wellRefillAt : 0);
+    state.tilesWatered            = d.tilesWatered            ?? {};
+    state.fertCharges             = d.fertCharges             ?? 0;
+    state.uncommonFertCharges     = d.uncommonFertCharges     ?? 0;
+    state.weeds                   = d.weeds                   ?? {};
+    state.fertilizedTiles         = d.fertilizedTiles         ?? {};
+    state.uncommonFertilizedTiles = d.uncommonFertilizedTiles ?? {};
+    state.firstWeedEver           = d.firstWeedEver           ?? false;
+    state.firstCrowEver           = d.firstCrowEver           ?? false;
+    state.firstHawkEver           = d.firstHawkEver           ?? false;
+    state.firstMoleEver           = d.firstMoleEver           ?? false;
+    state.firstThornedEver        = d.firstThornedEver        ?? false;
+    state.thornedWeeds            = d.thornedWeeds            ?? {};
+    state.mounds                  = d.mounds                  ?? {};
+    state.rotTiles                = d.rotTiles                ?? {};
+    state.firstRotEver            = d.firstRotEver            ?? false;
+    state.firstLocustEver         = d.firstLocustEver         ?? false;
+    state.firstBlightEver         = d.firstBlightEver         ?? false;
+    state.fungalTiles             = d.fungalTiles             ?? {};
+    state.firstFungalEver         = d.firstFungalEver         ?? false;
+    state.hideBoughtUpgrades      = d.hideBoughtUpgrades      ?? false;
+    nextId        = d.nextId        ?? 0;
+    panelExpanded = d.panelExpanded ?? true;
+    panelWidth    = d.panelWidth    ?? 220;
+    const _savedLastSeen = d.lastSeen ?? null;
+    state.lastSeen = _savedLastSeen ?? Date.now();
+    if (_savedLastSeen) {
+      const _elapsed = Date.now() - _savedLastSeen;
+      if (_elapsed > 60000) _applyOfflineProgress(_elapsed, _savedLastSeen);
     }
-  } catch (e) {
-    console.error('load: failed to apply save data, starting fresh', e);
+  } catch (_) {}
+};
+
+function _applyOfflineProgress(elapsedMs, lastSeenTs) {
+  const MAX_OFFLINE_MS = 8 * 3600 * 1000;
+  const capped    = Math.min(elapsedMs, MAX_OFFLINE_MS);
+  const now       = Date.now();
+  const growMult  = getGrowMult();
+  const sellMult  = getSellMult();
+  const sellIntvl = 10000 * getSellSpeedMult();
+  const atOnce    = getSellAtOnce();
+
+  let cropsFinished = 0;
+  state.tiles.forEach((td, idx) => {
+    if (!td || !td.seed) return;
+    const sd = SEEDS[td.seed]; if (!sd) return;
+    const growMs = sd.grow * growMult * waterFactor(idx) * fertFactor(idx) * rotFactor(idx) * 1000;
+    const wasRdy = (lastSeenTs - td.plantedAt) >= growMs;
+    const isRdy  = (now        - td.plantedAt) >= growMs;
+    if (!wasRdy && isRdy) cropsFinished++;
+  });
+
+  let coinsEarned = 0;
+  const queue = state.sellQueue.length > 0 ? [...state.sellQueue] : [];
+  if (queue.length > 0 && sellIntvl > 0) {
+    let ticks = Math.floor(capped / sellIntvl);
+    while (ticks > 0 && queue.length > 0) {
+      for (let s = 0; s < atOnce && queue.length > 0; s++) {
+        const item = queue.shift();
+        const sd = SEEDS[item.seed]; if (!sd || item.fungal) continue;
+        coinsEarned += item.drowned
+          ? Math.round(sd.sell * (item.bonus || 1))
+          : Math.round(sd.sell * sellMult * (item.bonus || 1));
+      }
+      ticks--;
+    }
+    state.sellQueue = queue;
+    state.sellNextAt = queue.length ? now + sellIntvl : 0;
   }
-}
 
-function migrate(data) {
-  if (data && (data.version ?? 0) >= SAVE_VERSION) return data;
-
-  // No new-format save — try to port an old flat save
-  let old = null;
-  try {
-    const raw = localStorage.getItem(OLD_KEY);
-    old = raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    console.error('migrate: failed to read old save', e);
+  const prevEarned = state.coinsEarned || 0;
+  if (coinsEarned > 0) {
+    state.coins       = (state.coins       || 0) + coinsEarned;
+    state.coinsEarned = prevEarned + coinsEarned;
   }
 
-  if (!old) return data; // nothing to migrate; return whatever we had (null = fresh start)
+  const stagesHit = [];
+  STAGES.forEach(s => {
+    if (s.stage === 0) return;
+    if (state.coinsEarned >= s.threshold && prevEarned < s.threshold && !state.stagesSeen[s.stage]) {
+      state.stagesSeen[s.stage] = true;
+      stagesHit.push(s);
+    }
+  });
 
-  // Derive stage from allTimeGold
-  const allTimeGold = old.coinsEarned ?? 0;
-  let stage = 0;
-  for (const s of (window.STAGES ?? [])) {
-    if (allTimeGold >= s.threshold) stage = s.stage;
-  }
+  const milestonesHit = [];
+  MILESTONE_VALS.forEach(m => {
+    if (state.coinsEarned >= m && prevEarned < m && !state.milestones[m]) {
+      state.milestones[m] = true;
+      milestonesHit.push(m);
+    }
+  });
 
-  // Normalise sell queue entries (old format used plain strings)
-  const sellQueue = (old.sellQueue ?? []).map(normalizeQueueItem);
+  if (!state.mature && state.coinsEarned >= 1000) state.mature = true;
 
-  // Map old flat inventory shape to new nested shape
-  const seeds = {};
-  const crops = {};
-  const items = {};
+  crankMult = 1.0;
 
-  // old.seedInventory: { potato:2, ... }
-  Object.assign(seeds, old.seedInventory ?? {});
-
-  // old.inventory: { potato:1, ... } (harvested crops)
-  Object.assign(crops, old.inventory ?? {});
-
-  // old.items: { wateringCan:true } — convert booleans to 1
-  for (const [k, v] of Object.entries(old.items ?? {})) {
-    if (v) items[k] = 1;
-  }
-  // old stackable counts
-  if (old.cageCount)              items.cage          = old.cageCount;
-  if (old.fertCharges)            items.fertilizer    = old.fertCharges;
-  if (old.uncommonFertCharges)    items.uncommonFert  = old.uncommonFertCharges;
-
-  const upgrades = { ...(old.upgrades ?? {}) };
-  // Backfill a known rename
-  if (upgrades.crankUpI && !upgrades.ironCrank) upgrades.ironCrank = true;
-
-  return {
-    version:   SAVE_VERSION,
-    meta: {
-      gold:          old.coins          ?? 10,
-      allTimeGold,
-      gameStartTime: old.gameStartTime  ?? Date.now(),
-      stage,
-      matureState:   old.mature         ?? false,
-      lastSeen:      null,
-    },
-    plots:      old.tiles     ?? Array(9).fill(null),
-    sellQueue,
-    inventory:  { seeds, crops, items },
-    upgrades,
-    settings: {
-      muted:         false,
-      hidePurchased: old.hideBoughtUpgrades ?? false,
-    },
-    milestones: old.milestones ?? {},
-  };
-}
-
-function normalizeQueueItem(item) {
-  if (typeof item === 'string') return { seed:item, bonus:1, drowned:false, fungal:false };
-  return {
-    seed:    item.seed,
-    bonus:   item.bonus   ?? 1,
-    drowned: item.drowned ?? false,
-    fungal:  item.fungal  ?? false,
-  };
+  setTimeout(() => {
+    if (typeof log === 'function') {
+      const h  = Math.floor(elapsedMs / 3600000);
+      const mn = Math.floor((elapsedMs % 3600000) / 60000);
+      const t  = h > 0 ? `${h}h ${mn}m` : `${mn}m`;
+      const goldPart = coinsEarned > 0 ? ` Earned ${coinHTML()}${coinsEarned.toLocaleString()} while away.` : '';
+      log(`💤 Returned after ${t}.${goldPart}`);
+      milestonesHit.forEach(m => log(`⏱️ Reached ${coinHTML()}${m.toLocaleString()} while you were away.`));
+      stagesHit.forEach(s => { if (s.log) log(s.log); });
+    }
+    _showOfflineModal(elapsedMs, coinsEarned, cropsFinished, milestonesHit, stagesHit);
+  }, 0);
 }

@@ -74,3 +74,11 @@ window.RenderSellbox = (() => {
 
   return { renderQueue, renderCrank, renderWell, updateBoxStyle, positionCrank, updateSellTimer, updateCrankLabel };
 })();
+
+function showPop(text, x, y) {
+  const el = mk('div','fpop'); el.innerHTML = text;
+  el.style.left = x + 'px'; el.style.top = y + 'px';
+  document.body.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
+  setTimeout(() => el.remove(), 1250);
+}

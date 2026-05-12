@@ -1,3 +1,5 @@
+var panelExpanded = true, panelWidth = 220;
+
 window.RenderPanel = (() => {
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -541,5 +543,40 @@ window.RenderPanel = (() => {
     _emptyEl.style.display = count === 0 ? '' : 'none';
   }
 
-  return { renderSeeds, renderBags, renderItems, renderUpgrades, renderInventory };
+  function applyPanelState() {
+    const w = panelExpanded ? panelWidth + 'px' : '24px';
+    document.body.style.setProperty('--pw', w);
+    document.getElementById('panel-arrow').textContent = panelExpanded ? '›' : '‹';
+    if (state.upgrades.windUpCrank) RenderSellbox.positionCrank();
+  }
+
+  function initPanelEvents() {
+    let resizing = false, resizeStartX = 0, resizeStartW = 0, resizeMoved = false;
+    const panelTabEl = document.getElementById('panel-tab');
+    const panelEl    = document.getElementById('panel');
+    panelTabEl.addEventListener('mousedown', e => {
+      resizing = true; resizeStartX = e.clientX; resizeStartW = panelWidth; resizeMoved = false;
+      panelEl.classList.add('resizing'); e.preventDefault(); e.stopPropagation();
+    });
+    document.addEventListener('mousemove', e => {
+      if (!resizing) return;
+      const dx = resizeStartX - e.clientX;
+      if (Math.abs(dx) > 4) resizeMoved = true;
+      if (resizeMoved && panelExpanded) {
+        panelWidth = Math.max(160, Math.min(400, resizeStartW + dx));
+        document.body.style.setProperty('--pw', panelWidth + 'px');
+        if (state.upgrades.windUpCrank) RenderSellbox.positionCrank();
+      }
+    });
+    document.addEventListener('mouseup', () => {
+      if (!resizing) return;
+      resizing = false; panelEl.classList.remove('resizing');
+      if (!resizeMoved) { panelExpanded = !panelExpanded; applyPanelState(); }
+      save();
+    });
+    document.addEventListener('mousedown', () => { if (!drag && !resizing) deselect(); hideTileMenu(); });
+    window.addEventListener('resize', () => { if (state.upgrades.windUpCrank) RenderSellbox.positionCrank(); });
+  }
+
+  return { renderSeeds, renderBags, renderItems, renderUpgrades, renderInventory, applyPanelState, initPanelEvents };
 })();
