@@ -102,6 +102,7 @@ const KEY     = 'blissfarm10';
 const KEY_OLD = 'blissfarm9';
 
 window.save = function save() {
+  state.lastSeen = Date.now();
   localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth }));
 };
 
@@ -165,6 +166,12 @@ window.load = function load() {
     nextId        = d.nextId        ?? 0;
     panelExpanded = d.panelExpanded ?? true;
     panelWidth    = d.panelWidth    ?? 220;
+    const _savedLastSeen = d.lastSeen ?? null;
+    state.lastSeen = _savedLastSeen ?? Date.now();
+    if (_savedLastSeen) {
+      const _elapsed = Date.now() - _savedLastSeen;
+      if (_elapsed > 60000) _applyOfflineProgress(_elapsed, _savedLastSeen);
+    }
   } catch (_) {}
 };
 
@@ -807,6 +814,91 @@ function updateTimers() {
     if (rot && rot.deadAt !== undefined)
       timerEl.textContent = fmt(Math.max(0, (rot.deadAt - Date.now()) / 1000));
   });
+}
+
+// ══════════════════════════════
+// OFFLINE PROGRESS
+// ══════════════════════════════
+function _applyOfflineProgress(elapsedMs, lastSeenTs) {
+  const MAX_OFFLINE_MS = 8 * 3600 * 1000;
+  const capped     = Math.min(elapsedMs, MAX_OFFLINE_MS);
+  const now        = Date.now();
+  const growMult   = getGrowMult();
+  const sellMult   = getSellMult();
+  const sellIntvl  = 10000 * getSellSpeedMult();
+  const atOnce     = getSellAtOnce();
+
+  // Count crops that finished growing while away
+  let cropsFinished = 0;
+  state.tiles.forEach((td, idx) => {
+    if (!td || !td.seed) return;
+    const sd = SEEDS[td.seed]; if (!sd) return;
+    const growMs = sd.grow * growMult * waterFactor(idx) * fertFactor(idx) * rotFactor(idx) * 1000;
+    const wasRdy = (lastSeenTs - td.plantedAt) >= growMs;
+    const isRdy  = (now        - td.plantedAt) >= growMs;
+    if (!wasRdy && isRdy) cropsFinished++;
+  });
+
+  // Compute sell-queue earnings
+  let coinsEarned = 0;
+  const queue = state.sellQueue.length > 0 ? [...state.sellQueue] : [];
+  if (queue.length > 0 && sellIntvl > 0) {
+    let ticks = Math.floor(capped / sellIntvl);
+    while (ticks > 0 && queue.length > 0) {
+      for (let s = 0; s < atOnce && queue.length > 0; s++) {
+        const item = queue.shift();
+        const sd = SEEDS[item.seed]; if (!sd || item.fungal) continue;
+        coinsEarned += item.drowned
+          ? Math.round(sd.sell * (item.bonus || 1))
+          : Math.round(sd.sell * sellMult * (item.bonus || 1));
+      }
+      ticks--;
+    }
+    state.sellQueue = queue;
+    state.sellNextAt = queue.length ? now + sellIntvl : 0;
+  }
+
+  // Apply gold; check stages and milestones
+  const prevEarned = state.coinsEarned || 0;
+  if (coinsEarned > 0) {
+    state.coins       = (state.coins       || 0) + coinsEarned;
+    state.coinsEarned = prevEarned + coinsEarned;
+  }
+
+  const stagesHit = [];
+  STAGES.forEach(s => {
+    if (s.stage === 0) return;
+    if (state.coinsEarned >= s.threshold && prevEarned < s.threshold && !state.stagesSeen[s.stage]) {
+      state.stagesSeen[s.stage] = true;
+      stagesHit.push(s);
+    }
+  });
+
+  const milestonesHit = [];
+  MILESTONE_VALS.forEach(m => {
+    if (state.coinsEarned >= m && prevEarned < m && !state.milestones[m]) {
+      state.milestones[m] = true;
+      milestonesHit.push(m);
+    }
+  });
+
+  if (!state.mature && state.coinsEarned >= 1000) state.mature = true;
+
+  crankMult = 1.0;
+
+  // Deferred log + modal — runs after init() completes so DOM and log() exist
+  setTimeout(() => {
+    if (typeof log === 'function') {
+      const h  = Math.floor(elapsedMs / 3600000);
+      const mn = Math.floor((elapsedMs % 3600000) / 60000);
+      const t  = h > 0 ? `${h}h ${mn}m` : `${mn}m`;
+      const goldPart = coinsEarned > 0 ? ` Earned ${coinHTML()}${coinsEarned.toLocaleString()} while away.` : '';
+      log(`💤 Returned after ${t}.${goldPart}`);
+      milestonesHit.forEach(m => log(`⏱️ Reached ${coinHTML()}${m.toLocaleString()} while you were away.`));
+      stagesHit.forEach(s => { if (s.log) log(s.log); });
+    }
+    _showOfflineModal(elapsedMs, coinsEarned, cropsFinished, milestonesHit, stagesHit);
+  }, 0);
 }
 
 // ══════════════════════════════

@@ -118,7 +118,7 @@ window.DragSystem = (() => {
           else if (it === 'cage' && !state.cages.includes(i)) {
             state.cages.push(i);
             log('🔒 Cage placed on tile');
-            renderTile(i); renderInventory(); renderItems(); save(); applied = true;
+            RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save(); applied = true;
           } else if (it === 'fertilizer' && !(state.fertilizedTiles && state.fertilizedTiles[i])) {
             if (!state.fertilizedTiles) state.fertilizedTiles = {};
             const oldFF = fertFactor(i);
@@ -134,7 +134,7 @@ window.DragSystem = (() => {
               }
             }
             log('🌿 Plot fertilized — crops grow 25% faster here');
-            renderTile(i); renderInventory(); renderItems(); save(); applied = true;
+            RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save(); applied = true;
           } else if (it === 'uncommonFert' && !(state.uncommonFertilizedTiles && state.uncommonFertilizedTiles[i])) {
             if (!state.uncommonFertilizedTiles) state.uncommonFertilizedTiles = {};
             const oldFF = fertFactor(i);
@@ -150,7 +150,7 @@ window.DragSystem = (() => {
               }
             }
             log('⚗️ Plot uncommon fertilized — crops grow 40% faster here');
-            renderTile(i); renderInventory(); renderItems(); save(); applied = true;
+            RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save(); applied = true;
           }
         });
         if (!applied) {
@@ -158,7 +158,7 @@ window.DragSystem = (() => {
           else if (it === 'cage')         state.cageCount++;
           else if (it === 'fertilizer')   state.fertCharges++;
           else if (it === 'uncommonFert') state.uncommonFertCharges++;
-          renderInventory(); renderItems();
+          RenderPanel.renderInventory(); RenderPanel.renderItems();
         }
 
       } else if (source === 'seedInventory') {
@@ -176,7 +176,7 @@ window.DragSystem = (() => {
             Audio.playPlant();
             const tr = t.getBoundingClientRect();
             Particles.dirtPuff(tr.left + tr.width / 2, tr.top + tr.height / 2);
-            renderTile(i); save();
+            RenderFarm.renderTile(i); save();
             log(`🌱 Planted ${SEEDS[seed].name}`);
             planted = true;
           }
@@ -184,14 +184,14 @@ window.DragSystem = (() => {
         if (!planted) {
           if (!state.seedInventory) state.seedInventory = {};
           state.seedInventory[seed] = (state.seedInventory[seed] || 0) + 1;
-          renderInventory(); save();
+          RenderPanel.renderInventory(); save();
         }
 
       } else {
         if (hit(e.clientX, e.clientY, sellBox)) {
           addToSellQueue(seed, bonus || 1.0, drowned || false, item.fungal || false);
         } else if (panelExpanded && hit(e.clientX, e.clientY, panel)) {
-          addInventory(seed); renderInventory(); save();
+          addInventory(seed); RenderPanel.renderInventory(); save();
         } else {
           dropLoose(seed, e.clientX, e.clientY, bonus || 1.0, drowned || false, item.fungal || false);
         }
