@@ -263,6 +263,26 @@ body {
 .tmenu-btn:last-child { margin-bottom:0; }
 .tmenu-btn:hover { background:rgba(0,0,0,.35); }
 
+/* ── PRESTIGE ── */
+#prestige-section { padding-bottom:8px; }
+.prestige-perk-card { margin:4px 10px; background:rgba(80,20,120,.3); border-radius:6px; padding:8px 10px; color:#fff; border:1px solid rgba(160,80,240,.2); }
+.prestige-perk-card.maxed { opacity:.4; }
+.perk-bar-wrap { height:3px; background:rgba(255,255,255,.1); border-radius:2px; margin:4px 0 5px; }
+.perk-bar-fill { height:100%; background:#9060e0; border-radius:2px; transition:width .3s; }
+.ug-btn.prestige-buy { background:#7040c0; }
+.ug-btn.prestige-buy:hover:not(:disabled) { background:#5a2fa8; }
+.pts-badge { display:inline-block; background:#7040c0; color:#fff; font-size:10px; font-weight:700; border-radius:10px; padding:1px 7px; }
+#prestige-overlay { position:fixed; inset:0; z-index:950; background:rgba(0,0,0,.80); display:none; align-items:center; justify-content:center; }
+#prestige-overlay.show { display:flex; }
+#prestige-modal { background:#1e0d38; border:2px solid #9060e0; border-radius:12px; padding:26px 28px 22px; max-width:310px; width:90%; color:#fff; text-align:center; }
+#prestige-modal h2 { font-size:18px; font-weight:700; margin-bottom:8px; color:#d0a0ff; }
+#prestige-modal p { font-size:12px; opacity:.78; line-height:1.6; margin-bottom:10px; }
+.prestige-modal-btns { display:flex; gap:8px; justify-content:center; margin-top:14px; }
+.prestige-confirm-btn { background:#9060e0; color:#fff; border:none; border-radius:6px; padding:8px 20px; font-size:13px; font-weight:700; cursor:pointer; }
+.prestige-confirm-btn:hover { background:#7040c0; }
+.prestige-cancel-btn { background:rgba(255,255,255,.12); color:#fff; border:none; border-radius:6px; padding:8px 18px; font-size:13px; cursor:pointer; }
+.prestige-cancel-btn:hover { background:rgba(255,255,255,.22); }
+
 /* ── SETTINGS ── */
 #settings-btn { position:fixed; top:7px; right:calc(var(--pw) + 8px); z-index:310; width:30px; height:30px; background:rgba(0,0,0,.2); border:none; border-radius:50%; color:#fff; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .15s; pointer-events:all; }
 #settings-btn:hover { background:rgba(0,0,0,.38); }
@@ -313,6 +333,9 @@ body {
     <div class="panel-divider"></div>
     <div class="panel-label">Upgrades</div>
     <div id="upgrades-list"></div>
+    <div class="panel-divider"></div>
+    <div class="panel-label">Prestige ✨</div>
+    <div id="prestige-section"></div>
     <div class="panel-divider"></div>
     <div class="panel-label">Inventory</div>
     <div id="inv-grid"></div>
@@ -376,6 +399,7 @@ body {
 <div id="mode-ind"></div>
 <div id="tile-menu"></div>
 <div id="ghost"></div>
+<div id="prestige-overlay"><div id="prestige-modal"></div></div>
 
 <script>
 // ══════════════════════════════
@@ -551,7 +575,38 @@ const UPGRADES = [
   { id:'containment',    name:'Containment 🚧',           desc:'Fungal bloom cannot spread past its origin tile.',           cost:900000,  type:'mitigation', stage3:true, chain:'antifungalSpray'  },
   { id:'ironGreenhouse', name:'Iron Greenhouse 🏠',        desc:'All Stage 2 & 3 event chances reduced 20% globally.',        cost:2000000, type:'mitigation', stage3:true, chain:null               },
   { id:'masterFarmer',   name:'Master Farmer 👨‍🌾',         desc:'Weeds and thorned weeds auto-clear after 10s.',              cost:5000000, type:'mitigation', stage3:true, chain:null               },
+  // ── AUTO HARVEST CHAIN ──
+  { id:'autoHarvestI',  name:'Auto Harvest I 🤖',  desc:'Automatically harvests one ready crop every 30s — drops it to ground.',         cost:500000,  type:'autoHarvest', chain:null              },
+  { id:'autoHarvestII', name:'Auto Harvest II 🤖', desc:'Harvests all ready crops simultaneously every 15s.',                            cost:2000000, type:'autoHarvest', chain:'autoHarvestI'    },
+  // ── AUTO PLANT CHAIN ──
+  { id:'autoPlantI',    name:'Auto Plant I 🤖',    desc:'Replants last seed on empty tiles every 45s if seeds are in inventory.',        cost:1000000, type:'autoPlant',   chain:'autoHarvestI'    },
+  { id:'autoPlantII',   name:'Auto Plant II 🤖',   desc:'Replants instantly the moment a tile empties, if seeds are in inventory.',      cost:4000000, type:'autoPlant',   chain:'autoPlantI'      },
 ];
+
+// ══════════════════════════════
+// PRESTIGE PERKS
+// ══════════════════════════════
+const PRESTIGE_PERKS = [
+  { id:'fertileLegacy', name:'Fertile Legacy', desc:'Crops grow 15% faster per stack.',           cost:1, maxStack:10, effect:{ type:'growSpeed',       value:0.85  } },
+  { id:'goldenMemory',  name:'Golden Memory',  desc:'Crops sell for 20% more per stack.',          cost:1, maxStack:10, effect:{ type:'sellValue',       value:1.20  } },
+  { id:'swiftReturn',   name:'Swift Return',   desc:'Sell interval 10% faster per stack.',         cost:1, maxStack:5,  effect:{ type:'sellInterval',    value:0.90  } },
+  { id:'headStart',     name:'Head Start',     desc:'Start with 500 extra gold per stack.',        cost:1, maxStack:10, effect:{ type:'startGold',       value:500   } },
+  { id:'thickSkin',     name:'Thick Skin',     desc:'All event chances -5% per stack.',           cost:1, maxStack:6,  effect:{ type:'eventResistance', value:0.05  } },
+  { id:'extraPlot',     name:'Extra Plot',     desc:'Start with 1 extra unlocked plot per stack.', cost:1, maxStack:6,  effect:{ type:'plotCount',       value:1     } },
+];
+
+// Add new stage-gated perks here when stage 4/5 content is ready.
+// Format: { 4: ['perkId', ...], 5: ['perkId', ...] }
+const STAGE_PRESTIGE_UNLOCKS = { 4: [], 5: [] };
+
+// ══════════════════════════════
+// EVENT BUS
+// ══════════════════════════════
+const EventBus = {
+  _l: {},
+  on(ev, fn)  { if (!this._l[ev]) this._l[ev] = []; this._l[ev].push(fn); },
+  emit(ev, ...a) { (this._l[ev] || []).forEach(fn => fn(...a)); },
+};
 
 // ══════════════════════════════
 // STATE
@@ -598,6 +653,14 @@ let state = {
   fungalTiles: {},
   firstFungalEver: false,
   hideBoughtUpgrades: false,
+  tileLastSeed: {},
+  prestige: {
+    count: 0,
+    permanentPoints: 0,
+    permanentMultipliers: { growSpeed:1, sellValue:1, sellInterval:1, eventResistance:1, startGold:0, plotCount:0 },
+    unlockedPerks: [],
+    highestStageReached: 0,
+  },
 };
 let nextId = 0, selectedTile = null, panelExpanded = true, panelWidth = 220;
 let crankMult = 1.0, crankAngle = 0;
@@ -610,6 +673,8 @@ let lastLocustCheck = 0;
 let lastBlightCheck = 0;
 let lastFungalCheck = 0;
 let lastFungalSpreadCheck = 0;
+let lastAutoHarvestAt = 0;
+let lastAutoPlantAt = 0;
 const WEED_CLICKS = 20;
 const THORNED_WEED_CLICKS = 50;
 let prevReadyState = {};
@@ -722,10 +787,53 @@ function load() {
     state.fungalTiles         = d.fungalTiles         ?? {};
     state.firstFungalEver     = d.firstFungalEver     ?? false;
     state.hideBoughtUpgrades  = d.hideBoughtUpgrades  ?? false;
+    state.tileLastSeed        = d.tileLastSeed        ?? {};
+    if (d.prestige) {
+      state.prestige.count                 = d.prestige.count                 ?? 0;
+      state.prestige.permanentPoints       = d.prestige.permanentPoints       ?? 0;
+      state.prestige.unlockedPerks         = d.prestige.unlockedPerks         ?? [];
+      state.prestige.highestStageReached   = d.prestige.highestStageReached   ?? 0;
+      state.prestige.permanentMultipliers  = Object.assign(
+        { growSpeed:1, sellValue:1, sellInterval:1, eventResistance:1, startGold:0, plotCount:0 },
+        d.prestige.permanentMultipliers || {}
+      );
+    }
     nextId                = d.nextId          ?? 0;
     panelExpanded         = d.panelExpanded   ?? true;
     panelWidth            = d.panelWidth      ?? 220;
   } catch (_) {}
+}
+
+// ══════════════════════════════
+// PRESTIGE MODIFIERS
+// ══════════════════════════════
+function recalculateModifiers() {
+  if (!state.prestige) return;
+  const pm = state.prestige.permanentMultipliers;
+  pm.growSpeed = 1; pm.sellValue = 1; pm.sellInterval = 1;
+  pm.eventResistance = 1; pm.startGold = 0; pm.plotCount = 0;
+  (state.prestige.unlockedPerks || []).forEach(pu => {
+    const perk = PRESTIGE_PERKS.find(p => p.id === pu.id);
+    if (!perk || !pu.stacks) return;
+    const s = pu.stacks;
+    switch (perk.effect.type) {
+      case 'growSpeed':       pm.growSpeed      *= Math.pow(perk.effect.value, s); break;
+      case 'sellValue':       pm.sellValue      *= Math.pow(perk.effect.value, s); break;
+      case 'sellInterval':    pm.sellInterval   *= Math.pow(perk.effect.value, s); break;
+      case 'eventResistance': pm.eventResistance -= perk.effect.value * s;         break;
+      case 'startGold':       pm.startGold      += perk.effect.value * s;          break;
+      case 'plotCount':       pm.plotCount      += perk.effect.value * s;          break;
+    }
+  });
+  pm.eventResistance = Math.max(0, pm.eventResistance);
+}
+
+function getPrestigeMult(key) {
+  return (state.prestige && state.prestige.permanentMultipliers[key]) ?? 1;
+}
+
+function getEventResistance() {
+  return (state.prestige && state.prestige.permanentMultipliers.eventResistance) ?? 1;
 }
 
 // ══════════════════════════════
@@ -734,11 +842,13 @@ function load() {
 function getGrowMult() {
   let m = 1;
   UPGRADES.forEach(u => { if (u.type === 'speed' && state.upgrades[u.id]) m *= u.mult; });
+  m *= getPrestigeMult('growSpeed');
   return m;
 }
 function getSellMult() {
   let m = 1;
   UPGRADES.forEach(u => { if (u.type === 'value' && state.upgrades[u.id]) m *= u.mult; });
+  m *= getPrestigeMult('sellValue');
   return m;
 }
 function getSellSpeedMult() {
@@ -747,7 +857,7 @@ function getSellSpeedMult() {
   return m;
 }
 function getSellInterval() {
-  return 10000 * getSellSpeedMult() / crankMult;
+  return 10000 * getSellSpeedMult() * getPrestigeMult('sellInterval') / crankMult;
 }
 function canCapacity() { return (state.upgrades && state.upgrades.copperSpout) ? 2 : 1; }
 function canFillTime()  { return (state.upgrades && state.upgrades.copperSpout) ? 8000 : 20000; }
@@ -769,6 +879,15 @@ function getSellAtOnce() {
 // ══════════════════════════════
 // HELPERS
 // ══════════════════════════════
+function isPlantable(i) {
+  return !state.tiles[i] &&
+    !(state.weeds && state.weeds[i] !== undefined) &&
+    !(state.thornedWeeds && state.thornedWeeds[i] !== undefined) &&
+    !(state.mounds && state.mounds[i] !== undefined) &&
+    !(state.rotTiles && state.rotTiles[i] && state.rotTiles[i].deadAt !== undefined) &&
+    !(state.fungalTiles && state.fungalTiles[i] !== undefined);
+}
+
 function waterFactor(idx) {
   return (idx !== undefined && state.tilesWatered && state.tilesWatered[idx]) ? 0.75 : 1.0;
 }
@@ -1049,6 +1168,7 @@ function checkMaturity() {
 function updateCoins() {
   document.getElementById('coin-count').textContent = state.coins;
   renderUpgrades();
+  renderPrestige();
   renderItems();
   renderSeeds();
   renderSeedBags();
@@ -1195,6 +1315,7 @@ function renderTile(idx) {
         state.tiles[idx] = null;
         if (state.tilesWatered) delete state.tilesWatered[idx];
         if (state.rotTiles) delete state.rotTiles[idx];
+        EventBus.emit('plot:emptied', idx);
         deselect(); renderTile(idx); save();
       });
       el.appendChild(xb);
@@ -1875,6 +1996,7 @@ function crowTick() {
   let chance = stage >= 2 ? 0.08 : 0.05;
   if (state.upgrades.scarecrowCoat)  chance *= 0.70;
   if (state.upgrades.ironGreenhouse) chance *= 0.80;
+  chance *= getEventResistance();
   if (Math.random() < chance) crowAttack();
 }
 
@@ -1921,6 +2043,7 @@ function crowAttack() {
     state.tiles[target.idx] = null;
     if (state.tilesWatered) delete state.tilesWatered[target.idx];
     if (state.rotTiles) delete state.rotTiles[target.idx];
+    EventBus.emit('plot:emptied', target.idx);
     renderTile(target.idx);
   }
   sfx.attack();
@@ -1949,6 +2072,7 @@ function hawkTick() {
   lastHawkCheck = now;
   let chance = stage >= 3 ? 0.06 : 0.05;
   if (state.upgrades.ironGreenhouse) chance *= 0.80;
+  chance *= getEventResistance();
   if (Math.random() < chance) hawkAttack();
 }
 
@@ -1988,6 +2112,7 @@ function hawkAttack() {
         state.tiles[t.idx] = null;
         if (state.tilesWatered) delete state.tilesWatered[t.idx];
         if (state.rotTiles) delete state.rotTiles[t.idx];
+        EventBus.emit('plot:emptied', t.idx);
         renderTile(t.idx); stolen++;
       }
     }
@@ -2013,6 +2138,7 @@ function moleTick() {
   lastMoleCheck = now;
   let moleChance = state.upgrades.groundMesh ? 0.08 * 0.60 : 0.08;
   if (state.upgrades.ironGreenhouse) moleChance *= 0.80;
+  moleChance *= getEventResistance();
   if (Math.random() < moleChance) moleAttack();
 }
 
@@ -2041,6 +2167,7 @@ function moleAttack() {
   if (state.rotTiles) delete state.rotTiles[idx];
   if (!state.mounds) state.mounds = {};
   state.mounds[idx] = Date.now() + (state.upgrades.quickSoil ? 5000 : 20000);
+  EventBus.emit('plot:emptied', idx);
   log(`🐭 A mole uprooted a ${cropName}! It fell loose nearby.`);
   renderTile(idx); save();
 }
@@ -2077,6 +2204,7 @@ function rotTick() {
         state.tiles[idx] = null;
         if (state.tilesWatered) delete state.tilesWatered[idx];
         state.rotTiles[idx] = { deadAt: now + 30000 };
+        EventBus.emit('plot:emptied', idx);
         log(`💀 ${cropName} died from root rot.`);
         renderTile(idx); changed = true;
       }
@@ -2093,6 +2221,7 @@ function rootRotSpawnTick() {
   let rotChance = 0.10;
   if (state.upgrades.soilTreatment)  rotChance *= 0.60;
   if (state.upgrades.ironGreenhouse) rotChance *= 0.80;
+  rotChance *= getEventResistance();
   if (Math.random() < rotChance) rootRotInfect();
 }
 
@@ -2140,6 +2269,7 @@ function locustTick() {
   if (state.items && state.items.scarecrow) chance *= 0.50;
   if (state.upgrades.locustWard)            chance *= 0.50;
   if (state.upgrades.ironGreenhouse)        chance *= 0.80;
+  chance *= getEventResistance();
   if (Math.random() < chance) locustAttack();
 }
 
@@ -2201,6 +2331,7 @@ function blightTick() {
   let blightChance = 0.15;
   if (state.upgrades.weathervane)    blightChance *= 0.60;
   if (state.upgrades.ironGreenhouse) blightChance *= 0.80;
+  blightChance *= getEventResistance();
   if (Math.random() < blightChance) blightAttack();
 }
 
@@ -2245,6 +2376,7 @@ function fungalSpawnTick() {
   let fungalChance = 0.08;
   if (state.upgrades.antifungalSpray) fungalChance *= 0.50;
   if (state.upgrades.ironGreenhouse)  fungalChance *= 0.80;
+  fungalChance *= getEventResistance();
   if (Math.random() < fungalChance) fungalBloom();
 }
 
@@ -2356,6 +2488,86 @@ function thornedWeedTick() {
 }
 
 // ══════════════════════════════
+// AUTO HARVEST / AUTO PLANT
+// ══════════════════════════════
+function autoHarvestTick() {
+  if (!state.upgrades.autoHarvestI) return;
+  const now = Date.now();
+  const interval = state.upgrades.autoHarvestII ? 15000 : 30000;
+  if (now - lastAutoHarvestAt < interval) return;
+  lastAutoHarvestAt = now;
+
+  const harvestTile = i => {
+    const td = state.tiles[i];
+    if (!td || !isReady(td, i)) return false;
+    const seed = td.seed;
+    const fungal = !!(state.fungalTiles && state.fungalTiles[i] !== undefined);
+    const rotInf = !!(state.rotTiles && state.rotTiles[i] && state.rotTiles[i].infectedAt !== undefined && state.rotTiles[i].deadAt === undefined);
+    const bonus  = rotInf ? 0.5 : (td.sellBonus || 1.0);
+    const drowned = rotInf || (td.drowned || false);
+    if (state.rotTiles) delete state.rotTiles[i];
+    state.tiles[i] = null;
+    if (state.tilesWatered) delete state.tilesWatered[i];
+    EventBus.emit('plot:emptied', i);
+    const tileEl = [...tileEls()][i];
+    const tx = tileEl ? tileEl.getBoundingClientRect().left + 50 : window.innerWidth / 2;
+    const ty = tileEl ? tileEl.getBoundingClientRect().top  + 50 : window.innerHeight / 2;
+    dropLoose(seed, tx, ty, bonus, drowned, fungal);
+    log(`🤖 Auto-harvested ${SEEDS[seed].name}`);
+    renderTile(i);
+    return true;
+  };
+
+  if (state.upgrades.autoHarvestII) {
+    let any = false;
+    for (let i = 0; i < tileCount(); i++) if (harvestTile(i)) any = true;
+    if (any) save();
+  } else {
+    for (let i = 0; i < tileCount(); i++) {
+      if (harvestTile(i)) { save(); break; }
+    }
+  }
+}
+
+function doAutoPlant(idx) {
+  if (!isPlantable(idx)) return;
+  if (!state.tileLastSeed) return;
+  const lastSeed = state.tileLastSeed[idx];
+  if (!lastSeed || !SEEDS[lastSeed]) return;
+  if (!state.seedInventory || (state.seedInventory[lastSeed] || 0) < 1) return;
+  state.seedInventory[lastSeed]--;
+  if (state.seedInventory[lastSeed] <= 0) delete state.seedInventory[lastSeed];
+  state.tiles[idx] = { seed: lastSeed, plantedAt: Date.now() };
+  state.tileLastSeed[idx] = lastSeed;
+  log(`🌱 Auto-planted ${SEEDS[lastSeed].name}`);
+  renderTile(idx);
+  renderInventory();
+  save();
+}
+
+function autoPlantTick() {
+  if (!state.upgrades.autoPlantI || state.upgrades.autoPlantII) return;
+  const now = Date.now();
+  if (now - lastAutoPlantAt < 45000) return;
+  lastAutoPlantAt = now;
+  let changed = false;
+  for (let i = 0; i < tileCount(); i++) {
+    if (!isPlantable(i)) continue;
+    const lastSeed = state.tileLastSeed && state.tileLastSeed[i];
+    if (!lastSeed || !SEEDS[lastSeed]) continue;
+    if (!state.seedInventory || (state.seedInventory[lastSeed] || 0) < 1) continue;
+    state.seedInventory[lastSeed]--;
+    if (state.seedInventory[lastSeed] <= 0) delete state.seedInventory[lastSeed];
+    state.tiles[i] = { seed: lastSeed, plantedAt: Date.now() };
+    state.tileLastSeed[i] = lastSeed;
+    log(`🌱 Auto-planted ${SEEDS[lastSeed].name}`);
+    renderTile(i);
+    changed = true;
+  }
+  if (changed) { renderInventory(); save(); }
+}
+
+// ══════════════════════════════
 // MASTER FARMER AUTO-CLEAR
 // ══════════════════════════════
 function masterFarmerTick() {
@@ -2392,6 +2604,7 @@ function weedTick() {
   lastWeedCheck = now;
   let chance = getCurrentStage().stage >= 3 ? 0.18 : 0.12;
   if (state.upgrades.ironGreenhouse) chance *= 0.80;
+  chance *= getEventResistance();
   if (Math.random() < chance) weedSpawn();
 }
 
@@ -2530,12 +2743,14 @@ function showFungalCureMenu(idx, cost, x, y) {
     e.stopPropagation();
     if (state.coins < cost) return;
     state.coins -= cost;
+    const _hadCrop = !!(state.tiles[idx]);
     if (state.fungalTiles) delete state.fungalTiles[idx];
     if (state.tiles[idx]) {
       state.tiles[idx] = null;
       if (state.tilesWatered) delete state.tilesWatered[idx];
       if (state.rotTiles)     delete state.rotTiles[idx];
     }
+    if (_hadCrop) EventBus.emit('plot:emptied', idx);
     log('✅ Fungal tile cleared.');
     updateCoins(); renderTile(idx); save(); hideTileMenu();
   });
@@ -2621,6 +2836,7 @@ function onTileDown(e) {
     if (state.rotTiles) delete state.rotTiles[idx];
     state.tiles[idx] = null;
     if (state.tilesWatered) delete state.tilesWatered[idx];
+    EventBus.emit('plot:emptied', idx);
     renderTile(idx); save();
     log(`${SEEDS[seed].icon} ${SEEDS[seed].name} harvested${_isFungal ? ' (fungal — 0 coins)' : ''}`);
     if (rotInf) log('🍂 Infected — sells for 50% base value');
@@ -2822,6 +3038,8 @@ document.addEventListener('mouseup', e => {
       const i = parseInt(t.dataset.idx);
       if (!state.tiles[i] && !(state.weeds && state.weeds[i] !== undefined) && !(state.thornedWeeds && state.thornedWeeds[i] !== undefined) && !(state.mounds && state.mounds[i] !== undefined) && !(state.rotTiles && state.rotTiles[i] && state.rotTiles[i].deadAt !== undefined) && hit(e.clientX, e.clientY, t)) {
         state.tiles[i] = { seed, plantedAt: Date.now() };
+        if (!state.tileLastSeed) state.tileLastSeed = {};
+        state.tileLastSeed[i] = seed;
         sfx.plant();
         const _tr = t.getBoundingClientRect();
         spawnDirtPuff(_tr.left + _tr.width / 2, _tr.top + _tr.height / 2);
@@ -2847,6 +3065,8 @@ document.addEventListener('mouseup', e => {
         if (state.coins >= cost) {
           state.coins -= cost;
           state.tiles[i] = { seed, plantedAt: Date.now() };
+          if (!state.tileLastSeed) state.tileLastSeed = {};
+          state.tileLastSeed[i] = seed;
           sfx.plant();
           const _tr2 = t.getBoundingClientRect();
           spawnDirtPuff(_tr2.left + _tr2.width / 2, _tr2.top + _tr2.height / 2);
@@ -2954,6 +3174,223 @@ function showPop(text, x, y) {
 }
 
 // ══════════════════════════════
+// PRESTIGE SYSTEM
+// ══════════════════════════════
+function calcPrestigePoints(allTimeGold) {
+  return Math.max(1, Math.floor(Math.log10(Math.max(1, allTimeGold))) - 3);
+}
+
+function prestige() {
+  const stage = getCurrentStage().stage;
+  if (stage < 2 || (state.coinsEarned || 0) < 500000) return;
+
+  const pts = calcPrestigePoints(state.coinsEarned || 0);
+  const p   = state.prestige;
+
+  p.count++;
+  p.permanentPoints = (p.permanentPoints || 0) + pts;
+  if (stage > (p.highestStageReached || 0)) p.highestStageReached = stage;
+
+  // Reset run state, preserve prestige + settings
+  const savedPrestige   = JSON.parse(JSON.stringify(p));
+  const savedHide       = state.hideBoughtUpgrades;
+  const savedStartTime  = state.gameStartTime;
+
+  Object.assign(state, {
+    coins:0, coinsEarned:0, milestones:{}, stagesSeen:{}, mature:false,
+    tiles: Array(9).fill(null), inventory:{}, seedInventory:{}, bagInventory:{},
+    sellQueue:[], sellNextAt:0, upgrades:{}, loose:[],
+    expanded:false, expandedBottom:false, expand2ndCol:false,
+    expand2ndRow:false, expand3rdCol:false, expand3rdRow:false,
+    items:{}, cageCount:0, cages:[], canCharges:0, canRefillAt:0,
+    tilesWatered:{}, fertCharges:0, uncommonFertCharges:0,
+    weeds:{}, fertilizedTiles:{}, uncommonFertilizedTiles:{},
+    firstWeedEver:false, firstCrowEver:false, firstHawkEver:false,
+    firstMoleEver:false, firstThornedEver:false, thornedWeeds:{},
+    mounds:{}, rotTiles:{}, firstRotEver:false, firstLocustEver:false,
+    firstBlightEver:false, fungalTiles:{}, firstFungalEver:false,
+    tileLastSeed:{},
+  });
+
+  state.prestige         = savedPrestige;
+  state.hideBoughtUpgrades = savedHide;
+  state.gameStartTime    = savedStartTime;
+
+  recalculateModifiers();
+
+  // Apply perk effects to fresh run
+  state.coins = 10 + (state.prestige.permanentMultipliers.startGold || 0);
+  const plotSteps = ['expanded','expandedBottom','expand2ndCol','expand2ndRow','expand3rdCol','expand3rdRow'];
+  const plotCount = Math.min(state.prestige.permanentMultipliers.plotCount || 0, plotSteps.length);
+  for (let i = 0; i < plotCount; i++) state[plotSteps[i]] = true;
+
+  // Reset timers / counters
+  crankMult = 1.0; crankAngle = 0; nextId = 0; prevReadyState = {};
+  lastCrowCheck = lastWeedCheck = lastHawkCheck = lastMoleCheck = Date.now();
+  lastRotCheck = lastLocustCheck = lastBlightCheck = lastFungalCheck = Date.now();
+  lastFungalSpreadCheck = lastAutoHarvestAt = lastAutoPlantAt = Date.now();
+
+  // Rebuild UI
+  buildGrid(); renderAllTiles(); renderLoose(); renderInventory();
+  renderSeeds(); renderSeedBags(); renderItems(); renderUpgrades();
+  renderPrestige(); renderSellBox(); updateCoins(); updateStageDisplay();
+  applyPanelState(); updateCrankDisplay(); updateWell();
+  updateModeIndicator(); updateSellBoxStyle();
+  for (let i = 0; i < tileCount(); i++) prevReadyState[i] = false;
+
+  EventBus.emit('prestige:reset', state.prestige.count);
+  showBanner(`✨ Prestige ${state.prestige.count} — The farm is reborn.`);
+  log(`✨ Prestige ${state.prestige.count}! Earned ${pts} prestige point${pts !== 1 ? 's' : ''}.`);
+  showPrestigeResultOverlay(pts);
+  save();
+}
+
+function buyPrestigePerk(perkId) {
+  const p    = state.prestige;
+  const perk = PRESTIGE_PERKS.find(pk => pk.id === perkId);
+  if (!perk) return;
+  const owned  = (p.unlockedPerks || []).find(u => u.id === perkId);
+  const stacks = owned ? owned.stacks : 0;
+  if (stacks >= perk.maxStack || (p.permanentPoints || 0) < perk.cost) return;
+  p.permanentPoints -= perk.cost;
+  if (owned) owned.stacks++;
+  else { if (!p.unlockedPerks) p.unlockedPerks = []; p.unlockedPerks.push({ id: perkId, stacks: 1 }); }
+  recalculateModifiers();
+  log(`✨ Perk purchased: ${perk.name}`);
+  renderPrestige();
+  save();
+}
+
+function getPerkEffectDesc(perk, stacks) {
+  if (!stacks) return '';
+  switch (perk.effect.type) {
+    case 'growSpeed': {
+      const x = Math.pow(perk.effect.value, stacks);
+      return `Grow time ×${x.toFixed(3)} (${((1-x)*100).toFixed(1)}% faster)`;
+    }
+    case 'sellValue':
+      return `Sell value ×${Math.pow(perk.effect.value, stacks).toFixed(2)}`;
+    case 'sellInterval': {
+      const x = Math.pow(perk.effect.value, stacks);
+      return `Sell speed ×${(1/x).toFixed(2)} (${((1-x)*100).toFixed(0)}% faster interval)`;
+    }
+    case 'startGold':
+      return `+${perk.effect.value * stacks} starting gold`;
+    case 'eventResistance':
+      return `-${Math.round(perk.effect.value * stacks * 100)}% event chance`;
+    case 'plotCount':
+      return `+${perk.effect.value * stacks} starting plot${stacks > 1 ? 's' : ''}`;
+    default: return '';
+  }
+}
+
+function renderPrestige() {
+  const section = document.getElementById('prestige-section');
+  if (!section) return;
+  section.innerHTML = '';
+
+  const p       = state.prestige;
+  const stage   = getCurrentStage().stage;
+  const allTime = state.coinsEarned || 0;
+  const canPres = stage >= 2 && allTime >= 500000;
+  const preview = canPres ? calcPrestigePoints(allTime) : 0;
+
+  // Info row
+  const info = mk('div');
+  info.style.cssText = 'padding:8px 12px 2px;color:#fff;font-size:11px;line-height:1.75';
+  let ih = `<span style="opacity:.6">Prestiges:</span> <b>${p.count}</b> &nbsp;•&nbsp; <span style="opacity:.6">Points:</span> <b>${p.permanentPoints || 0}</b>`;
+  if (canPres) ih += `<div style="font-size:10px;color:#c0a0ff;margin-top:1px">Next prestige: <span class="pts-badge">+${preview} pt${preview !== 1 ? 's' : ''}</span></div>`;
+  else if (stage < 2) ih += `<div style="font-size:10px;opacity:.4;margin-top:1px">Requires Stage 2 &amp; ${coinHTML()}500,000 earned</div>`;
+  info.innerHTML = ih;
+  section.appendChild(info);
+
+  // Prestige button
+  const btn = mk('button');
+  btn.style.cssText = 'display:block;margin:4px 10px 8px;width:calc(100% - 20px);padding:7px 0;border:none;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s';
+  if (canPres) {
+    btn.textContent = `✨ Prestige (Stage ${stage})`;
+    btn.style.background = '#7040c0'; btn.style.color = '#fff';
+    btn.addEventListener('click', showPrestigeConfirmOverlay);
+  } else {
+    btn.textContent = stage < 2 ? 'Reach Stage 2 to prestige' : `Need ${coinHTML()}500,000 earned`;
+    btn.style.background = 'rgba(0,0,0,.25)'; btn.style.color = 'rgba(255,255,255,.3)';
+  }
+  section.appendChild(btn);
+
+  const hasPerkUI = (p.permanentPoints || 0) > 0 || (p.unlockedPerks || []).length > 0 || p.count > 0;
+  if (!hasPerkUI) return;
+
+  const pLabel = mk('div');
+  pLabel.style.cssText = 'color:rgba(255,255,255,.4);font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;padding:6px 12px 3px';
+  pLabel.textContent = 'PERMANENT PERKS';
+  section.appendChild(pLabel);
+
+  PRESTIGE_PERKS.forEach(perk => {
+    // Stage gate
+    let reqStage = 0;
+    for (const [sn, ids] of Object.entries(STAGE_PRESTIGE_UNLOCKS)) {
+      if (ids.includes(perk.id)) { reqStage = parseInt(sn); break; }
+    }
+    if (reqStage > 0 && (p.highestStageReached || 0) < reqStage) return;
+
+    const owned  = (p.unlockedPerks || []).find(u => u.id === perk.id);
+    const stacks = owned ? owned.stacks : 0;
+    const maxed  = stacks >= perk.maxStack;
+    const canBuy = !maxed && (p.permanentPoints || 0) >= perk.cost;
+    const barPct = Math.round((stacks / perk.maxStack) * 100);
+    const effDesc = stacks > 0 ? getPerkEffectDesc(perk, stacks) : '';
+
+    const card = mk('div');
+    card.className = 'prestige-perk-card' + (maxed ? ' maxed' : '');
+    card.innerHTML =
+      `<div class="ug-name">${perk.name} <span style="opacity:.45;font-size:10px;font-weight:400">${stacks}/${perk.maxStack}</span></div>` +
+      `<div class="ug-desc">${perk.desc}${effDesc ? `<br><span style="color:#c8a8ff;font-size:10px">${effDesc}</span>` : ''}</div>` +
+      `<div class="perk-bar-wrap"><div class="perk-bar-fill" style="width:${barPct}%"></div></div>` +
+      `<div class="ug-bottom"><span class="ug-cost" style="color:#c0a0ff">✨ ${perk.cost} pt${perk.cost !== 1 ? 's' : ''}</span>` +
+      `<button class="ug-btn prestige-buy" ${maxed || !canBuy ? 'disabled' : ''}>${maxed ? 'Maxed' : 'Buy'}</button></div>`;
+    if (!maxed) {
+      card.querySelector('.ug-btn').addEventListener('click', e => { e.stopPropagation(); buyPrestigePerk(perk.id); });
+    }
+    section.appendChild(card);
+  });
+}
+
+function showPrestigeConfirmOverlay() {
+  const stage = getCurrentStage().stage;
+  const pts   = calcPrestigePoints(state.coinsEarned || 0);
+  const overlay = document.getElementById('prestige-overlay');
+  const modal   = document.getElementById('prestige-modal');
+  modal.innerHTML =
+    `<h2>✨ Prestige ${(state.prestige.count || 0) + 1}</h2>` +
+    `<p>Your farm will be <b>reset</b>.<br>Gold, upgrades, crops and progress are lost.</p>` +
+    `<p>You will earn <span class="pts-badge">+${pts} pt${pts !== 1 ? 's' : ''}</span> to spend on permanent perks.</p>` +
+    `<p style="opacity:.45;font-size:10px">Prestige perks persist across all runs.</p>` +
+    `<div class="prestige-modal-btns">` +
+    `<button class="prestige-cancel-btn" id="pcl">Cancel</button>` +
+    `<button class="prestige-confirm-btn" id="pcf">Prestige!</button></div>`;
+  overlay.classList.add('show');
+  document.getElementById('pcl').addEventListener('click', () => overlay.classList.remove('show'));
+  document.getElementById('pcf').addEventListener('click', () => { overlay.classList.remove('show'); prestige(); });
+}
+
+function showPrestigeResultOverlay(pts) {
+  const overlay = document.getElementById('prestige-overlay');
+  const modal   = document.getElementById('prestige-modal');
+  modal.innerHTML =
+    `<h2>✨ Prestige ${state.prestige.count}</h2>` +
+    `<p>The farm is reborn.</p>` +
+    `<p>Earned <span class="pts-badge">+${pts} pt${pts !== 1 ? 's' : ''}</span><br>` +
+    `Total available: <b>${state.prestige.permanentPoints}</b> pt${state.prestige.permanentPoints !== 1 ? 's' : ''}</p>` +
+    `<p style="opacity:.55;font-size:10px">Spend points on perks in the Prestige panel.</p>` +
+    `<div class="prestige-modal-btns"><button class="prestige-confirm-btn" id="pcok">Let's go!</button></div>`;
+  overlay.classList.add('show');
+  document.getElementById('pcok').addEventListener('click', () => {
+    overlay.classList.remove('show');
+    renderPrestige();
+  });
+}
+
+// ══════════════════════════════
 // FAST TIMER UPDATE (50ms)
 // ══════════════════════════════
 function updateTimers() {
@@ -3027,6 +3464,8 @@ setInterval(() => {
   fungalSpawnTick();
   fungalSpreadTick();
   masterFarmerTick();
+  autoHarvestTick();
+  autoPlantTick();
 }, 1000);
 
 setInterval(save, 10000);
@@ -3035,6 +3474,7 @@ setInterval(save, 10000);
 // INIT
 // ══════════════════════════════
 load();
+recalculateModifiers();
 lastCrowCheck = Date.now();
 lastWeedCheck = Date.now();
 lastHawkCheck = Date.now();
@@ -3044,6 +3484,9 @@ lastLocustCheck = Date.now();
 lastBlightCheck = Date.now();
 lastFungalCheck = Date.now();
 lastFungalSpreadCheck = Date.now();
+lastAutoHarvestAt = Date.now();
+lastAutoPlantAt = Date.now();
+EventBus.on('plot:emptied', idx => { if (state.upgrades.autoPlantII) doAutoPlant(idx); });
 (function checkSpritesLoaded() {
   const img = new Image();
   img.onerror = () => console.error('[BlissGarden] sprites.png failed to load — check that sprites.png exists in the same directory as index.html');
@@ -3056,6 +3499,7 @@ renderSeeds();
 renderSeedBags();
 renderItems();
 renderUpgrades();
+renderPrestige();
 renderSellBox();
 renderLoose();
 updateCoins();
