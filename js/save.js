@@ -5,6 +5,7 @@ const OLD_KEY  = 'littleFarm';
 let lastSavedHash = null;
 
 function save() {
+  STATE.meta.lastSeen = Date.now();
   const serialized = JSON.stringify({
     version:   SAVE_VERSION,
     meta:      STATE.meta,
@@ -51,6 +52,7 @@ function load() {
     STATE.meta.gameStartTime = m.gameStartTime ?? Date.now();
     STATE.meta.stage         = m.stage         ?? 0;
     STATE.meta.matureState   = m.matureState   ?? false;
+    STATE.meta.lastSeen      = m.lastSeen      ?? null;
 
     STATE.plots     = d.plots     ?? Array(9).fill(null);
     STATE.sellQueue = (d.sellQueue ?? []).map(normalizeQueueItem);
@@ -65,6 +67,13 @@ function load() {
     const s = d.settings ?? {};
     STATE.settings.muted        = s.muted        ?? false;
     STATE.settings.hidePurchased= s.hidePurchased ?? false;
+
+    if (!STATE.meta.lastSeen) {
+      STATE.meta.lastSeen = Date.now(); // first load after this update; skip calculations
+    } else {
+      const elapsed = Date.now() - STATE.meta.lastSeen;
+      if (elapsed > 60000) applyOfflineProgress(elapsed);
+    }
   } catch (e) {
     console.error('load: failed to apply save data, starting fresh', e);
   }
@@ -126,6 +135,7 @@ function migrate(data) {
       gameStartTime: old.gameStartTime  ?? Date.now(),
       stage,
       matureState:   old.mature         ?? false,
+      lastSeen:      null,
     },
     plots:      old.tiles     ?? Array(9).fill(null),
     sellQueue,
