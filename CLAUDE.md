@@ -41,7 +41,7 @@ CLAUDE.md        ← this file
 - White text on dark panels
 
 ## Sprites
-- Sheet: `sprites.png`, 384×832px, 128×128 per cell
+- Sheet: `sprites.png`, 384×1664px, 128×128 per cell
 - 13 rows (crops), 3 cols (seed=0, sprout=1, grown=2)
 - Row order: potato, carrot, wheat, sunflower, pumpkin, chard, moonbloom, starfruit, thornvine, glowshroom, voidbloom, aetherfern, solarspike
 - Helper: `getSpriteStyle(cropId, stage)` returns CSS for background-image sprite cutout

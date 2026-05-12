@@ -1,0 +1,84 @@
+/* ── CLOUDS ── */
+#clouds { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+.cloud { position: absolute; background: #fff; border-radius: 60px; opacity: .78; animation: cloudDrift linear infinite; }
+.cloud::before, .cloud::after { content: ''; position: absolute; background: #fff; border-radius: 50%; }
+.cl1 { width: 130px; height: 42px; top: 7%;  animation-duration: 88s;  animation-delay: -22s; }
+.cl1::before { width: 72px; height: 72px; top: -38px; left: 14px; }
+.cl1::after  { width: 52px; height: 52px; top: -26px; left: 60px; }
+.cl2 { width: 90px;  height: 30px; top: 20%; animation-duration: 130s; animation-delay: -70s; }
+.cl2::before { width: 52px; height: 52px; top: -28px; left: 10px; }
+.cl2::after  { width: 36px; height: 36px; top: -18px; left: 44px; }
+.cl3 { width: 170px; height: 54px; top: 11%; animation-duration: 105s; animation-delay: -45s; }
+.cl3::before { width: 88px; height: 88px; top: -50px; left: 24px; }
+.cl3::after  { width: 66px; height: 66px; top: -36px; left: 84px; }
+.cl4 { width: 110px; height: 36px; top: 26%; animation-duration: 75s;  animation-delay: -58s; }
+.cl4::before { width: 62px; height: 62px; top: -34px; left: 12px; }
+.cl4::after  { width: 44px; height: 44px; top: -22px; left: 52px; }
+.cl5 { width: 150px; height: 48px; top: 5%;  animation-duration: 155s; animation-delay: -105s; }
+.cl5::before { width: 80px; height: 80px; top: -44px; left: 20px; }
+.cl5::after  { width: 58px; height: 58px; top: -30px; left: 74px; }
+@keyframes cloudDrift { from { transform: translateX(-280px); } to { transform: translateX(calc(100vw + 280px)); } }
+
+/* ── WORLD BANNER ── */
+.world-banner {
+  position: fixed; top: 44px; left: 0; right: var(--pw); z-index: 290;
+  pointer-events: none; background: rgba(0,0,0,0.72); color: #fff;
+  font-size: 14px; font-weight: 700; text-align: center; padding: 8px 16px;
+  animation: bannerFade 4s forwards;
+}
+@keyframes bannerFade {
+  0%   { opacity: 0; transform: translateY(-10px); }
+  12%  { opacity: 1; transform: translateY(0); }
+  75%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ── HARVEST POP ── */
+.harvest-pop {
+  position: fixed; pointer-events: none; z-index: 9000;
+  animation: harvestPopAnim 150ms ease-out forwards;
+}
+@keyframes harvestPopAnim {
+  0%   { transform: translate(-50%,-50%) scale(1);   opacity: 1; }
+  55%  { transform: translate(-50%,-50%) scale(1.4); opacity: 1; }
+  100% { transform: translate(-50%,-50%) scale(0);   opacity: 0; }
+}
+
+/* ── FLOAT POP ── */
+.fpop {
+  position: fixed; pointer-events: none; z-index: 9999;
+  font-size: 15px; font-weight: 700; color: #FFD700;
+  text-shadow: 0 1px 4px rgba(0,0,0,.45);
+  animation: floatUp 1.2s ease forwards;
+  transform: translateX(-50%); white-space: nowrap;
+}
+@keyframes floatUp {
+  0%   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-52px); }
+}
+
+/* ── CROW ── */
+.crow-anim { position: fixed; font-size: 30px; z-index: 9990; pointer-events: none; animation: crowFly 3s linear forwards; left: -60px; }
+@keyframes crowFly { from { left: -60px; } to { left: calc(100vw + 60px); } }
+
+/* ── HAWK ── */
+.hawk-anim { position: fixed; font-size: 28px; z-index: 9990; pointer-events: none; animation: hawkFly 2s linear forwards; left: -60px; }
+@keyframes hawkFly { from { left: -60px; } to { left: calc(100vw + 60px); } }
+
+/* ── LOCUST SWARM ── */
+.locust-anim { position: fixed; font-size: 20px; z-index: 9990; pointer-events: none; animation: locustFly 5s linear forwards; left: -40px; }
+@keyframes locustFly { from { left: -40px; } to { left: calc(100vw + 40px); } }
+
+/* ── BLIGHT STORM ── */
+.blight-cloud {
+  position: fixed; top: 0; left: -40%; width: 60%; height: 100%;
+  pointer-events: none; z-index: 9985;
+  animation: blightSweep 3s ease-in-out forwards;
+  background: radial-gradient(ellipse at 50% 40%, rgba(40,20,60,.72) 0%, rgba(20,10,40,.38) 55%, transparent 100%);
+}
+@keyframes blightSweep {
+  0%   { left: -60%; opacity: 0; }
+  15%  { opacity: 1; }
+  75%  { opacity: .85; }
+  100% { left: 110%; opacity: 0; }
+}
