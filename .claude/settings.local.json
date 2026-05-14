@@ -5,7 +5,9 @@
       "Bash(node -e ' *)",
       "Bash(identify sprites.png)",
       "Bash(python3 -c \"from PIL import Image; img=Image.open\\('sprites.png'\\); print\\(img.size\\)\")",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "Bash(Get-Content \"C:\\\\Users\\\\iango\\\\OneDrive\\\\Desktop\\\\blissgarden\\\\js\\\\main.js\")",
+      "Bash(Measure-Object -Line)"
     ]
   }
 }
