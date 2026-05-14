@@ -1,3 +1,19 @@
+// ══════════════════════════════
+// AUDIO SFX SHIM
+// ══════════════════════════════
+var sfx = {
+  plant()        { Audio.playPlant(); },
+  harvest()      { Audio.playHarvest(); },
+  drop()         { Audio.playDrop(); },
+  sell(v)        { Audio.playSell(v); },
+  sellAuto()     { Audio.playAutoSell(); },
+  attack()       { Audio.playCrow(); },
+  weedClick()    { Audio.playWeedClick(); },
+  upgrade()      { Audio.playUpgrade(); },
+  stageAdvance() { Audio.playStage(); },
+  locust()       { Audio.playLocust(); },
+};
+
 window.Audio = (() => {
   let _ctx = null;
 
@@ -129,6 +145,18 @@ window.Audio = (() => {
         g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.6);
         lfo.start(); lfo.stop(c.currentTime + 0.6);
         o.start(); o.stop(c.currentTime + 0.6);
+      });
+    },
+
+    setupMute() {
+      STATE.settings.muted = localStorage.getItem('bliss_muted') === '1';
+      const muteBtn = document.getElementById('mute-btn');
+      muteBtn.textContent = STATE.settings.muted ? '🔇' : '🔊';
+      muteBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        STATE.settings.muted = !STATE.settings.muted;
+        localStorage.setItem('bliss_muted', STATE.settings.muted ? '1' : '0');
+        muteBtn.textContent = STATE.settings.muted ? '🔇' : '🔊';
       });
     },
   };

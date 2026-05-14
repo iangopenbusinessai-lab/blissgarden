@@ -1,3 +1,29 @@
+// ══════════════════════════════
+// DRAG ENTRY-POINTS
+// ══════════════════════════════
+Object.defineProperty(window, 'drag', {
+  get() { return STATE.session.dragItem; },
+  set(v) { STATE.session.dragItem = v; },
+});
+
+function startDrag(seed, source, bonus = 1.0, drowned = false, fungal = false) {
+  deselect();
+  DragSystem.start({ seed, source, bonus, drowned, fungal },
+    makeSpriteDiv(seed, source === 'seedInventory' ? 'seed' : 'grown', 64));
+}
+function startItemDrag(itemType) {
+  deselect();
+  const sp = document.createElement('span');
+  sp.style.cssText = 'font-size:38px;line-height:1;display:block;pointer-events:none';
+  sp.textContent = ITEM_ICONS[itemType] || '❓';
+  DragSystem.start({ itemType, source: 'item', seed: null, bonus: 1, drowned: false }, sp);
+}
+function endDrag() { DragSystem.end(); }
+function moveGhost(x, y) {
+  const g = document.getElementById('ghost');
+  if (g) { g.style.left = x + 'px'; g.style.top = y + 'px'; }
+}
+
 // DragSystem owns the ghost element, active drag state (STATE.session.dragItem),
 // and all document-level drag events. Game code calls DragSystem.start() to
 // begin a drag and DragSystem.register() to declare drop handlers.

@@ -1,83 +1,78 @@
+// ── ACTIVE SAVE KEY (flat state) ─────────────────────────────────────────
+const KEY     = 'blissfarm10';
+const KEY_OLD = 'blissfarm9';
+
+window.save = function save() {
+  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth }));
+};
+
+window.load = function load() {
+  try {
+    let raw = localStorage.getItem(KEY);
+    if (!raw) raw = localStorage.getItem(KEY_OLD);
+    const d = JSON.parse(raw || 'null');
+    if (!d) return;
+    state.coins           = d.coins           ?? 10;
+    state.coinsEarned     = d.coinsEarned     ?? 0;
+    state.gameStartTime   = d.gameStartTime   ?? Date.now();
+    state.milestones      = d.milestones      ?? {};
+    state.stagesSeen      = d.stagesSeen      ?? {};
+    state.mature          = d.mature          ?? false;
+    state.tiles           = d.tiles           ?? Array(9).fill(null);
+    state.inventory       = d.inventory       ?? {};
+    state.seedInventory   = d.seedInventory   ?? {};
+    state.bagInventory    = d.bagInventory    ?? {};
+    state.sellQueue       = (d.sellQueue || []).map(item =>
+      typeof item === 'string'
+        ? { seed: item, bonus: 1, drowned: false, fungal: false }
+        : { seed: item.seed, bonus: item.bonus ?? 1, drowned: item.drowned ?? false, fungal: item.fungal ?? false });
+    state.sellNextAt              = d.sellNextAt              ?? 0;
+    state.upgrades                = d.upgrades                ?? {};
+    if (state.upgrades.crankUpI && !state.upgrades.ironCrank) state.upgrades.ironCrank = true;
+    state.loose           = (d.loose || []).map(item => ({
+      seed: item.seed, id: item.id, x: item.x, y: item.y,
+      bonus: item.bonus ?? 1.0, drowned: item.drowned ?? false, fungal: item.fungal ?? false }));
+    state.expanded        = d.expanded        ?? false;
+    state.expandedBottom  = d.expandedBottom  ?? false;
+    state.expand2ndCol    = d.expand2ndCol    ?? false;
+    state.expand2ndRow    = d.expand2ndRow    ?? false;
+    state.expand3rdCol    = d.expand3rdCol    ?? false;
+    state.expand3rdRow    = d.expand3rdRow    ?? false;
+    state.items           = d.items           ?? {};
+    state.cageCount       = d.cageCount       ?? 0;
+    state.cages           = d.cages           ?? [];
+    state.canCharges      = d.canCharges  ?? (d.wellFull ? 1 : 0);
+    state.canRefillAt     = d.canRefillAt ?? ((!d.wellFull && d.wellRefillAt) ? d.wellRefillAt : 0);
+    state.tilesWatered            = d.tilesWatered            ?? {};
+    state.fertCharges             = d.fertCharges             ?? 0;
+    state.uncommonFertCharges     = d.uncommonFertCharges     ?? 0;
+    state.weeds                   = d.weeds                   ?? {};
+    state.fertilizedTiles         = d.fertilizedTiles         ?? {};
+    state.uncommonFertilizedTiles = d.uncommonFertilizedTiles ?? {};
+    state.firstWeedEver           = d.firstWeedEver           ?? false;
+    state.firstCrowEver           = d.firstCrowEver           ?? false;
+    state.firstHawkEver           = d.firstHawkEver           ?? false;
+    state.firstMoleEver           = d.firstMoleEver           ?? false;
+    state.firstThornedEver        = d.firstThornedEver        ?? false;
+    state.thornedWeeds            = d.thornedWeeds            ?? {};
+    state.mounds                  = d.mounds                  ?? {};
+    state.rotTiles                = d.rotTiles                ?? {};
+    state.firstRotEver            = d.firstRotEver            ?? false;
+    state.firstLocustEver         = d.firstLocustEver         ?? false;
+    state.firstBlightEver         = d.firstBlightEver         ?? false;
+    state.fungalTiles             = d.fungalTiles             ?? {};
+    state.firstFungalEver         = d.firstFungalEver         ?? false;
+    state.hideBoughtUpgrades      = d.hideBoughtUpgrades      ?? false;
+    nextId        = d.nextId        ?? 0;
+    panelExpanded = d.panelExpanded ?? true;
+    panelWidth    = d.panelWidth    ?? 220;
+  } catch (_) {}
+};
+
+// ── LEGACY SAVE CONSTANTS (kept for migrate() below) ─────────────────────
 const SAVE_VERSION = 1;
 const SAVE_KEY = 'blissFarm_v1';
 const OLD_KEY  = 'littleFarm';
-
-let lastSavedHash = null;
-
-function save() {
-  STATE.meta.lastSeen = Date.now();
-  const serialized = JSON.stringify({
-    version:   SAVE_VERSION,
-    meta:      STATE.meta,
-    plots:     STATE.plots,
-    sellQueue: STATE.sellQueue,
-    inventory: STATE.inventory,
-    upgrades:  STATE.upgrades,
-    settings:  STATE.settings,
-    milestones:STATE.milestones,
-  });
-  if (serialized === lastSavedHash) return;
-  try {
-    localStorage.setItem(SAVE_KEY, serialized);
-    lastSavedHash = serialized;
-  } catch (e) {
-    console.error('save: localStorage write failed', e);
-  }
-}
-
-function load() {
-  let raw;
-  try {
-    raw = localStorage.getItem(SAVE_KEY);
-  } catch (e) {
-    console.error('load: localStorage read failed', e);
-    return;
-  }
-
-  let data;
-  try {
-    data = raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    console.error('load: save data corrupted, starting fresh', e);
-    return;
-  }
-
-  try {
-    const d = migrate(data);
-    if (!d) return;
-
-    const m = d.meta ?? {};
-    STATE.meta.gold          = m.gold          ?? 10;
-    STATE.meta.allTimeGold   = m.allTimeGold   ?? 0;
-    STATE.meta.gameStartTime = m.gameStartTime ?? Date.now();
-    STATE.meta.stage         = m.stage         ?? 0;
-    STATE.meta.matureState   = m.matureState   ?? false;
-    STATE.meta.lastSeen      = m.lastSeen      ?? null;
-
-    STATE.plots     = d.plots     ?? Array(9).fill(null);
-    STATE.sellQueue = (d.sellQueue ?? []).map(normalizeQueueItem);
-    STATE.inventory = {
-      seeds: d.inventory?.seeds ?? {},
-      crops: d.inventory?.crops ?? {},
-      items: d.inventory?.items ?? {},
-    };
-    STATE.upgrades  = d.upgrades  ?? {};
-    STATE.milestones= d.milestones?? {};
-
-    const s = d.settings ?? {};
-    STATE.settings.muted        = s.muted        ?? false;
-    STATE.settings.hidePurchased= s.hidePurchased ?? false;
-
-    if (!STATE.meta.lastSeen) {
-      STATE.meta.lastSeen = Date.now(); // first load after this update; skip calculations
-    } else {
-      const elapsed = Date.now() - STATE.meta.lastSeen;
-      if (elapsed > 60000) applyOfflineProgress(elapsed);
-    }
-  } catch (e) {
-    console.error('load: failed to apply save data, starting fresh', e);
-  }
-}
 
 function migrate(data) {
   if (data && (data.version ?? 0) >= SAVE_VERSION) return data;

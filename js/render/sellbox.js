@@ -72,5 +72,16 @@ window.RenderSellbox = (() => {
     if (w) w.style.display = 'none';
   }
 
-  return { renderQueue, renderCrank, renderWell, updateBoxStyle, positionCrank, updateSellTimer, updateCrankLabel };
+  function setupUI() {
+    document.getElementById('crank-svg').addEventListener('click', () => {
+      if (!state.upgrades.windUpCrank) return;
+      crankMult  = crankMult * getCrankClickMult();
+      crankAngle = (crankAngle + 30) % 3600;
+      document.getElementById('crank-svg').style.transform = `rotate(${crankAngle}deg)`;
+      RenderSellbox.updateCrankLabel();
+    });
+    document.getElementById('well').addEventListener('mousedown', e => e.stopPropagation());
+  }
+
+  return { renderQueue, renderCrank, renderWell, updateBoxStyle, positionCrank, updateSellTimer, updateCrankLabel, setupUI };
 })();

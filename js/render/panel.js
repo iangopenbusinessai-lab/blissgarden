@@ -1,3 +1,26 @@
+// ══════════════════════════════
+// BAG OPENING
+// ══════════════════════════════
+function openBag(bag) {
+  if (!state.bagInventory) state.bagInventory = {};
+  if ((state.bagInventory[bag.id] || 0) < 1) return;
+  state.bagInventory[bag.id]--;
+  if (!state.seedInventory) state.seedInventory = {};
+  const received = [];
+  for (let i = 0; i < 3; i++) {
+    const roll = Math.random();
+    let cum = 0, chosen = bag.seeds[bag.seeds.length - 1];
+    for (let j = 0; j < bag.seeds.length; j++) {
+      cum += bag.odds[j];
+      if (roll < cum) { chosen = bag.seeds[j]; break; }
+    }
+    state.seedInventory[chosen] = (state.seedInventory[chosen] || 0) + 1;
+    received.push(SEEDS[chosen].seedIcon + ' ' + SEEDS[chosen].name);
+  }
+  log(`🎒 ${bag.name} opened: ${received.join(', ')}`);
+  RenderPanel.renderInventory(); save();
+}
+
 window.RenderPanel = (() => {
 
   // ══════════════════════════════════════════════════════════════════════════

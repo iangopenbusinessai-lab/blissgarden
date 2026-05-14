@@ -1,4 +1,107 @@
 // ══════════════════════════════
+// COINS, STAGES & SELL BOX
+// ══════════════════════════════
+function getCurrentStage() {
+  let current = STAGES[0];
+  for (const s of STAGES) { if ((state.coinsEarned || 0) >= s.threshold) current = s; }
+  return current;
+}
+
+function checkMilestones() {
+  MILESTONE_VALS.forEach(m => {
+    if (state.coinsEarned >= m && !state.milestones[m]) {
+      state.milestones[m] = true;
+      log(`⏱️ Reached ${coinHTML()}${m.toLocaleString()} — ${fmtElapsed(Date.now() - state.gameStartTime)}`);
+    }
+  });
+}
+
+function checkStages() {
+  for (const s of STAGES) {
+    if (s.stage === 0) continue;
+    if ((state.coinsEarned || 0) >= s.threshold && !state.stagesSeen[s.stage]) {
+      state.stagesSeen[s.stage] = true;
+      sfx.stageAdvance();
+      showBanner(`Stage ${s.stage}: ${s.name}`);
+      if (s.log) log(s.log);
+      RenderHUD.renderStage();
+      save();
+    }
+  }
+}
+
+function checkMaturity() {
+  if (!state.mature && state.coinsEarned >= 1000) {
+    state.mature = true;
+    log('🌿 The farm has matured. Nature has taken notice...');
+    showBanner('🌿 The farm has matured. Nature is watching.');
+  }
+}
+
+function addCoins(amount) {
+  state.coins += amount;
+  state.coinsEarned = (state.coinsEarned || 0) + amount;
+  checkMilestones();
+  checkMaturity();
+  checkStages();
+  updateCoins();
+}
+
+function updateCoins() {
+  RenderHUD.renderCoin();
+  RenderPanel.renderUpgrades();
+  RenderPanel.renderItems();
+  RenderPanel.renderSeeds();
+  RenderPanel.renderBags();
+}
+
+function addToSellQueue(seed, bonus = 1.0, drowned = false, fungal = false) {
+  state.sellQueue.push({ seed, bonus, drowned, fungal });
+  if (state.sellQueue.length === 1) state.sellNextAt = Date.now() + getSellInterval();
+  const sb = document.getElementById('sell-box');
+  if (sb) { sb.classList.remove('sell-bounce'); void sb.offsetWidth; sb.classList.add('sell-bounce'); }
+  RenderSellbox.renderQueue(); save();
+}
+
+function tickSellBox() {
+  if (!state.sellQueue.length || Date.now() < state.sellNextAt) return;
+  const maxSell = getSellAtOnce();
+  let totalCoins = 0, sold = 0;
+  for (let s = 0; s < maxSell && state.sellQueue.length > 0; s++) {
+    const item = state.sellQueue.shift();
+    let coins;
+    if (item.fungal)        coins = 0;
+    else if (item.drowned)  coins = Math.round(SEEDS[item.seed].sell * (item.bonus || 1));
+    else                    coins = Math.round(SEEDS[item.seed].sell * getSellMult() * (item.bonus || 1));
+    log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${coins}${item.fungal ? ' (fungal)' : ''}`);
+    totalCoins += coins; sold++;
+  }
+  if (sold > 0) {
+    if (sold === 1) sfx.sell(); else sfx.sellAuto();
+    const sb = document.getElementById('sell-box');
+    const r  = sb.getBoundingClientRect();
+    Particles.coinBurst(r.left + r.width / 2, r.top + r.height / 2);
+    showPop(`+${coinHTML()}${totalCoins}`, r.left + r.width / 2, r.top - 6);
+    addCoins(totalCoins);
+    EventBus.emit('crop:sold', { coins: totalCoins });
+  }
+  state.sellNextAt = state.sellQueue.length ? Date.now() + getSellInterval() : 0;
+  RenderSellbox.renderQueue(); save();
+}
+
+function canTick() {
+  if (!state.items || !state.items.wateringCan || !state.canRefillAt) return;
+  if (Date.now() >= state.canRefillAt) {
+    state.canCharges  = Math.min(canCapacity(), (state.canCharges || 0) + 1);
+    state.canRefillAt = 0;
+    RenderPanel.renderInventory(); RenderPanel.renderItems(); save();
+  } else {
+    const el = document.getElementById('can-fill-timer');
+    if (el) el.textContent = fmt(Math.max(0, (state.canRefillAt - Date.now()) / 1000));
+  }
+}
+
+// ══════════════════════════════
 // GAME EVENT HANDLERS
 // All environmental/hazard logic. Called by TimerManager (wired in main.js).
 // ══════════════════════════════

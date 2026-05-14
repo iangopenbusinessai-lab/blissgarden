@@ -73,6 +73,30 @@ window.ITEMS = {
 // ══════════════════════════════
 // UPGRADES
 // ══════════════════════════════
+// ── SPRITE SHEET MAPPING ──────────────────────────────────────────────────
+const ROW_MAP = {
+  potato:0, carrot:1, wheat:2, sunflower:3, pumpkin:4, chard:5, moonbloom:6,
+  starfruit:7, thornvine:8, glowshroom:9, voidbloom:10, aetherfern:11, solarspike:12,
+};
+const COL_MAP = { seed:0, sprout:1, grown:2 };
+
+const ITEM_ICONS = { water:'💧', cage:'🔒', fertilizer:'🌿', uncommonFert:'⚗️' };
+
+const MILESTONE_VALS = [100, 1000, 10000, 100000, 1000000];
+const STAGES = [
+  { stage:0, name:'Birth',         threshold:0,          log:null },
+  { stage:1, name:'Awakening',     threshold:50000,       log:'🌱 The farm stirs with new life.' },
+  { stage:2, name:'Flourishing',   threshold:500000,      log:'🌿 The land is truly alive.' },
+  { stage:3, name:'Abundance',     threshold:5000000,     log:'🌾 Harvests overflow the barn.' },
+  { stage:4, name:'Legacy',        threshold:50000000,    log:'🏡 This farm will be remembered.' },
+  { stage:5, name:'Transcendence', threshold:500000000,   log:'✨ The farm has become something beyond nature.' },
+];
+const WEED_CLICKS = 20;
+const THORNED_WEED_CLICKS = 50;
+
+// ══════════════════════════════
+// UPGRADES
+// ══════════════════════════════
 window.UPGRADES = [
   // ── SPEED CHAIN ──
   { id:'quickRoots',     name:'Quick Roots',            desc:'Crops grow 25% faster',                              cost:15,      type:'speed',          mult:0.75,  chain:null              },
@@ -146,3 +170,5 @@ window.UPGRADES = [
   { id:'ironGreenhouse', name:'Iron Greenhouse 🏠',        desc:'All Stage 2 & 3 event chances reduced 20% globally.',        cost:2000000, type:'mitigation', stage3:true, chain:null               },
   { id:'masterFarmer',   name:'Master Farmer 👨‍🌾',         desc:'Weeds and thorned weeds auto-clear after 10s.',              cost:5000000, type:'mitigation', stage3:true, chain:null               },
 ];
+
+window.SEED_BAGS = window.BAGS;
