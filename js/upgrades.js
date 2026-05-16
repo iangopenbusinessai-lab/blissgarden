@@ -2,61 +2,37 @@
 // MULTIPLIERS & TILE MODIFIERS
 // ══════════════════════════════
 function waterFactor(idx) {
-  return (idx !== undefined && state.tilesWatered && state.tilesWatered[idx]) ? 0.75 : 1.0;
+  return (idx !== undefined && STATE.plots[idx] && STATE.plots[idx].watered) ? 0.75 : 1.0;
 }
 function fertFactor(idx) {
   let f = 1.0;
-  if (idx !== undefined && state.fertilizedTiles        && state.fertilizedTiles[idx])        f *= 0.75;
-  if (idx !== undefined && state.uncommonFertilizedTiles && state.uncommonFertilizedTiles[idx]) f *= 0.60;
+  if (idx !== undefined && STATE.plots[idx]) {
+    if (STATE.plots[idx].fertilized)         f *= 0.75;
+    if (STATE.plots[idx].uncommonFertilized)  f *= 0.60;
+  }
   return f;
 }
 function rotFactor(idx) {
-  const rot = state.rotTiles && state.rotTiles[idx];
+  const rot = idx !== undefined && STATE.plots[idx] && STATE.plots[idx].rotInfected;
   if (rot && rot.infectedAt !== undefined && rot.deadAt === undefined) return 1 / 0.30;
   return 1.0;
 }
 function remSec(td, idx) {
-  const gt = SEEDS[td.seed].grow * getGrowMult() * waterFactor(idx) * fertFactor(idx) * rotFactor(idx);
+  const gt = SEEDS[td.seed].grow * STATE.modifiers.growSpeed * waterFactor(idx) * fertFactor(idx) * rotFactor(idx);
   return Math.max(0, gt - (Date.now() - td.plantedAt) / 1000);
 }
 function isReady(td, idx) { return remSec(td, idx) <= 0; }
 
-function getGrowMult() {
-  let m = 1;
-  UPGRADES.forEach(u => { if (u.type === 'speed' && state.upgrades[u.id]) m *= u.mult; });
-  return m;
-}
-function getSellMult() {
-  let m = 1;
-  UPGRADES.forEach(u => { if (u.type === 'value' && state.upgrades[u.id]) m *= u.mult; });
-  return m;
-}
-function getSellSpeedMult() {
-  let m = 1;
-  UPGRADES.forEach(u => { if (u.type === 'sellSpeed' && state.upgrades[u.id]) m *= u.mult; });
-  return m;
-}
-function getSellInterval() { return 10000 * getSellSpeedMult() / crankMult; }
-function canCapacity()     { return state.upgrades.copperSpout ? 2 : 1; }
-function canFillTime()     { return state.upgrades.copperSpout ? 8000 : 20000; }
-function getCrankClickMult() {
-  if (state.upgrades.diamondCrank)  return 1.085;
-  if (state.upgrades.titaniumCrank) return 1.060;
-  if (state.upgrades.steelCrank)    return 1.040;
-  if (state.upgrades.ironCrank)     return 1.025;
-  return 1.015;
-}
-function getSellAtOnce() {
-  if (state.upgrades.diamondSellBox)  return 8;
-  if (state.upgrades.titaniumSellBox) return 5;
-  if (state.upgrades.steelSellBox)    return 3;
-  if (state.upgrades.ironSellBox)     return 2;
-  return 1;
-}
+function getSellInterval()   { return STATE.modifiers.sellInterval / crankMult; }
+function canCapacity()       { return STATE.upgrades.copperSpout ? 2 : 1; }
+function canFillTime()       { return STATE.upgrades.copperSpout ? 8000 : 20000; }
+function getCrankClickMult() { return STATE.modifiers.crankClickMultiplier; }
+function getSellAtOnce()     { return STATE.modifiers.sellBoxCapacity; }
+
 function adjustGrowTimes(oldMult, newMult) {
   const now = Date.now();
   for (let i = 0; i < tileCount(); i++) {
-    const td = state.tiles[i];
+    const td = STATE.plots[i];
     if (!td) continue;
     const wf = waterFactor(i), ff = fertFactor(i), rf = rotFactor(i);
     const base = SEEDS[td.seed].grow;
@@ -171,73 +147,4 @@ function applyUpgrade(id) {
   recalculateModifiers();
   EventBus.emit('upgrade:purchased', { id });
   save();
-}
-
-// ── MULTIPLIERS ──
-function getGrowMult() {
-  let m = 1;
-  UPGRADES.forEach(u => { if (u.type === 'speed' && state.upgrades[u.id]) m *= u.mult; });
-  return m;
-}
-function getSellMult() {
-  let m = 1;
-  UPGRADES.forEach(u => { if (u.type === 'value' && state.upgrades[u.id]) m *= u.mult; });
-  return m;
-}
-function getSellSpeedMult() {
-  let m = 1;
-  UPGRADES.forEach(u => { if (u.type === 'sellSpeed' && state.upgrades[u.id]) m *= u.mult; });
-  return m;
-}
-function getSellInterval() { return 10000 * getSellSpeedMult() / crankMult; }
-function canCapacity()     { return state.upgrades.copperSpout ? 2 : 1; }
-function canFillTime()     { return state.upgrades.copperSpout ? 8000 : 20000; }
-function getCrankClickMult() {
-  if (state.upgrades.diamondCrank)  return 1.085;
-  if (state.upgrades.titaniumCrank) return 1.060;
-  if (state.upgrades.steelCrank)    return 1.040;
-  if (state.upgrades.ironCrank)     return 1.025;
-  return 1.015;
-}
-function getSellAtOnce() {
-  if (state.upgrades.diamondSellBox)  return 8;
-  if (state.upgrades.titaniumSellBox) return 5;
-  if (state.upgrades.steelSellBox)    return 3;
-  if (state.upgrades.ironSellBox)     return 2;
-  return 1;
-}
-function waterFactor(idx) {
-  return (idx !== undefined && state.tilesWatered && state.tilesWatered[idx]) ? 0.75 : 1.0;
-}
-function fertFactor(idx) {
-  let f = 1.0;
-  if (idx !== undefined && state.fertilizedTiles        && state.fertilizedTiles[idx])        f *= 0.75;
-  if (idx !== undefined && state.uncommonFertilizedTiles && state.uncommonFertilizedTiles[idx]) f *= 0.60;
-  return f;
-}
-function rotFactor(idx) {
-  const rot = state.rotTiles && state.rotTiles[idx];
-  if (rot && rot.infectedAt !== undefined && rot.deadAt === undefined) return 1 / 0.30;
-  return 1.0;
-}
-function remSec(td, idx) {
-  const gt = SEEDS[td.seed].grow * getGrowMult() * waterFactor(idx) * fertFactor(idx) * rotFactor(idx);
-  return Math.max(0, gt - (Date.now() - td.plantedAt) / 1000);
-}
-function isReady(td, idx) { return remSec(td, idx) <= 0; }
-
-function adjustGrowTimes(oldMult, newMult) {
-  const now = Date.now();
-  for (let i = 0; i < tileCount(); i++) {
-    const td = state.tiles[i];
-    if (!td) continue;
-    const wf = waterFactor(i), ff = fertFactor(i), rf = rotFactor(i);
-    const base = SEEDS[td.seed].grow;
-    const oldGT = base * oldMult * wf * ff * rf, newGT = base * newMult * wf * ff * rf;
-    if (oldGT <= 0) continue;
-    const elapsed = (now - td.plantedAt) / 1000;
-    const oldRem  = Math.max(0, oldGT - elapsed);
-    const newRem  = oldRem * (newGT / oldGT);
-    td.plantedAt  = now - (newGT - newRem) * 1000;
-  }
 }
