@@ -56,17 +56,17 @@ function recalculateModifiers() {
 
   // ── growSpeed: highest tier value wins, no stacking ───────────────────────
   const SPEED_TIERS = [
-    ['quickRoots',     1.25 ],
-    ['fertilizerI',    1.40 ],
-    ['fertilizerII',   1.55 ],
-    ['fertilizerIII',  1.70 ],
-    ['fertilizerIV',   1.80 ],
-    ['fertilizerV',    1.90 ],
-    ['fertilizerVI',   1.95 ],
-    ['fertilizerVII',  1.97 ],
-    ['fertilizerVIII', 1.985],
-    ['fertilizerIX',   1.99 ],
-    ['fertilizerX',    1.995],
+    ['quickRoots',     1.10],
+    ['fertilizerI',    1.18],
+    ['fertilizerII',   1.26],
+    ['fertilizerIII',  1.34],
+    ['fertilizerIV',   1.42],
+    ['fertilizerV',    1.50],
+    ['fertilizerVI',   1.56],
+    ['fertilizerVII',  1.62],
+    ['fertilizerVIII', 1.67],
+    ['fertilizerIX',   1.72],
+    ['fertilizerX',    1.76],
   ];
   let growSpeed = 1;
   for (const [id, val] of SPEED_TIERS) { if (bought[id]) growSpeed = val; }
@@ -74,17 +74,17 @@ function recalculateModifiers() {
 
   // ── sellValue: highest tier value wins, no stacking ───────────────────────
   const VALUE_TIERS = [
-    ['goldenHarvest',    1.50],
-    ['marketEye',        1.75],
-    ['merchantTouch',    2.20],
-    ['marketMastery',    2.80],
-    ['marketPinnacle',   3.50],
-    ['goldenEmpire',     5.00],
-    ['diamondTrade',     7.00],
-    ['platinumExchange', 10.00],
-    ['celestialMarket',  15.00],
-    ['infiniteHarvest',  21.00],
-    ['godlyYield',       36.00],
+    ['goldenHarvest',    1.20],
+    ['marketEye',        1.40],
+    ['merchantTouch',    1.65],
+    ['marketMastery',    1.95],
+    ['marketPinnacle',   2.30],
+    ['goldenEmpire',     2.75],
+    ['diamondTrade',     3.30],
+    ['platinumExchange', 4.00],
+    ['celestialMarket',  4.80],
+    ['infiniteHarvest',  5.80],
+    ['godlyYield',       7.00],
   ];
   let sellValue = 1;
   for (const [id, val] of VALUE_TIERS) { if (bought[id]) sellValue = val; }
@@ -92,16 +92,16 @@ function recalculateModifiers() {
 
   // ── sellInterval: highest tier (lowest multiplier) wins, then prestige ─────
   const SELL_SPEED_TIERS = [
-    ['swiftMarketI',    0.75],
-    ['swiftMarketII',   0.65],
-    ['swiftMarketIII',  0.55],
-    ['swiftMarketIV',   0.45],
-    ['swiftMarketV',    0.35],
-    ['swiftMarketVI',   0.28],
-    ['swiftMarketVII',  0.22],
-    ['swiftMarketVIII', 0.17],
-    ['swiftMarketIX',   0.13],
-    ['swiftMarketX',    0.10],
+    ['swiftMarketI',    0.88],
+    ['swiftMarketII',   0.78],
+    ['swiftMarketIII',  0.68],
+    ['swiftMarketIV',   0.60],
+    ['swiftMarketV',    0.52],
+    ['swiftMarketVI',   0.46],
+    ['swiftMarketVII',  0.40],
+    ['swiftMarketVIII', 0.35],
+    ['swiftMarketIX',   0.31],
+    ['swiftMarketX',    0.27],
   ];
   let sellSpeedMult = 1;
   for (const [id, val] of SELL_SPEED_TIERS) { if (bought[id]) sellSpeedMult = val; }
