@@ -69,7 +69,7 @@ function init() {
   // ── Initial renders ───────────────────────────────────────────────────────
   RenderFarm.renderGrid();
   RenderPanel.renderInventory();
-  RenderPanel.renderSeeds();
+  try { RenderPanel.renderSeeds(); } catch (e) { console.error('renderSeeds failed:', e); }
   RenderPanel.renderBags();
   RenderPanel.renderItems();
   RenderPanel.renderUpgrades();

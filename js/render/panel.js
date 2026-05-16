@@ -64,7 +64,7 @@ window.RenderPanel = (() => {
 
   function renderSeeds() {
     if (!_seedsEl) buildSeeds();
-    const mult = getGrowMult();
+    const mult = STATE.modifiers.growSpeed;
     _seedRows.forEach(({ btn, metaSpan }, key) => {
       const seed = SEEDS[key];
       btn.disabled = state.coins < seed.cost;
@@ -252,10 +252,12 @@ window.RenderPanel = (() => {
         e.stopPropagation();
         if (state.upgrades[u.id] || state.coins < u.cost) return;
         if (u.type === 'speed') {
-          const oldMult = getGrowMult();
+          const oldMult = STATE.modifiers.growSpeed;
           state.coins -= u.cost;
           state.upgrades[u.id] = true;
-          adjustGrowTimes(oldMult, getGrowMult());
+          STATE.upgrades[u.id] = true;
+          recalculateModifiers();
+          adjustGrowTimes(oldMult, STATE.modifiers.growSpeed);
         } else {
           state.coins -= u.cost;
           state.upgrades[u.id] = true;
