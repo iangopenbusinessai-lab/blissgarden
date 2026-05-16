@@ -29,6 +29,7 @@ window.load = function load() {
     state.sellNextAt              = d.sellNextAt              ?? 0;
     state.upgrades                = d.upgrades                ?? {};
     if (state.upgrades.crankUpI && !state.upgrades.ironCrank) state.upgrades.ironCrank = true;
+    STATE.upgrades                = state.upgrades;
     state.loose           = (d.loose || []).map(item => ({
       seed: item.seed, id: item.id, x: item.x, y: item.y,
       bonus: item.bonus ?? 1.0, drowned: item.drowned ?? false, fungal: item.fungal ?? false }));

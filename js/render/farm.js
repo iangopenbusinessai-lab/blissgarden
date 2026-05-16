@@ -491,5 +491,11 @@ window.RenderFarm = (() => {
     }
   }
 
-  return { renderTile, renderGrid, buildGrid, tileNodes };
+  function probeSprites() {
+    const img = new Image();
+    img.onerror = () => console.error('sprites.png not found at ./sprites.png');
+    img.src = './sprites.png';
+  }
+
+  return { renderTile, renderGrid, buildGrid, probeSprites, tileNodes };
 })();
