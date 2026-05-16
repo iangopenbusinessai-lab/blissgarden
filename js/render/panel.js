@@ -392,7 +392,7 @@ window.RenderPanel = (() => {
     _fertEl.appendChild(_fertBadge);
     _fertEl.addEventListener('mousedown', e => {
       e.stopPropagation();
-      state.fertCharges--; renderInventory(); renderItems();
+      if ((state.fertCharges || 0) < 1) return;
       startItemDrag('fertilizer'); moveGhost(e.clientX, e.clientY);
     });
     _invEl.appendChild(_fertEl);
@@ -409,7 +409,7 @@ window.RenderPanel = (() => {
     _ufertEl.appendChild(_ufertBadge);
     _ufertEl.addEventListener('mousedown', e => {
       e.stopPropagation();
-      state.uncommonFertCharges--; renderInventory(); renderItems();
+      if ((state.uncommonFertCharges || 0) < 1) return;
       startItemDrag('uncommonFert'); moveGhost(e.clientX, e.clientY);
     });
     _invEl.appendChild(_ufertEl);

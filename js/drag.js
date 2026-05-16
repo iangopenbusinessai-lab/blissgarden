@@ -16,7 +16,7 @@ function startItemDrag(itemType) {
   const sp = document.createElement('span');
   sp.style.cssText = 'font-size:38px;line-height:1;display:block;pointer-events:none';
   sp.textContent = ITEM_ICONS[itemType] || '❓';
-  DragSystem.start({ itemType, source: 'item', seed: null, bonus: 1, drowned: false }, sp);
+  DragSystem.start({ itemType, source: 'inventory-item', seed: null, bonus: 1, drowned: false }, sp);
 }
 function endDrag() { DragSystem.end(); }
 function moveGhost(x, y) {
@@ -69,7 +69,7 @@ window.DragSystem = (() => {
           t.classList.add('drop-hi');
       });
 
-    } else if (item.source === 'item') {
+    } else if (item.source === 'inventory-item') {
       tileEls().forEach(t => {
         if (!hit(e.clientX, e.clientY, t)) return;
         const i = parseInt(t.dataset.idx);
@@ -83,8 +83,8 @@ window.DragSystem = (() => {
         let valid = false;
         if (it === 'water')        valid = !!(td && !isReady(td, i));
         if (it === 'cage')         valid = !state.cages.includes(i);
-        if (it === 'fertilizer')   valid = !(state.fertilizedTiles        && state.fertilizedTiles[i]);
-        if (it === 'uncommonFert') valid = !(state.uncommonFertilizedTiles && state.uncommonFertilizedTiles[i]);
+        if (it === 'fertilizer')   valid = !(state.fertilizedTiles?.[i]) && !(state.uncommonFertilizedTiles?.[i]);
+        if (it === 'uncommonFert') valid = !(state.uncommonFertilizedTiles?.[i]);
         if (valid) t.classList.add('drop-hi');
       });
 
@@ -128,64 +128,15 @@ window.DragSystem = (() => {
 
     // ── Built-in fallback logic (matches original index.html behaviour) ──
     if (!handled) {
-      if (source === 'item') {
+      if (source === 'inventory-item') {
+        // Tile drops are handled by the registered DragSystem handler.
+        // This fallback only runs when the drop missed all targets — restore
+        // charges that were deducted on mousedown (water and cage only;
+        // fertilizer/uncommonFert are never deducted until the drop confirms).
         const it = item.itemType;
-        let applied = false;
-        tileEls().forEach(t => {
-          if (applied) return;
-          if (!hit(e.clientX, e.clientY, t)) return;
-          const i = parseInt(t.dataset.idx);
-          if ((state.weeds && state.weeds[i] !== undefined)
-            || (state.thornedWeeds && state.thornedWeeds[i] !== undefined)
-            || (state.mounds       && state.mounds[i]       !== undefined)
-            || (state.rotTiles     && state.rotTiles[i]     && state.rotTiles[i].deadAt !== undefined)) return;
-          const td = state.tiles[i];
-          if (it === 'water' && td && !isReady(td, i))       { applyWater(i); applied = true; }
-          else if (it === 'cage' && !state.cages.includes(i)) {
-            state.cages.push(i);
-            log('🔒 Cage placed on tile');
-            RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save(); applied = true;
-          } else if (it === 'fertilizer' && !(state.fertilizedTiles && state.fertilizedTiles[i])) {
-            if (!state.fertilizedTiles) state.fertilizedTiles = {};
-            const oldFF = fertFactor(i);
-            state.fertilizedTiles[i] = true;
-            const newFF = fertFactor(i);
-            if (td && !isReady(td, i)) {
-              const base = SEEDS[td.seed].grow, gm = getGrowMult(), wf = waterFactor(i);
-              const oldGT = base * gm * wf * oldFF, newGT = base * gm * wf * newFF;
-              if (oldGT > 0) {
-                const elapsed = (Date.now() - td.plantedAt) / 1000;
-                const newRem  = Math.max(0, oldGT - elapsed) * (newGT / oldGT);
-                td.plantedAt  = Date.now() - (newGT - newRem) * 1000;
-              }
-            }
-            log('🌿 Plot fertilized — crops grow 25% faster here');
-            RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save(); applied = true;
-          } else if (it === 'uncommonFert' && !(state.uncommonFertilizedTiles && state.uncommonFertilizedTiles[i])) {
-            if (!state.uncommonFertilizedTiles) state.uncommonFertilizedTiles = {};
-            const oldFF = fertFactor(i);
-            state.uncommonFertilizedTiles[i] = true;
-            const newFF = fertFactor(i);
-            if (td && !isReady(td, i)) {
-              const base = SEEDS[td.seed].grow, gm = getGrowMult(), wf = waterFactor(i);
-              const oldGT = base * gm * wf * oldFF, newGT = base * gm * wf * newFF;
-              if (oldGT > 0) {
-                const elapsed = (Date.now() - td.plantedAt) / 1000;
-                const newRem  = Math.max(0, oldGT - elapsed) * (newGT / oldGT);
-                td.plantedAt  = Date.now() - (newGT - newRem) * 1000;
-              }
-            }
-            log('⚗️ Plot uncommon fertilized — crops grow 40% faster here');
-            RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save(); applied = true;
-          }
-        });
-        if (!applied) {
-          if (it === 'water')             state.canCharges++;
-          else if (it === 'cage')         state.cageCount++;
-          else if (it === 'fertilizer')   state.fertCharges++;
-          else if (it === 'uncommonFert') state.uncommonFertCharges++;
-          RenderPanel.renderInventory(); RenderPanel.renderItems();
-        }
+        if (it === 'water')     state.canCharges++;
+        else if (it === 'cage') state.cageCount++;
+        RenderPanel.renderInventory(); RenderPanel.renderItems();
 
       } else if (source === 'seedInventory') {
         let planted = false;
@@ -253,3 +204,76 @@ window.DragSystem = (() => {
     },
   };
 })();
+
+// ── Inventory-item → farm tile handler ──────────────────────────────────────
+// Handles ALL inventory-item drops on tiles.
+// Fertilizer charges are deducted HERE (not on mousedown) so a mere click
+// on the inventory icon never applies the item.
+DragSystem.register('inventory-item', 'tile', (item, tileEl) => {
+  const it = item.itemType;
+  const i  = parseInt(tileEl.dataset.idx);
+  const td = state.tiles[i];
+
+  const blocked = (state.weeds && state.weeds[i] !== undefined)
+    || (state.thornedWeeds && state.thornedWeeds[i] !== undefined)
+    || (state.mounds       && state.mounds[i]       !== undefined)
+    || (state.rotTiles     && state.rotTiles[i]     && state.rotTiles[i].deadAt !== undefined);
+
+  if (it === 'water' && td && !isReady(td, i) && !blocked) {
+    applyWater(i);
+
+  } else if (it === 'cage' && !state.cages.includes(i) && !blocked) {
+    state.cages.push(i);
+    log('🔒 Cage placed on tile');
+    RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save();
+
+  } else if (it === 'fertilizer'
+    && !(state.fertilizedTiles?.[i])
+    && !(state.uncommonFertilizedTiles?.[i])
+    && !blocked
+    && (state.fertCharges || 0) >= 1) {
+    if (!state.fertilizedTiles) state.fertilizedTiles = {};
+    const oldFF = fertFactor(i);
+    state.fertilizedTiles[i] = true;
+    state.fertCharges--;
+    const newFF = fertFactor(i);
+    if (td && !isReady(td, i)) {
+      const base = SEEDS[td.seed].grow, gm = STATE.modifiers.growSpeed, wf = waterFactor(i);
+      const oldGT = base * gm * wf * oldFF, newGT = base * gm * wf * newFF;
+      if (oldGT > 0) {
+        const elapsed = (Date.now() - td.plantedAt) / 1000;
+        const newRem  = Math.max(0, oldGT - elapsed) * (newGT / oldGT);
+        td.plantedAt  = Date.now() - (newGT - newRem) * 1000;
+      }
+    }
+    log('🌿 Plot fertilized — crops grow 25% faster here');
+    RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save();
+
+  } else if (it === 'uncommonFert'
+    && !(state.uncommonFertilizedTiles?.[i])
+    && !blocked
+    && (state.uncommonFertCharges || 0) >= 1) {
+    if (!state.uncommonFertilizedTiles) state.uncommonFertilizedTiles = {};
+    const oldFF = fertFactor(i);
+    state.uncommonFertilizedTiles[i] = true;
+    state.uncommonFertCharges--;
+    const newFF = fertFactor(i);
+    if (td && !isReady(td, i)) {
+      const base = SEEDS[td.seed].grow, gm = STATE.modifiers.growSpeed, wf = waterFactor(i);
+      const oldGT = base * gm * wf * oldFF, newGT = base * gm * wf * newFF;
+      if (oldGT > 0) {
+        const elapsed = (Date.now() - td.plantedAt) / 1000;
+        const newRem  = Math.max(0, oldGT - elapsed) * (newGT / oldGT);
+        td.plantedAt  = Date.now() - (newGT - newRem) * 1000;
+      }
+    }
+    log('⚗️ Plot uncommon fertilized — crops grow 40% faster here');
+    RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save();
+
+  } else {
+    // Invalid drop — restore charges deducted on mousedown (water, cage only)
+    if (it === 'water')     state.canCharges++;
+    else if (it === 'cage') state.cageCount++;
+    RenderPanel.renderInventory(); RenderPanel.renderItems();
+  }
+});
