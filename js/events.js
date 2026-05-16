@@ -49,10 +49,9 @@ function checkStages() {
     if (s.stage === 0) continue;
     if ((state.coinsEarned || 0) >= s.threshold && !state.stagesSeen[s.stage]) {
       state.stagesSeen[s.stage] = true;
-      sfx.stageAdvance();
-      showBanner(`Stage ${s.stage}: ${s.name}`);
+      STATE.meta.stage = s.stage;
       if (s.log) log(s.log);
-      RenderHUD.renderStage();
+      EventBus.emit('stage:advanced', { stage: s.stage, name: s.name });
       save();
     }
   }
@@ -67,6 +66,7 @@ function checkMaturity() {
 function addCoins(amount) {
   state.coins += amount;
   state.coinsEarned = (state.coinsEarned || 0) + amount;
+  STATE.meta.allTimeGold = (STATE.meta.allTimeGold || 0) + amount;
   checkMilestones();
   checkMaturity();
   checkStages();
@@ -85,7 +85,7 @@ function applyWater(idx) {
   const td = state.tiles[idx];
   if (!td || isReady(td, idx)) return;
   if (state.tilesWatered && state.tilesWatered[idx]) { drownTile(idx); return; }
-  const baseGT = SEEDS[td.seed].grow * getGrowMult() * fertFactor(idx);
+  const baseGT = SEEDS[td.seed].grow * STATE.modifiers.growSpeed * fertFactor(idx);
   const newGT  = baseGT * 0.75;
   const elapsed = (Date.now() - td.plantedAt) / 1000;
   const oldRem = Math.max(0, baseGT - elapsed);
@@ -101,8 +101,8 @@ function drownTile(idx) {
   const td = state.tiles[idx];
   if (!td) return;
   const ff = fertFactor(idx);
-  const currentGT  = SEEDS[td.seed].grow * getGrowMult() * ff * 0.75;
-  const drownedGT  = SEEDS[td.seed].grow * getGrowMult() * ff;
+  const currentGT  = SEEDS[td.seed].grow * STATE.modifiers.growSpeed * ff * 0.75;
+  const drownedGT  = SEEDS[td.seed].grow * STATE.modifiers.growSpeed * ff;
   const elapsed    = (Date.now() - td.plantedAt) / 1000;
   const currentRem = Math.max(0, currentGT - elapsed);
   const newRem     = currentRem * (drownedGT / currentGT);
@@ -119,21 +119,21 @@ function addInventory(seed) { state.inventory[seed] = (state.inventory[seed] || 
 
 function addToSellQueue(seed, bonus = 1.0, drowned = false, fungal = false) {
   state.sellQueue.push({ seed, bonus, drowned, fungal });
-  if (state.sellQueue.length === 1) state.sellNextAt = Date.now() + getSellInterval();
+  if (state.sellQueue.length === 1) state.sellNextAt = Date.now() + STATE.modifiers.sellInterval;
   const sb = document.getElementById('sell-box');
   if (sb) { sb.classList.remove('sell-bounce'); void sb.offsetWidth; sb.classList.add('sell-bounce'); }
   RenderSellbox.renderQueue(); save();
 }
 function tickSellBox() {
   if (!state.sellQueue.length || Date.now() < state.sellNextAt) return;
-  const maxSell = getSellAtOnce();
+  const maxSell = STATE.modifiers.sellBoxCapacity;
   let totalCoins = 0, sold = 0;
   for (let s = 0; s < maxSell && state.sellQueue.length > 0; s++) {
     const item = state.sellQueue.shift();
     let coins;
     if (item.fungal)       coins = 0;
     else if (item.drowned) coins = Math.round(SEEDS[item.seed].sell * (item.bonus || 1));
-    else                   coins = Math.round(SEEDS[item.seed].sell * getSellMult() * (item.bonus || 1));
+    else                   coins = Math.round(SEEDS[item.seed].sell * STATE.modifiers.sellValue * (item.bonus || 1));
     log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${coins}${item.fungal ? ' (fungal)' : ''}`);
     totalCoins += coins; sold++;
   }
@@ -146,7 +146,7 @@ function tickSellBox() {
     addCoins(totalCoins);
     EventBus.emit('crop:sold', { coins: totalCoins });
   }
-  state.sellNextAt = state.sellQueue.length ? Date.now() + getSellInterval() : 0;
+  state.sellNextAt = state.sellQueue.length ? Date.now() + STATE.modifiers.sellInterval : 0;
   RenderSellbox.renderQueue(); save();
 }
 function canTick() {
@@ -236,7 +236,7 @@ function showRotCureMenu(idx, cost, x, y) {
     delete state.rotTiles[idx];
     const newRF = rotFactor(idx);
     if (oldRF !== newRF) {
-      const base = SEEDS[td.seed].grow, gm = getGrowMult(), wf = waterFactor(idx), ff = fertFactor(idx);
+      const base = SEEDS[td.seed].grow, gm = STATE.modifiers.growSpeed, wf = waterFactor(idx), ff = fertFactor(idx);
       const oldGT = base * gm * wf * ff * oldRF, newGT = base * gm * wf * ff * newRF;
       if (oldGT > 0) {
         const elapsed = (Date.now() - td.plantedAt) / 1000;
@@ -368,7 +368,7 @@ function onTileDown(e) {
         delete state.rotTiles[idx];
         const newRF = rotFactor(idx);
         if (oldRF !== newRF) {
-          const base = SEEDS[td.seed].grow, gm = getGrowMult(), wf = waterFactor(idx), ff = fertFactor(idx);
+          const base = SEEDS[td.seed].grow, gm = STATE.modifiers.growSpeed, wf = waterFactor(idx), ff = fertFactor(idx);
           const oldGT = base * gm * wf * ff * oldRF, newGT = base * gm * wf * ff * newRF;
           if (oldGT > 0) {
             const elapsed = (Date.now() - td.plantedAt) / 1000;
@@ -413,10 +413,9 @@ function checkStages() {
     if (s.stage === 0) continue;
     if ((state.coinsEarned || 0) >= s.threshold && !state.stagesSeen[s.stage]) {
       state.stagesSeen[s.stage] = true;
-      sfx.stageAdvance();
-      showBanner(`Stage ${s.stage}: ${s.name}`);
+      STATE.meta.stage = s.stage;
       if (s.log) log(s.log);
-      RenderHUD.renderStage();
+      EventBus.emit('stage:advanced', { stage: s.stage, name: s.name });
       save();
     }
   }
@@ -433,6 +432,7 @@ function checkMaturity() {
 function addCoins(amount) {
   state.coins += amount;
   state.coinsEarned = (state.coinsEarned || 0) + amount;
+  STATE.meta.allTimeGold = (STATE.meta.allTimeGold || 0) + amount;
   checkMilestones();
   checkMaturity();
   checkStages();
@@ -449,7 +449,7 @@ function updateCoins() {
 
 function addToSellQueue(seed, bonus = 1.0, drowned = false, fungal = false) {
   state.sellQueue.push({ seed, bonus, drowned, fungal });
-  if (state.sellQueue.length === 1) state.sellNextAt = Date.now() + getSellInterval();
+  if (state.sellQueue.length === 1) state.sellNextAt = Date.now() + STATE.modifiers.sellInterval;
   const sb = document.getElementById('sell-box');
   if (sb) { sb.classList.remove('sell-bounce'); void sb.offsetWidth; sb.classList.add('sell-bounce'); }
   RenderSellbox.renderQueue(); save();
@@ -457,14 +457,14 @@ function addToSellQueue(seed, bonus = 1.0, drowned = false, fungal = false) {
 
 function tickSellBox() {
   if (!state.sellQueue.length || Date.now() < state.sellNextAt) return;
-  const maxSell = getSellAtOnce();
+  const maxSell = STATE.modifiers.sellBoxCapacity;
   let totalCoins = 0, sold = 0;
   for (let s = 0; s < maxSell && state.sellQueue.length > 0; s++) {
     const item = state.sellQueue.shift();
     let coins;
     if (item.fungal)        coins = 0;
     else if (item.drowned)  coins = Math.round(SEEDS[item.seed].sell * (item.bonus || 1));
-    else                    coins = Math.round(SEEDS[item.seed].sell * getSellMult() * (item.bonus || 1));
+    else                    coins = Math.round(SEEDS[item.seed].sell * STATE.modifiers.sellValue * (item.bonus || 1));
     log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${coins}${item.fungal ? ' (fungal)' : ''}`);
     totalCoins += coins; sold++;
   }
@@ -477,7 +477,7 @@ function tickSellBox() {
     addCoins(totalCoins);
     EventBus.emit('crop:sold', { coins: totalCoins });
   }
-  state.sellNextAt = state.sellQueue.length ? Date.now() + getSellInterval() : 0;
+  state.sellNextAt = state.sellQueue.length ? Date.now() + STATE.modifiers.sellInterval : 0;
   RenderSellbox.renderQueue(); save();
 }
 
@@ -728,7 +728,7 @@ function rootRotInfect() {
 
   const idx = cands[Math.floor(Math.random() * cands.length)];
   const td  = state.tiles[idx];
-  const oldGT = SEEDS[td.seed].grow * getGrowMult() * waterFactor(idx) * fertFactor(idx);
+  const oldGT = SEEDS[td.seed].grow * STATE.modifiers.growSpeed * waterFactor(idx) * fertFactor(idx);
   const newGT = oldGT / 0.30;
   if (oldGT > 0) {
     const elapsed = (Date.now() - td.plantedAt) / 1000;
@@ -763,7 +763,7 @@ function locustAttack() {
   for (let i = 0; i < tileCount(); i++) {
     const td = state.tiles[i];
     if (!td || isReady(td, i)) continue;
-    const gt = SEEDS[td.seed].grow * getGrowMult() * waterFactor(i) * fertFactor(i) * rotFactor(i);
+    const gt = SEEDS[td.seed].grow * STATE.modifiers.growSpeed * waterFactor(i) * fertFactor(i) * rotFactor(i);
     const elapsed   = (now - td.plantedAt) / 1000;
     const progress  = Math.min(1, elapsed / gt);
     const setback   = state.upgrades.cropShield ? 0.15 : 0.30;
