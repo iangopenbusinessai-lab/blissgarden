@@ -66,9 +66,6 @@ window.RenderEnv = (() => {
     const { r, g, b } = lerpSky(frac);
     document.body.style.background = `rgb(${r},${g},${b})`;
 
-    const gameArea = document.getElementById('game-area');
-    if (gameArea) gameArea.style.background = `rgb(${r},${g},${b})`;
-
     const isDay   = frac > 0.28 && frac < 0.78;
     const isNight = frac < 0.22 || frac > 0.85;
     const sunFrac = isDay ? (frac - 0.28) / 0.50 : 0;
