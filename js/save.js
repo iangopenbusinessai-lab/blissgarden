@@ -3,7 +3,7 @@ const KEY     = 'blissfarm10';
 const KEY_OLD = 'blissfarm9';
 
 window.save = function save() {
-  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth }));
+  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode }));
 };
 
 window.load = function load() {
@@ -63,6 +63,7 @@ window.load = function load() {
     state.fungalTiles             = d.fungalTiles             ?? {};
     state.firstFungalEver         = d.firstFungalEver         ?? false;
     state.hideBoughtUpgrades      = d.hideBoughtUpgrades      ?? false;
+    STATE.settings.debugMode      = d.debugMode               ?? false;
     nextId        = d.nextId        ?? 0;
     panelExpanded = d.panelExpanded ?? true;
     panelWidth    = d.panelWidth    ?? 220;

@@ -535,6 +535,7 @@ function crowAttack() {
     if (cands.length) target = { type:'tile', idx: cands[Math.floor(Math.random()*cands.length)] };
   }
   if (!target) return;
+  STATE.session.debugCounts.crow++;
 
   if (!state.firstCrowEver) {
     state.firstCrowEver = true;
@@ -614,7 +615,7 @@ function hawkAttack() {
       }
     }
   });
-  if (stolen > 0) { sfx.attack(); renderLoose(); animateHawk(); save(); }
+  if (stolen > 0) { STATE.session.debugCounts.hawk++; sfx.attack(); renderLoose(); animateHawk(); save(); }
 }
 
 function animateHawk() {
@@ -650,6 +651,7 @@ function moleAttack() {
 
   const idx = cands[Math.floor(Math.random() * cands.length)];
   const td  = state.tiles[idx];
+  STATE.session.debugCounts.mole++;
   const cx  = window.innerWidth  / 2 + (Math.random() - 0.5) * 200;
   const cy  = window.innerHeight / 2 + (Math.random() - 0.5) * 200;
   dropLoose(td.seed, cx, cy, td.sellBonus || 1.0, td.drowned || false);
@@ -734,6 +736,7 @@ function rootRotInfect() {
     const newRem  = oldRem * (newGT / oldGT);
     td.plantedAt  = Date.now() - (newGT - newRem) * 1000;
   }
+  STATE.session.debugCounts.rootRot++;
   if (!state.rotTiles) state.rotTiles = {};
   state.rotTiles[idx] = { infectedAt: Date.now() };
   log(`🍂 Root rot infected your ${SEEDS[td.seed].name}!`);
@@ -750,6 +753,7 @@ function locustTick() {
 }
 
 function locustAttack() {
+  STATE.session.debugCounts.locust++;
   if (!state.firstLocustEver) {
     state.firstLocustEver = true;
     showBanner('🪲 Locusts have descended on your farm.');
@@ -796,6 +800,7 @@ function blightTick() {
 }
 
 function blightAttack() {
+  STATE.session.debugCounts.blight++;
   if (!state.firstBlightEver) {
     state.firstBlightEver = true;
     showBanner('🌪️ Blight storms are rolling in.');
@@ -842,6 +847,7 @@ function fungalBloom() {
     state.firstFungalEver = true;
     showBanner('🍄 A fungal bloom has taken root.');
   }
+  STATE.session.debugCounts.fungal++;
   if (!state.fungalTiles) state.fungalTiles = {};
   const idx = cands[Math.floor(Math.random() * cands.length)];
   state.fungalTiles[idx] = { spawnedAt: Date.now() };
@@ -915,6 +921,7 @@ function weedSpawn() {
     const idx = cands[Math.floor(Math.random() * cands.length)];
     if (!state.thornedWeeds) state.thornedWeeds = {};
     state.thornedWeeds[idx] = { clicks: 0, spawnedAt: Date.now() };
+    STATE.session.debugCounts.weed++;
     if (!state.firstThornedEver) {
       state.firstThornedEver = true;
       showBanner('🌵 Thorned weeds are appearing!');
@@ -925,6 +932,7 @@ function weedSpawn() {
     const idx = empty[Math.floor(Math.random() * empty.length)];
     if (!state.weeds) state.weeds = {};
     state.weeds[idx] = { clicks: 0, spawnedAt: Date.now() };
+    STATE.session.debugCounts.weed++;
     if (!state.firstWeedEver) {
       state.firstWeedEver = true;
       showBanner('🌿 Weeds are beginning to appear.');

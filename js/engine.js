@@ -28,6 +28,13 @@ window.TimerManager = {
     if (this.timers[id]) this.timers[id].elapsed = 0;
   },
 
+  getRemaining(id) {
+    const t = this.timers[id];
+    if (!t) return 0;
+    const interval = typeof t.interval === 'function' ? t.interval() : t.interval;
+    return Math.max(0, interval - t.elapsed);
+  },
+
   tick() {
     for (const t of Object.values(this.timers)) {
       t.elapsed += 50;
