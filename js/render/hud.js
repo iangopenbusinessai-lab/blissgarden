@@ -161,7 +161,7 @@ window.RenderHUD = (() => {
     let html = '';
     html += h('TIMING');
     html += row('Sell interval',     Math.round(m.sellInterval) + 'ms');
-    html += row('Crank multiplier',  crankMult.toFixed(3) + 'x');
+    html += row('Crank multiplier',  STATE.session.crankMultiplier.toFixed(3) + 'x');
     html += row('Grow speed',        m.growSpeed.toFixed(3) + 'x');
     html += row('Sell value',        m.sellValue.toFixed(3) + 'x');
     html += row('Sell box capacity', m.sellBoxCapacity);

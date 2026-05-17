@@ -118,14 +118,15 @@ function drownTile(idx) {
 function addInventory(seed) { state.inventory[seed] = (state.inventory[seed] || 0) + 1; }
 
 function addToSellQueue(seed, bonus = 1.0, drowned = false, fungal = false) {
+  const wasEmpty = state.sellQueue.length === 0;
   state.sellQueue.push({ seed, bonus, drowned, fungal });
-  if (state.sellQueue.length === 1) state.sellNextAt = Date.now() + STATE.modifiers.sellInterval;
+  if (wasEmpty) STATE.session.sellElapsed = 0;
   const sb = document.getElementById('sell-box');
   if (sb) { sb.classList.remove('sell-bounce'); void sb.offsetWidth; sb.classList.add('sell-bounce'); }
   RenderSellbox.renderQueue(); save();
 }
 function tickSellBox() {
-  if (!state.sellQueue.length || Date.now() < state.sellNextAt) return;
+  if (!state.sellQueue.length) return;
   const maxSell = STATE.modifiers.sellBoxCapacity;
   let totalCoins = 0, sold = 0;
   for (let s = 0; s < maxSell && state.sellQueue.length > 0; s++) {
@@ -146,7 +147,6 @@ function tickSellBox() {
     addCoins(totalCoins);
     EventBus.emit('crop:sold', { coins: totalCoins });
   }
-  state.sellNextAt = state.sellQueue.length ? Date.now() + STATE.modifiers.sellInterval : 0;
   RenderSellbox.renderQueue(); save();
 }
 function canTick() {
@@ -448,15 +448,16 @@ function updateCoins() {
 }
 
 function addToSellQueue(seed, bonus = 1.0, drowned = false, fungal = false) {
+  const wasEmpty = state.sellQueue.length === 0;
   state.sellQueue.push({ seed, bonus, drowned, fungal });
-  if (state.sellQueue.length === 1) state.sellNextAt = Date.now() + STATE.modifiers.sellInterval;
+  if (wasEmpty) STATE.session.sellElapsed = 0;
   const sb = document.getElementById('sell-box');
   if (sb) { sb.classList.remove('sell-bounce'); void sb.offsetWidth; sb.classList.add('sell-bounce'); }
   RenderSellbox.renderQueue(); save();
 }
 
 function tickSellBox() {
-  if (!state.sellQueue.length || Date.now() < state.sellNextAt) return;
+  if (!state.sellQueue.length) return;
   const maxSell = STATE.modifiers.sellBoxCapacity;
   let totalCoins = 0, sold = 0;
   for (let s = 0; s < maxSell && state.sellQueue.length > 0; s++) {
@@ -477,7 +478,6 @@ function tickSellBox() {
     addCoins(totalCoins);
     EventBus.emit('crop:sold', { coins: totalCoins });
   }
-  state.sellNextAt = state.sellQueue.length ? Date.now() + STATE.modifiers.sellInterval : 0;
   RenderSellbox.renderQueue(); save();
 }
 

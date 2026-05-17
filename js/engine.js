@@ -62,7 +62,6 @@ TimerManager.register('rootRot', { interval: 180000, condition: _stage(3), fn: (
 TimerManager.register('locust',  { interval: 30000,  condition: _stage(3), fn: () => {} });
 TimerManager.register('blight',  { interval: 300000, condition: _stage(3), fn: () => {} });
 TimerManager.register('fungal',  { interval: 240000, condition: _stage(3), fn: () => {} });
-TimerManager.register('sell',    { interval: () => STATE.modifiers.sellInterval, condition: () => true, fn: () => {} });
 TimerManager.register('save',    { interval: 10000,  condition: () => true, fn: () => {} });
 
 // ══════════════════════════════
@@ -178,7 +177,7 @@ function applyOfflineProgress(elapsedMs) {
   }
 
   // ── Crank: fully decays offline ───────────────────────────────────────────
-  STATE.modifiers.crankMultiplier = 1.0;
+  STATE.session.crankMultiplier = 1.0;
   if (typeof window.crankMult !== 'undefined') window.crankMult = 1.0;
 
   // ── 4. Events: spawn one weed if away > 1 hour ───────────────────────────
@@ -243,9 +242,6 @@ function setupTimers() {
   TimerManager.timers['blight'].condition = cond(3);
   TimerManager.timers['fungal'].fn        = fungalSpawnTick;
   TimerManager.timers['fungal'].condition = cond(3);
-  TimerManager.timers['sell'].fn        = tickSellBox;
-  TimerManager.timers['sell'].condition = () => true;
-  TimerManager.timers['sell'].interval  = () => getSellInterval();
   TimerManager.timers['save'].fn        = save;
   TimerManager.timers['save'].condition = () => true;
 
@@ -255,14 +251,23 @@ function setupTimers() {
   TimerManager.register('fungalSpread', { interval: 30000, condition: () => true, fn: fungalSpreadTick });
   TimerManager.register('masterFarmer', { interval: 1000,  condition: () => true, fn: masterFarmerTick });
   TimerManager.register('crankDecay',   { interval: 1000,  condition: () => state.upgrades.windUpCrank, fn: () => {
-    if (crankMult > 1.0) {
-      const excess = crankMult - 1;
-      crankMult = Math.max(1.0, 1 + excess / (1 + excess * 0.08));
+    if (STATE.session.crankMultiplier > 1.0) {
+      const cm = STATE.session.crankMultiplier;
+      STATE.session.crankMultiplier = Math.max(1.0, cm / (1 + (cm - 1) * 0.08));
+      crankMult = STATE.session.crankMultiplier;
       RenderSellbox.updateCrankLabel();
     }
   }});
 
   TimerManager.register('display', { interval: 50, condition: () => true, fn: () => {
+    if (state.sellQueue && state.sellQueue.length) {
+      STATE.session.sellElapsed = (STATE.session.sellElapsed || 0) + 50;
+      const effectiveInterval = STATE.modifiers.sellInterval / STATE.session.crankMultiplier;
+      if (STATE.session.sellElapsed >= effectiveInterval) {
+        tickSellBox();
+        STATE.session.sellElapsed = 0;
+      }
+    }
     updateTimers();
     RenderSellbox.updateSellTimer();
     RenderSellbox.updateCrankLabel();

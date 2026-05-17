@@ -20,8 +20,7 @@ window.RenderSellbox = (() => {
         if (drag) return;
         e.stopPropagation();
         state.sellQueue.splice(idx, 1);
-        if (idx === 0 && state.sellQueue.length > 0) state.sellNextAt = Date.now() + getSellInterval();
-        else if (state.sellQueue.length === 0)        state.sellNextAt = 0;
+        if (idx === 0 && state.sellQueue.length > 0) STATE.session.sellElapsed = 0;
         renderQueue(); save();
         startDrag(item.seed, 'sell-queue', item.bonus || 1.0, item.drowned || false);
         moveGhost(e.clientX, e.clientY);
@@ -35,8 +34,11 @@ window.RenderSellbox = (() => {
   function updateSellTimer() {
     const cd = document.getElementById('sell-cd');
     if (!cd) return;
-    if (!state.sellQueue.length || !state.sellNextAt) { cd.textContent = ''; return; }
-    cd.textContent = fmt(Math.max(0, (state.sellNextAt - Date.now()) / 1000));
+    const effectiveInterval = STATE.modifiers.sellInterval / STATE.session.crankMultiplier;
+    const remaining = (state.sellQueue && state.sellQueue.length)
+      ? Math.max(0, effectiveInterval - (STATE.session.sellElapsed || 0))
+      : 0;
+    cd.textContent = (remaining / 1000).toFixed(2) + 's';
   }
 
   function positionCrank() {
@@ -52,7 +54,7 @@ window.RenderSellbox = (() => {
     if (!box) return;
     if (!state.upgrades.windUpCrank) { box.style.display = 'none'; return; }
     box.style.display = 'flex';
-    document.getElementById('crank-label').textContent = '⚙️ ' + crankMult.toFixed(2) + 'x';
+    document.getElementById('crank-label').textContent = '⚙️ ' + STATE.session.crankMultiplier.toFixed(2) + 'x';
     box.classList.remove('iron','steel','titanium','diamond');
     if (state.upgrades.diamondCrank)       box.classList.add('diamond');
     else if (state.upgrades.titaniumCrank) box.classList.add('titanium');
@@ -64,7 +66,7 @@ window.RenderSellbox = (() => {
   function updateCrankLabel() {
     if (!state.upgrades.windUpCrank) return;
     const lbl = document.getElementById('crank-label');
-    if (lbl) lbl.textContent = '⚙️ ' + crankMult.toFixed(2) + 'x';
+    if (lbl) lbl.textContent = '⚙️ ' + STATE.session.crankMultiplier.toFixed(2) + 'x';
   }
 
   function renderWell() {
@@ -75,7 +77,8 @@ window.RenderSellbox = (() => {
   function setupUI() {
     document.getElementById('crank-svg').addEventListener('click', () => {
       if (!state.upgrades.windUpCrank) return;
-      crankMult  = crankMult * getCrankClickMult();
+      STATE.session.crankMultiplier = STATE.session.crankMultiplier * STATE.modifiers.crankClickMultiplier;
+      crankMult  = STATE.session.crankMultiplier;
       crankAngle = (crankAngle + 30) % 3600;
       document.getElementById('crank-svg').style.transform = `rotate(${crankAngle}deg)`;
       RenderSellbox.updateCrankLabel();
