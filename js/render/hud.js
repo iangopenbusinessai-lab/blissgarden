@@ -29,10 +29,12 @@ function applyPanelState() {
 window.RenderHUD = (() => {
 
   // ── Debug panel state ───────────────────────────────────────────────────────
-  let _coinEditActive  = false;
-  let _debugPanelEl    = null;
-  let _debugBodyEl     = null;
-  let _debugInterval   = null;
+  let _coinEditActive    = false;
+  let _debugPanelEl      = null;
+  let _debugBodyEl       = null;
+  let _debugPriceBodyEl  = null;
+  let _debugPriceOpen    = false;
+  let _debugInterval     = null;
 
   // ── Core renders ────────────────────────────────────────────────────────────
   function renderCoin() {
@@ -109,10 +111,34 @@ window.RenderHUD = (() => {
     bar.appendChild(closeBtn);
     panel.appendChild(bar);
 
-    // Body
+    // Wrapper holds both live body and persistent price section
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'padding:8px 12px 10px';
+    panel.appendChild(wrapper);
+
     const body = document.createElement('div');
-    body.style.cssText = 'padding:8px 12px 10px';
-    panel.appendChild(body);
+    wrapper.appendChild(body);
+
+    // Price comparison section — persistent DOM, survives innerHTML redraws
+    const priceDivider = document.createElement('div');
+    priceDivider.style.cssText = 'border-top:1px solid rgba(255,255,255,.08);margin-top:6px';
+    wrapper.appendChild(priceDivider);
+
+    const priceHeader = document.createElement('div');
+    priceHeader.style.cssText = 'color:#6af;font-weight:700;cursor:pointer;padding:4px 0 2px;user-select:none';
+    priceHeader.textContent = '▸ 📊 Price Comparison';
+    priceHeader.addEventListener('click', () => {
+      _debugPriceOpen = !_debugPriceOpen;
+      priceHeader.textContent = (_debugPriceOpen ? '▾ ' : '▸ ') + '📊 Price Comparison';
+      priceBody.style.display = _debugPriceOpen ? '' : 'none';
+      if (_debugPriceOpen) _updatePriceTable();
+    });
+    wrapper.appendChild(priceHeader);
+
+    const priceBody = document.createElement('div');
+    priceBody.style.display = 'none';
+    wrapper.appendChild(priceBody);
+    _debugPriceBodyEl = priceBody;
 
     // Drag
     let dragDx = 0, dragDy = 0, dragging = false;
@@ -134,6 +160,61 @@ window.RenderHUD = (() => {
     document.body.appendChild(panel);
     _debugPanelEl = panel;
     _debugBodyEl  = body;
+    _debugPriceOpen = false;
+  }
+
+  function _updatePriceTable() {
+    if (!_debugPriceBodyEl || !_debugPriceOpen) return;
+    const sv = STATE.modifiers.sellValue;
+
+    // All seeds sorted: seeds with buy cost first (by cost asc), then bag-only by sell asc
+    const entries = Object.entries(window.SEEDS || {}).sort((a, b) => {
+      const ac = a[1].cost, bc = b[1].cost;
+      if (ac !== undefined && bc !== undefined) return ac - bc;
+      if (ac !== undefined) return -1;
+      if (bc !== undefined) return 1;
+      return a[1].sell - b[1].sell;
+    });
+
+    const cell = (content, align, color, bold) =>
+      `<td style="padding:2px 5px;text-align:${align};${color ? 'color:' + color + ';' : ''}${bold ? 'font-weight:700;' : ''}">${content}</td>`;
+
+    let html = '<table style="border-collapse:collapse;width:100%;font-size:10px;font-family:monospace">';
+    html += '<tr style="color:#6af;border-bottom:1px solid rgba(255,255,255,.12)">';
+    html += '<th style="padding:2px 5px;text-align:left;font-weight:700"></th>';
+    html += '<th style="padding:2px 5px;text-align:left;font-weight:700">Name</th>';
+    html += '<th style="padding:2px 5px;text-align:right;font-weight:700">Buy</th>';
+    html += '<th style="padding:2px 5px;text-align:right;font-weight:700">Base</th>';
+    html += '<th style="padding:2px 5px;text-align:right;font-weight:700">Eff.</th>';
+    html += '<th style="padding:2px 5px;text-align:right;font-weight:700">Ratio</th>';
+    html += '</tr>';
+
+    entries.forEach(([id, s], i) => {
+      const effSell = Math.floor(s.sell * sv);
+      const ratio   = (s.cost > 0) ? effSell / s.cost : null;
+      const ratioStr = ratio === null ? '—' : ratio.toFixed(2) + 'x';
+      const buyCost  = s.cost !== undefined ? s.cost.toLocaleString() : '—';
+
+      let effColor = '#b8c8d8';
+      if (ratio !== null) {
+        if (ratio >= 3)  effColor = '#4d4';
+        else if (ratio >= 1) effColor = '#cc4';
+        else effColor = '#d44';
+      }
+
+      const rowBg = i % 2 === 0 ? '' : 'background:rgba(255,255,255,.04)';
+      html += `<tr style="${rowBg}">`;
+      html += cell(s.icon || '', 'left', '#ccc', false);
+      html += cell(s.name, 'left', '#b8c8d8', false);
+      html += cell(buyCost, 'right', '#556', false);
+      html += cell(s.sell.toLocaleString(), 'right', '#556', false);
+      html += cell(effSell.toLocaleString(), 'right', effColor, false);
+      html += cell(ratioStr, 'right', effColor, true);
+      html += '</tr>';
+    });
+
+    html += '</table>';
+    _debugPriceBodyEl.innerHTML = html;
   }
 
   function _updateDebugPanel() {
@@ -188,6 +269,7 @@ window.RenderHUD = (() => {
     html += row('Fungal blooms',  dc.fungal);
 
     _debugBodyEl.innerHTML = html;
+    _updatePriceTable();
   }
 
   function _openDebugPanel() {
