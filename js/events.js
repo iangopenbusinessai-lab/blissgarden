@@ -188,7 +188,7 @@ function openBag(bag) {
       if (roll < cum) { chosen = bag.seeds[j]; break; }
     }
     state.seedInventory[chosen] = (state.seedInventory[chosen] || 0) + 1;
-    received.push(SEEDS[chosen].seedIcon + ' ' + SEEDS[chosen].name);
+    received.push((SEEDS[chosen].seedIcon || SEEDS[chosen].icon || '🌱') + ' ' + SEEDS[chosen].name);
   }
   log(`🎒 ${bag.name} opened: ${received.join(', ')}`);
   RenderPanel.renderInventory(); save();

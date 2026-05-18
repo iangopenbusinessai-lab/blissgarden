@@ -16,7 +16,19 @@ window.SEEDS = {
   glowshroom: { name:'Glowshroom',    icon:'🍄', seedIcon:'🍄', grow:28800,  sell:580000  },
   voidbloom:  { name:'Voidbloom',     icon:'🌑', seedIcon:'🔮', grow:57600,  sell:1800000 },
   aetherfern: { name:'Aetherfern',    icon:'🌀', seedIcon:'🌀', grow:115200, sell:5500000 },
-  solarspike: { name:'Solarspike',    icon:'☀️', seedIcon:'✨', grow:230400, sell:16000000},
+  solarspike:   { name:'Solarspike',    icon:'☀️', seedIcon:'✨', grow:230400, sell:16000000 },
+  // Abyssal bag seeds
+  netherfruit:   { name:'Netherfruit',    icon:'🖤', seedIcon:'🖤', grow:28800,   sell:180000,   bag:'abyssal' },
+  duskpetal:     { name:'Duskpetal',      icon:'🌸', seedIcon:'🌸', grow:64800,   sell:480000,   bag:'abyssal' },
+  ashbloom:      { name:'Ashbloom',       icon:'🌋', seedIcon:'🌋', grow:129600,  sell:1200000,  bag:'abyssal' },
+  voidcoral:     { name:'Voidcoral',      icon:'🪸', seedIcon:'🪸', grow:259200,  sell:3500000,  bag:'abyssal' },
+  eclipseLotus:  { name:'Eclipse Lotus',  icon:'🌑', seedIcon:'🌑', grow:432000,  sell:12000000, bag:'abyssal' },
+  // Divine bag seeds
+  stardustFern:  { name:'Stardust Fern',  icon:'🌿', seedIcon:'🌿', grow:172800,  sell:1800000,  bag:'divine'  },
+  celestialPod:  { name:'Celestial Pod',  icon:'🫧', seedIcon:'🫧', grow:345600,  sell:6000000,  bag:'divine'  },
+  auricBloom:    { name:'Auric Bloom',    icon:'🌟', seedIcon:'🌟', grow:691200,  sell:22000000, bag:'divine'  },
+  prismaticRoot: { name:'Prismatic Root', icon:'🌈', seedIcon:'🌈', grow:1382400, sell:90000000, bag:'divine'  },
+  genesisSeed:   { name:'Genesis Seed',   icon:'✨', seedIcon:'✨', grow:2592000, sell:400000000,bag:'divine'  },
 };
 
 window.BASIC_SEEDS = ['potato','carrot','wheat','sunflower'];
@@ -26,18 +38,29 @@ window.SEED_SELL_PRICES = {
   pumpkin:150, chard:150, moonbloom:150,
   starfruit:2500, thornvine:2500, glowshroom:2500,
   voidbloom:35000, aetherfern:35000, solarspike:35000,
+  netherfruit:83333, duskpetal:83333, ashbloom:83333, voidcoral:83333, eclipseLotus:83333,
+  stardustFern:833333, celestialPod:833333, auricBloom:833333, prismaticRoot:833333, genesisSeed:833333,
 };
 
 // ══════════════════════════════
 // SEED BAGS
 // ══════════════════════════════
 window.BAGS = [
-  { id:'fieldBag',     name:'Field Bag',     icon:'🎒', cost:1000,
-    seeds:['pumpkin','chard','moonbloom'],         odds:[0.70,0.20,0.10] },
-  { id:'forestBag',    name:'Forest Bag',    icon:'🌲', cost:50000,
-    seeds:['starfruit','thornvine','glowshroom'],  odds:[0.65,0.22,0.13] },
-  { id:'celestialBag', name:'Celestial Bag', icon:'✨', cost:800000,
-    seeds:['voidbloom','aetherfern','solarspike'], odds:[0.68,0.20,0.12] },
+  { id:'fieldBag',     name:'Field Bag',     icon:'🎒', cost:1000,    seedsPerOpen:3,
+    seeds:['pumpkin','chard','moonbloom','starfruit','thornvine'],
+    odds:[0.65,0.15,0.10,0.05,0.05] },
+  { id:'forestBag',    name:'Forest Bag',    icon:'🌲', cost:50000,   seedsPerOpen:3,
+    seeds:['starfruit','thornvine','glowshroom','voidbloom','aetherfern'],
+    odds:[0.60,0.18,0.12,0.06,0.04] },
+  { id:'celestialBag', name:'Celestial Bag', icon:'✨', cost:800000,  seedsPerOpen:3,
+    seeds:['voidbloom','aetherfern','solarspike','netherfruit','duskpetal'],
+    odds:[0.60,0.18,0.12,0.06,0.04] },
+  { id:'abyssalBag',   name:'Abyssal Bag',   icon:'🌑', cost:500000,  seedsPerOpen:3,
+    seeds:['netherfruit','duskpetal','ashbloom','voidcoral','eclipseLotus'],
+    odds:[0.70,0.15,0.09,0.04,0.02] },
+  { id:'divineBag',    name:'Divine Bag',    icon:'✨', cost:5000000, seedsPerOpen:3,
+    seeds:['stardustFern','celestialPod','auricBloom','prismaticRoot','genesisSeed'],
+    odds:[0.68,0.15,0.10,0.04,0.03] },
 ];
 
 // ══════════════════════════════
@@ -77,6 +100,9 @@ window.ITEMS = {
 const ROW_MAP = {
   potato:0, carrot:1, wheat:2, sunflower:3, pumpkin:4, chard:5, moonbloom:6,
   starfruit:7, thornvine:8, glowshroom:9, voidbloom:10, aetherfern:11, solarspike:12,
+  // rows 13–22: no sprite rows in sheet; emoji fallback used at runtime
+  netherfruit:13, duskpetal:14, ashbloom:15, voidcoral:16, eclipseLotus:17,
+  stardustFern:18, celestialPod:19, auricBloom:20, prismaticRoot:21, genesisSeed:22,
 };
 const COL_MAP = { seed:0, sprout:1, grown:2 };
 
