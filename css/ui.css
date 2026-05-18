@@ -232,3 +232,15 @@
 .ach-toast-name { font-size: 13px; font-weight: 700; color: #fff; }
 @keyframes achToastIn  { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes achToastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(60px); } }
+
+/* ── ACHIEVEMENTS BUTTON & MODAL ── */
+#ach-btn { position: fixed; top: 7px; right: calc(var(--pw) + 84px); z-index: 310; width: 30px; height: 30px; background: rgba(0,0,0,.2); border: none; border-radius: 50%; color: #fff; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; pointer-events: all; }
+#ach-btn:hover { background: rgba(0,0,0,.38); }
+#ach-backdrop { position: fixed; inset: 0; z-index: 900; background: rgba(0,0,0,.55); display: none; }
+#ach-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 901; background: #6B4432; border: 2px solid #3d2010; border-radius: 10px; width: 420px; max-width: 92vw; max-height: 82vh; display: none; flex-direction: column; color: #fff; overflow: hidden; }
+#ach-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 13px; font-size: 15px; font-weight: 700; letter-spacing: .4px; background: rgba(0,0,0,.18); border-bottom: 1px solid rgba(0,0,0,.3); flex-shrink: 0; }
+#ach-close-btn { background: none; border: none; color: #bbb; cursor: pointer; font-size: 16px; padding: 0; line-height: 1; }
+#ach-close-btn:hover { color: #fff; }
+#ach-modal-body { overflow-y: auto; padding: 12px 16px 18px; flex: 1; }
+#ach-modal-body::-webkit-scrollbar { width: 5px; }
+#ach-modal-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,.3); border-radius: 3px; }

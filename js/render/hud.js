@@ -387,6 +387,31 @@ window.RenderHUD = (() => {
       });
     }());
 
+    // ── Achievements modal ──
+    (function () {
+      const achBtn   = document.getElementById('ach-btn');
+      const backdrop = document.getElementById('ach-backdrop');
+      const modal    = document.getElementById('ach-modal');
+      const closeBtn = document.getElementById('ach-close-btn');
+
+      function openAch() {
+        backdrop.style.display = 'block';
+        modal.style.display = 'flex';
+        if (typeof RenderPanel !== 'undefined' && RenderPanel.renderAchievements) {
+          RenderPanel.renderAchievements();
+        }
+      }
+      function closeAch() {
+        backdrop.style.display = 'none';
+        modal.style.display = 'none';
+      }
+
+      achBtn.addEventListener('click',    e => { e.stopPropagation(); openAch(); });
+      backdrop.addEventListener('click',  closeAch);
+      modal.addEventListener('click',     e => e.stopPropagation());
+      closeBtn.addEventListener('click',  closeAch);
+    }());
+
     // Apply debug mode state loaded from save
     applyDebugMode();
   }

@@ -42,10 +42,12 @@ window.RenderSellbox = (() => {
   function updateSellTimer() {
     const cd = document.getElementById('sell-cd');
     if (!cd) return;
+    if (!state.sellQueue || !state.sellQueue.length) {
+      cd.textContent = '—';
+      return;
+    }
     const effectiveInterval = STATE.modifiers.sellInterval / STATE.session.crankMultiplier;
-    const remaining = (state.sellQueue && state.sellQueue.length)
-      ? Math.max(0, effectiveInterval - (STATE.session.sellElapsed || 0))
-      : 0;
+    const remaining = Math.max(0, effectiveInterval - (STATE.session.sellElapsed || 0));
     cd.textContent = (remaining / 1000).toFixed(2) + 's';
   }
 
