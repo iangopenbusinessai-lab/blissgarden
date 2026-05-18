@@ -63,6 +63,24 @@ window.load = function load() {
     state.firstBlightEver         = d.firstBlightEver         ?? false;
     state.fungalTiles             = d.fungalTiles             ?? {};
     state.firstFungalEver         = d.firstFungalEver         ?? false;
+    state.craftedInventory         = d.craftedInventory         ?? {};
+    state.achievements             = d.achievements             ?? {};
+    const _ds = d.stats || {};
+    state.stats = {
+      totalHarvested:     _ds.totalHarvested     ?? 0,
+      totalPlanted:       _ds.totalPlanted       ?? 0,
+      totalCrafted:       _ds.totalCrafted       ?? 0,
+      craftedSold:        _ds.craftedSold        ?? 0,
+      weedsCleared:       _ds.weedsCleared       ?? 0,
+      crowsSurvived:      _ds.crowsSurvived      ?? 0,
+      locustsSurvived:    _ds.locustsSurvived    ?? 0,
+      rotCured:           _ds.rotCured           ?? 0,
+      blightsSurvived:    _ds.blightsSurvived    ?? 0,
+      bagsBought:         _ds.bagsBought         ?? 0,
+      seedTypesPlanted:   _ds.seedTypesPlanted   ?? {},
+      recipesEverCrafted: _ds.recipesEverCrafted ?? {},
+      prestigeCount:      _ds.prestigeCount      ?? 0,
+    };
     state.hideBoughtUpgrades      = d.hideBoughtUpgrades      ?? false;
     STATE.settings.debugMode      = d.debugMode               ?? false;
     nextId        = d.nextId        ?? 0;

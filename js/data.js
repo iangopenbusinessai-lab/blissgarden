@@ -172,3 +172,61 @@ window.UPGRADES = [
 ];
 
 window.SEED_BAGS = window.BAGS;
+
+// ══════════════════════════════
+// RECIPES
+// ══════════════════════════════
+// ══════════════════════════════
+// ACHIEVEMENTS
+// ══════════════════════════════
+window.ACHIEVEMENTS = [
+  // FARMING
+  { id:'firstPlant',      name:'First Seed',          desc:'Plant your first crop',                          category:'farming',     stars:1 },
+  { id:'firstHarvest',    name:'First Harvest',        desc:'Harvest your first crop',                        category:'farming',     stars:1 },
+  { id:'harvest100',      name:'Busy Hands',           desc:'Harvest 100 crops',                              category:'farming',     stars:2 },
+  { id:'harvest1000',     name:'Seasoned Farmer',      desc:'Harvest 1,000 crops',                            category:'farming',     stars:3 },
+  { id:'harvest10000',    name:'Master of the Land',   desc:'Harvest 10,000 crops',                           category:'farming',     stars:4 },
+  { id:'allBasicSeeds',   name:'Basic Botanist',       desc:'Plant every basic seed type',                    category:'farming',     stars:2 },
+  { id:'allSeeds',        name:'Full Bloom',           desc:'Plant every seed type in the game',              category:'farming',     stars:4 },
+  { id:'fertilizeAll',    name:'Rich Soil',            desc:'Fertilize every plot simultaneously',            category:'farming',     stars:3 },
+  // TRADING
+  { id:'first100',        name:'Pocket Change',        desc:'Earn 100 coins',                                 category:'trading',     stars:1 },
+  { id:'first1k',         name:'Small Fortune',        desc:'Earn 1,000 coins total',                         category:'trading',     stars:1 },
+  { id:'first10k',        name:'Growing Wealth',       desc:'Earn 10,000 coins total',                        category:'trading',     stars:2 },
+  { id:'first100k',       name:'Prosperous',           desc:'Earn 100,000 coins total',                       category:'trading',     stars:2 },
+  { id:'first1m',         name:'Gold Baron',           desc:'Earn 1,000,000 coins total',                     category:'trading',     stars:3 },
+  { id:'first10m',        name:'Tycoon',               desc:'Earn 10,000,000 coins total',                    category:'trading',     stars:4 },
+  { id:'first1b',         name:'Legendary Merchant',   desc:'Earn 1,000,000,000 coins total',                 category:'trading',     stars:5 },
+  { id:'sellCrafted10',   name:'Value Added',          desc:'Sell 10 crafted items',                          category:'trading',     stars:2 },
+  // SURVIVAL
+  { id:'firstCrow',       name:'Bird Watch',           desc:'Survive your first crow attack',                 category:'survival',    stars:1 },
+  { id:'survive10Crows',  name:'Scarecrow',            desc:'Survive 10 crow or hawk attacks',                category:'survival',    stars:2 },
+  { id:'clearWeed',       name:'Weed Puller',          desc:'Clear your first weed',                          category:'survival',    stars:1 },
+  { id:'clear50Weeds',    name:'Garden Keeper',        desc:'Clear 50 weeds total',                           category:'survival',    stars:3 },
+  { id:'surviveLocust',   name:'Against the Swarm',    desc:'Survive a locust swarm',                         category:'survival',    stars:3 },
+  { id:'cureRot',         name:'Plant Doctor',         desc:'Cure root rot on a crop',                        category:'survival',    stars:2 },
+  { id:'surviveStage3',   name:"Nature's Wrath",       desc:'Reach Stage 3 and survive a blight storm',       category:'survival',    stars:4 },
+  // CRAFTING
+  { id:'firstCraft',      name:'Home Cook',            desc:'Craft your first item',                          category:'crafting',    stars:1 },
+  { id:'craft10',         name:'Regular Chef',         desc:'Craft 10 items',                                 category:'crafting',    stars:2 },
+  { id:'craft100',        name:'Master Crafter',       desc:'Craft 100 items',                                category:'crafting',    stars:3 },
+  { id:'craftAll',        name:'Full Menu',            desc:'Craft every available recipe at least once',     category:'crafting',    stars:3 },
+  // PRESTIGE
+  { id:'firstPrestige',   name:'Reborn',               desc:'Prestige for the first time',                    category:'prestige',    stars:3 },
+  { id:'prestige5',       name:'Cycle of Life',        desc:'Prestige 5 times',                               category:'prestige',    stars:4 },
+  { id:'prestige10',      name:'Eternal Farmer',       desc:'Prestige 10 times',                              category:'prestige',    stars:5 },
+  // EXPLORATION
+  { id:'stage1',          name:'Awakening',            desc:'Reach Stage 1',                                  category:'exploration', stars:1 },
+  { id:'stage2',          name:'Flourishing',          desc:'Reach Stage 2',                                  category:'exploration', stars:2 },
+  { id:'stage3',          name:'Abundance',            desc:'Reach Stage 3',                                  category:'exploration', stars:3 },
+  { id:'stage4',          name:'Legacy',               desc:'Reach Stage 4',                                  category:'exploration', stars:4 },
+  { id:'stage5',          name:'Transcendence',        desc:'Reach Stage 5',                                  category:'exploration', stars:5 },
+  { id:'expandPlot',      name:'More Room',            desc:'Expand your farm for the first time',            category:'exploration', stars:2 },
+  { id:'buyBag',          name:'Mystery Box',          desc:'Purchase your first seed bag',                   category:'exploration', stars:1 },
+];
+
+window.RECIPES = [
+  { id: 'bread',        name: 'Bread',         emoji: '🍞', ingredients: { wheat: 3 },                    sellValue: 80,  unlocked: true },
+  { id: 'carrotStew',   name: 'Carrot Stew',   emoji: '🍲', ingredients: { carrot: 4, potato: 1 },        sellValue: 120, unlocked: true },
+  { id: 'sunflowerOil', name: 'Sunflower Oil',  emoji: '🫙', ingredients: { sunflower: 3 },                sellValue: 200, unlocked: true },
+];

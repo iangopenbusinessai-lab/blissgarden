@@ -93,6 +93,8 @@ window.RenderPanel = (() => {
         state.coins -= bag.cost;
         if (!state.bagInventory) state.bagInventory = {};
         state.bagInventory[bag.id] = (state.bagInventory[bag.id] || 0) + 1;
+        state.stats.bagsBought = (state.stats.bagsBought || 0) + 1;
+        if (typeof checkAchievements === 'function') checkAchievements();
         updateCoins(); renderInventory(); save();
         log(`🎒 Bought ${bag.name}`);
       });
@@ -278,6 +280,7 @@ window.RenderPanel = (() => {
         log(`⬆️ ${u.name} purchased`);
         updateCoins();
         RenderFarm.renderGrid();
+        if (typeof checkAchievements === 'function') checkAchievements();
         save();
       });
       _upgradesEl.appendChild(card);
@@ -304,6 +307,76 @@ window.RenderPanel = (() => {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
+  // CRAFTING — recipe cards; build once, update ingredient counts + button
+  // ══════════════════════════════════════════════════════════════════════════
+  const _craftCards = new Map(); // recipeId → { card, btn, ingSpans }
+  let _craftingEl = null;
+
+  function buildCrafting() {
+    _craftingEl = document.getElementById('crafting-list');
+    if (!_craftingEl) return;
+    (window.RECIPES || []).forEach(recipe => {
+      if (!recipe.unlocked) return;
+      const card = mk('div', 'upgrade-card');
+
+      const nameDiv = mk('div', 'ug-name');
+      nameDiv.textContent = `${recipe.emoji} ${recipe.name}`;
+
+      const ingDiv = mk('div', 'ug-desc');
+      const ingSpans = {};
+      Object.entries(recipe.ingredients).forEach(([cropId, needed], i) => {
+        if (i > 0) { const dot = document.createTextNode(' · '); ingDiv.appendChild(dot); }
+        const span = mk('span', '');
+        ingSpans[cropId] = { span, needed };
+        ingDiv.appendChild(span);
+      });
+
+      const botDiv = mk('div', 'ug-bottom');
+      const costSpan = mk('span', 'ug-cost');
+      costSpan.innerHTML = `${coinHTML()}${recipe.sellValue}`;
+      botDiv.appendChild(costSpan);
+
+      const btn = mk('button', 'ug-btn');
+      btn.textContent = 'Craft';
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        window.craftItem(recipe.id);
+      });
+      botDiv.appendChild(btn);
+
+      card.appendChild(nameDiv);
+      card.appendChild(ingDiv);
+      card.appendChild(botDiv);
+
+      const tipLines = Object.entries(recipe.ingredients)
+        .map(([cropId, needed]) => `${SEEDS[cropId] ? SEEDS[cropId].icon + ' ' + SEEDS[cropId].name : cropId}: ${needed}`)
+        .join(', ');
+      card.title = `${recipe.name}: ${tipLines} → 🪙${recipe.sellValue}`;
+
+      _craftingEl.appendChild(card);
+      _craftCards.set(recipe.id, { card, btn, ingSpans });
+    });
+  }
+
+  function renderCrafting() {
+    if (!_craftingEl) buildCrafting();
+    _craftCards.forEach(({ btn, ingSpans }, recipeId) => {
+      const recipe = (window.RECIPES || []).find(r => r.id === recipeId);
+      if (!recipe) return;
+      let canCraft = true;
+      Object.entries(ingSpans).forEach(([cropId, { span, needed }]) => {
+        const held = state.inventory[cropId] || 0;
+        const seed = SEEDS[cropId];
+        span.textContent = `${seed ? seed.icon : '?'} ${held}/${needed}`;
+        span.style.color = held >= needed ? '#8de88d' : 'rgba(255,255,255,0.45)';
+        if (held < needed) canCraft = false;
+      });
+      btn.disabled = !canCraft;
+      btn.style.background = canCraft ? '#3a7a3a' : '';
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
   // INVENTORY — build all slots once; renderInventory() only toggles
   //             display and updates badge text
   // ══════════════════════════════════════════════════════════════════════════
@@ -319,9 +392,10 @@ window.RenderPanel = (() => {
   let _ufertEl = null, _ufertBadge = null;
 
   // Collection slot Maps
-  const _bagSlots  = new Map(); // bagId  → { slot, badge }
-  const _seedSlots = new Map(); // cropId → { slot, badge }
-  const _cropSlots = new Map(); // cropId → { el,   badge }
+  const _bagSlots     = new Map(); // bagId    → { slot, badge }
+  const _seedSlots    = new Map(); // cropId   → { slot, badge }
+  const _cropSlots    = new Map(); // cropId   → { el,   badge }
+  const _craftedSlots = new Map(); // recipeId → { el,   badge }
   let _emptyEl = null;
 
   function buildInventory() {
@@ -489,6 +563,32 @@ window.RenderPanel = (() => {
       _cropSlots.set(key, { el, badge });
     });
 
+    // ── Crafted item slots ──
+    (window.RECIPES || []).forEach(recipe => {
+      if (!recipe.unlocked) return;
+      const el = mk('div', 'inv-icon');
+      el.dataset.name = `${recipe.name} (crafted) — drag to sell`;
+      el.style.cursor = 'grab';
+      const emojiSpan = document.createElement('span');
+      emojiSpan.style.cssText = 'pointer-events:none;font-size:22px;line-height:1';
+      emojiSpan.textContent = recipe.emoji;
+      el.appendChild(emojiSpan);
+      const badge = mk('span', 'inv-badge');
+      el.appendChild(badge);
+      el.addEventListener('mousedown', e => {
+        e.stopPropagation();
+        if (!state.craftedInventory) state.craftedInventory = {};
+        if ((state.craftedInventory[recipe.id] || 0) < 1) return;
+        state.craftedInventory[recipe.id]--;
+        if (state.craftedInventory[recipe.id] <= 0) delete state.craftedInventory[recipe.id];
+        renderInventory(); save();
+        startCraftedDrag(recipe.id, recipe.emoji);
+        moveGhost(e.clientX, e.clientY);
+      });
+      _invEl.appendChild(el);
+      _craftedSlots.set(recipe.id, { el, badge });
+    });
+
     // ── Empty placeholder ──
     _emptyEl = mk('div');
     _emptyEl.id = 'inv-empty';
@@ -563,8 +663,108 @@ window.RenderPanel = (() => {
       if (qty > 0) { count++; badge.textContent = qty; }
     });
 
+    // Crafted items
+    const craftedInv = state.craftedInventory || {};
+    _craftedSlots.forEach(({ el, badge }, id) => {
+      const qty = craftedInv[id] || 0;
+      el.style.display = qty > 0 ? '' : 'none';
+      if (qty > 0) { count++; badge.textContent = qty; }
+    });
+
     _emptyEl.style.display = count === 0 ? '' : 'none';
+    renderCrafting();
   }
 
-  return { renderSeeds, renderBags, renderItems, renderUpgrades, renderInventory };
+  // ══════════════════════════════════════════════════════════════════════════
+  // ACHIEVEMENTS — grouped by star tier, collapsible sections
+  // ══════════════════════════════════════════════════════════════════════════
+  let _achEl = null;
+  let _achSummaryEl = null;
+  const _achTierSections = new Map(); // stars → { body, header, countSpan }
+  const _achCards = new Map();        // id → card el
+
+  function buildAchievements() {
+    _achEl = document.getElementById('achievements-list');
+    if (!_achEl) return;
+    const achs = window.ACHIEVEMENTS || [];
+
+    _achSummaryEl = mk('div', 'ach-summary');
+    _achEl.appendChild(_achSummaryEl);
+
+    const byStars = {};
+    achs.forEach(a => { (byStars[a.stars] = byStars[a.stars] || []).push(a); });
+
+    [1, 2, 3, 4, 5].forEach(stars => {
+      const group = byStars[stars];
+      if (!group || !group.length) return;
+
+      const section = mk('div', 'ach-tier-section');
+
+      const header = mk('div', 'ach-tier-header');
+      const starStr = '⭐'.repeat(stars);
+      const countSpan = mk('span', 'ach-tier-count');
+      header.appendChild(document.createTextNode(starStr + ' '));
+      header.appendChild(countSpan);
+      header.addEventListener('click', () => {
+        body.classList.toggle('ach-tier-collapsed');
+        header.classList.toggle('ach-tier-header-collapsed');
+      });
+
+      const body = mk('div', 'ach-tier-body');
+
+      const sorted = [...group].sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
+      sorted.forEach(ach => {
+        const card = mk('div', 'ach-card ach-locked');
+        const starsEl = mk('div', 'ach-stars'); starsEl.textContent = '⭐'.repeat(ach.stars);
+        const nameEl  = mk('div', 'ach-name');  nameEl.textContent = ach.name;
+        const descEl  = mk('div', 'ach-desc');  descEl.textContent = ach.desc;
+        const dateEl  = mk('div', 'ach-date');
+        card.appendChild(starsEl);
+        card.appendChild(nameEl);
+        card.appendChild(descEl);
+        card.appendChild(dateEl);
+        body.appendChild(card);
+        _achCards.set(ach.id, { card, dateEl });
+      });
+
+      section.appendChild(header);
+      section.appendChild(body);
+      _achEl.appendChild(section);
+      _achTierSections.set(stars, { header, body, countSpan, total: group.length });
+    });
+  }
+
+  function renderAchievements() {
+    if (!_achEl) buildAchievements();
+    const achs = window.ACHIEVEMENTS || [];
+    const unlocked = state.achievements || {};
+    let totalUnlocked = 0;
+
+    _achTierSections.forEach(({ countSpan, total }, stars) => {
+      const group = achs.filter(a => a.stars === stars);
+      const unlockedInTier = group.filter(a => unlocked[a.id]).length;
+      countSpan.textContent = `(${unlockedInTier}/${total} unlocked)`;
+    });
+
+    _achCards.forEach(({ card, dateEl }, id) => {
+      const isUnlocked = !!unlocked[id];
+      card.classList.toggle('ach-locked', !isUnlocked);
+      card.classList.toggle('ach-unlocked', isUnlocked);
+      if (isUnlocked) {
+        totalUnlocked++;
+        if (unlocked[id].unlockedAt) {
+          const d = new Date(unlocked[id].unlockedAt);
+          dateEl.textContent = d.toLocaleDateString();
+        }
+      } else {
+        dateEl.textContent = '';
+      }
+    });
+
+    if (_achSummaryEl) {
+      _achSummaryEl.textContent = `${totalUnlocked} / ${achs.length} achievements unlocked`;
+    }
+  }
+
+  return { renderSeeds, renderBags, renderItems, renderUpgrades, renderInventory, renderCrafting, renderAchievements };
 })();

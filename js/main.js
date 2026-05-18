@@ -17,6 +17,7 @@ function setupUI() {
 function renderInitial() {
   RenderFarm.renderGrid();
   RenderPanel.renderInventory();
+  RenderPanel.renderCrafting();
   try { RenderPanel.renderSeeds(); } catch (e) { console.error('renderSeeds failed:', e); }
   RenderPanel.renderBags();
   RenderPanel.renderItems();
@@ -27,6 +28,8 @@ function renderInitial() {
   renderLoose();
   updateCoins();
   RenderHUD.renderStage();
+  RenderPanel.renderAchievements();
+  if (typeof checkAchievements === 'function') checkAchievements();
   applyPanelState();
 
   for (let i = 0; i < tileCount(); i++) {

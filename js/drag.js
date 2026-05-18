@@ -11,6 +11,14 @@ function startDrag(seed, source, bonus = 1.0, drowned = false, fungal = false) {
   DragSystem.start({ seed, source, bonus, drowned, fungal },
     makeSpriteDiv(seed, source === 'seedInventory' ? 'seed' : 'grown', 64));
 }
+function startCraftedDrag(recipeId, emoji) {
+  deselect();
+  const sp = document.createElement('span');
+  sp.style.cssText = 'font-size:38px;line-height:1;display:block;pointer-events:none';
+  sp.textContent = emoji;
+  DragSystem.start({ seed: recipeId, source: 'craftedInventory', bonus: 1, drowned: false, fungal: false, crafted: true }, sp);
+}
+
 function startItemDrag(itemType) {
   deselect();
   const sp = document.createElement('span');
@@ -150,6 +158,10 @@ window.DragSystem = (() => {
             && !(state.rotTiles     && state.rotTiles[i]     && state.rotTiles[i].deadAt !== undefined)
             && hit(e.clientX, e.clientY, t)) {
             state.tiles[i] = { seed, plantedAt: Date.now() };
+            state.stats.totalPlanted = (state.stats.totalPlanted || 0) + 1;
+            if (!state.stats.seedTypesPlanted) state.stats.seedTypesPlanted = {};
+            state.stats.seedTypesPlanted[seed] = true;
+            if (typeof checkAchievements === 'function') checkAchievements();
             Audio.playPlant();
             const tr = t.getBoundingClientRect();
             Particles.dirtPuff(tr.left + tr.width / 2, tr.top + tr.height / 2);
@@ -276,4 +288,28 @@ DragSystem.register('inventory-item', 'tile', (item, tileEl) => {
     else if (it === 'cage') state.cageCount++;
     RenderPanel.renderInventory(); RenderPanel.renderItems();
   }
+});
+
+// ── Crafted item → sell box ──────────────────────────────────────────────────
+DragSystem.register('craftedInventory', 'sell-box', (item) => {
+  const wasEmpty = state.sellQueue.length === 0;
+  state.sellQueue.push({ seed: item.seed, bonus: 1, drowned: false, fungal: false, crafted: true });
+  if (wasEmpty) STATE.session.sellElapsed = 0;
+  const sb = document.getElementById('sell-box');
+  if (sb) { sb.classList.remove('sell-bounce'); void sb.offsetWidth; sb.classList.add('sell-bounce'); }
+  RenderSellbox.renderQueue(); save();
+});
+
+// ── Crafted item → panel (return to inventory) ───────────────────────────────
+DragSystem.register('craftedInventory', 'panel', (item) => {
+  if (!state.craftedInventory) state.craftedInventory = {};
+  state.craftedInventory[item.seed] = (state.craftedInventory[item.seed] || 0) + 1;
+  RenderPanel.renderInventory(); save();
+});
+
+// ── Crafted item → anywhere else (return to inventory) ───────────────────────
+DragSystem.register('craftedInventory', 'body', (item) => {
+  if (!state.craftedInventory) state.craftedInventory = {};
+  state.craftedInventory[item.seed] = (state.craftedInventory[item.seed] || 0) + 1;
+  RenderPanel.renderInventory(); save();
 });

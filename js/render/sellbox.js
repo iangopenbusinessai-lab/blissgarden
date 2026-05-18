@@ -15,16 +15,24 @@ window.RenderSellbox = (() => {
     qRow.innerHTML = '';
     state.sellQueue.forEach((item, idx) => {
       const s = mk('span','sq-icon');
-      s.appendChild(makeSpriteDiv(item.seed, 'grown', 24));
-      s.addEventListener('mousedown', e => {
-        if (drag) return;
-        e.stopPropagation();
-        state.sellQueue.splice(idx, 1);
-        if (idx === 0 && state.sellQueue.length > 0) STATE.session.sellElapsed = 0;
-        renderQueue(); save();
-        startDrag(item.seed, 'sell-queue', item.bonus || 1.0, item.drowned || false);
-        moveGhost(e.clientX, e.clientY);
-      });
+      if (item.crafted) {
+        const recipe = window.RECIPES && window.RECIPES.find(r => r.id === item.seed);
+        const span = document.createElement('span');
+        span.style.cssText = 'font-size:16px;line-height:1;pointer-events:none';
+        span.textContent = recipe ? recipe.emoji : '?';
+        s.appendChild(span);
+      } else {
+        s.appendChild(makeSpriteDiv(item.seed, 'grown', 24));
+        s.addEventListener('mousedown', e => {
+          if (drag) return;
+          e.stopPropagation();
+          state.sellQueue.splice(idx, 1);
+          if (idx === 0 && state.sellQueue.length > 0) STATE.session.sellElapsed = 0;
+          renderQueue(); save();
+          startDrag(item.seed, 'sell-queue', item.bonus || 1.0, item.drowned || false);
+          moveGhost(e.clientX, e.clientY);
+        });
+      }
       qRow.appendChild(s);
     });
     updateSellTimer();

@@ -71,6 +71,7 @@ function addCoins(amount) {
   checkMaturity();
   checkStages();
   updateCoins();
+  if (typeof checkAchievements === 'function') checkAchievements();
 }
 function updateCoins() {
   RenderHUD.renderCoin();
@@ -132,10 +133,21 @@ function tickSellBox() {
   for (let s = 0; s < maxSell && state.sellQueue.length > 0; s++) {
     const item = state.sellQueue.shift();
     let coins;
-    if (item.fungal)       coins = 0;
-    else if (item.drowned) coins = Math.round(SEEDS[item.seed].sell * (item.bonus || 1));
-    else                   coins = Math.round(SEEDS[item.seed].sell * STATE.modifiers.sellValue * (item.bonus || 1));
-    log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${coins}${item.fungal ? ' (fungal)' : ''}`);
+    if (item.crafted) {
+      const recipe = window.RECIPES && window.RECIPES.find(r => r.id === item.seed);
+      coins = recipe ? recipe.sellValue : 0;
+      state.stats.craftedSold = (state.stats.craftedSold || 0) + 1;
+      log(`${recipe ? recipe.emoji : '?'} ${recipe ? recipe.name : item.seed} sold for ${coinHTML()}${coins}`);
+    } else if (item.fungal) {
+      coins = 0;
+      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${coins} (fungal)`);
+    } else if (item.drowned) {
+      coins = Math.round(SEEDS[item.seed].sell * (item.bonus || 1));
+      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${coins}`);
+    } else {
+      coins = Math.round(SEEDS[item.seed].sell * STATE.modifiers.sellValue * (item.bonus || 1));
+      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${coins}`);
+    }
     totalCoins += coins; sold++;
   }
   if (sold > 0) {
@@ -244,6 +256,8 @@ function showRotCureMenu(idx, cost, x, y) {
         td.plantedAt  = Date.now() - (newGT - oldRem * (newGT / oldGT)) * 1000;
       }
     }
+    state.stats.rotCured = (state.stats.rotCured || 0) + 1;
+    if (typeof checkAchievements === 'function') checkAchievements();
     log('💊 Root rot cured.');
     updateCoins(); RenderFarm.renderTile(idx); save(); hideTileMenu();
   });
@@ -298,6 +312,8 @@ function onTileDown(e) {
     state.thornedWeeds[idx].clicks++;
     if (state.thornedWeeds[idx].clicks >= THORNED_WEED_CLICKS) {
       delete state.thornedWeeds[idx];
+      state.stats.weedsCleared = (state.stats.weedsCleared || 0) + 1;
+      if (typeof checkAchievements === 'function') checkAchievements();
       log('✅ Thorned weed cleared!');
       RenderFarm.renderTile(idx);
     } else {
@@ -312,6 +328,8 @@ function onTileDown(e) {
     state.weeds[idx].clicks++;
     if (state.weeds[idx].clicks >= WEED_CLICKS) {
       delete state.weeds[idx];
+      state.stats.weedsCleared = (state.stats.weedsCleared || 0) + 1;
+      if (typeof checkAchievements === 'function') checkAchievements();
       log('✅ Weed cleared!');
       RenderFarm.renderTile(idx);
     } else {
@@ -346,10 +364,14 @@ function onTileDown(e) {
     if (state.rotTiles) delete state.rotTiles[idx];
     state.tiles[idx] = null;
     if (state.tilesWatered) delete state.tilesWatered[idx];
+    state.stats.totalHarvested = (state.stats.totalHarvested || 0) + 1;
+    if (!state.stats.seedTypesPlanted) state.stats.seedTypesPlanted = {};
+    state.stats.seedTypesPlanted[seed] = true;
     RenderFarm.renderTile(idx); save();
     log(`${SEEDS[seed].icon} ${SEEDS[seed].name} harvested${_isFungal ? ' (fungal — 0 coins)' : ''}`);
     if (rotInf) log('🍂 Infected — sells for 50% base value');
     EventBus.emit('crop:harvested', { seed, idx });
+    if (typeof checkAchievements === 'function') checkAchievements();
     startDrag(seed, 'tile', bonus, drowned, _isFungal); moveGhost(e.clientX, e.clientY);
     return;
   }
@@ -376,6 +398,8 @@ function onTileDown(e) {
             td.plantedAt  = Date.now() - (newGT - oldRem * (newGT / oldGT)) * 1000;
           }
         }
+        state.stats.rotCured = (state.stats.rotCured || 0) + 1;
+        if (typeof checkAchievements === 'function') checkAchievements();
         log('💊 Root rot cured.');
         updateCoins(); RenderFarm.renderTile(idx); save();
       } else {
@@ -437,6 +461,7 @@ function addCoins(amount) {
   checkMaturity();
   checkStages();
   updateCoins();
+  if (typeof checkAchievements === 'function') checkAchievements();
 }
 
 function updateCoins() {
@@ -463,10 +488,21 @@ function tickSellBox() {
   for (let s = 0; s < maxSell && state.sellQueue.length > 0; s++) {
     const item = state.sellQueue.shift();
     let coins;
-    if (item.fungal)        coins = 0;
-    else if (item.drowned)  coins = Math.round(SEEDS[item.seed].sell * (item.bonus || 1));
-    else                    coins = Math.round(SEEDS[item.seed].sell * STATE.modifiers.sellValue * (item.bonus || 1));
-    log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${coins}${item.fungal ? ' (fungal)' : ''}`);
+    if (item.crafted) {
+      const recipe = window.RECIPES && window.RECIPES.find(r => r.id === item.seed);
+      coins = recipe ? recipe.sellValue : 0;
+      state.stats.craftedSold = (state.stats.craftedSold || 0) + 1;
+      log(`${recipe ? recipe.emoji : '?'} ${recipe ? recipe.name : item.seed} sold for ${coinHTML()}${coins}`);
+    } else if (item.fungal) {
+      coins = 0;
+      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${coins} (fungal)`);
+    } else if (item.drowned) {
+      coins = Math.round(SEEDS[item.seed].sell * (item.bonus || 1));
+      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${coins}`);
+    } else {
+      coins = Math.round(SEEDS[item.seed].sell * STATE.modifiers.sellValue * (item.bonus || 1));
+      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${coins}`);
+    }
     totalCoins += coins; sold++;
   }
   if (sold > 0) {
@@ -556,6 +592,8 @@ function crowAttack() {
     RenderFarm.renderTile(target.idx);
   }
   sfx.attack();
+  state.stats.crowsSurvived = (state.stats.crowsSurvived || 0) + 1;
+  if (typeof checkAchievements === 'function') checkAchievements();
   log(`🐦 A crow snatched a ${cropName}!`);
   animateCrow();
   save();
@@ -615,7 +653,13 @@ function hawkAttack() {
       }
     }
   });
-  if (stolen > 0) { STATE.session.debugCounts.hawk++; sfx.attack(); renderLoose(); animateHawk(); save(); }
+  if (stolen > 0) {
+    STATE.session.debugCounts.hawk++;
+    sfx.attack();
+    state.stats.crowsSurvived = (state.stats.crowsSurvived || 0) + 1;
+    if (typeof checkAchievements === 'function') checkAchievements();
+    renderLoose(); animateHawk(); save();
+  }
 }
 
 function animateHawk() {
@@ -771,6 +815,8 @@ function locustAttack() {
     td.plantedAt    = now - newProgress * gt * 1000;
   }
   sfx.locust();
+  state.stats.locustsSurvived = (state.stats.locustsSurvived || 0) + 1;
+  if (typeof checkAchievements === 'function') checkAchievements();
   log('🪲 A locust swarm devastated the farm!');
   RenderFarm.renderGrid();
   animateLocust();
@@ -811,6 +857,8 @@ function blightAttack() {
       if (Math.random() < 0.25) delete state.fertilizedTiles[k];
     });
   }
+  state.stats.blightsSurvived = (state.stats.blightsSurvived || 0) + 1;
+  if (typeof checkAchievements === 'function') checkAchievements();
   log('🌪️ A blight storm stripped your soil!');
   RenderFarm.renderGrid();
   animateBlight();

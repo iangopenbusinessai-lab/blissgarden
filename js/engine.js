@@ -116,6 +116,11 @@ function applyOfflineProgress(elapsedMs) {
       const batch = Math.min(sellAtOnce(), queue.length);
       for (let i = 0; i < batch; i++) {
         const item     = queue.shift();
+        if (item.crafted) {
+          const recipe = window.RECIPES && window.RECIPES.find(r => r.id === item.seed);
+          if (recipe) coinsEarned += recipe.sellValue;
+          continue;
+        }
         const seedData = window.SEEDS?.[item.seed];
         if (!seedData || item.fungal) continue;
         coinsEarned += item.drowned
