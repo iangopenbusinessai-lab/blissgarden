@@ -21,9 +21,12 @@
 </div>
 <div id="stage-display"></div>
 
-<button id="ach-btn" title="Achievements">🏆</button>
-<button id="mute-btn" title="Toggle sound">🔊</button>
-<button id="settings-btn" title="Settings">⚙️</button>
+<div id="topbar-right">
+  <button id="menu-btn" class="topbar-btn" title="Menu">🌾</button>
+  <button id="ach-btn" class="topbar-btn" title="Achievements">🏆</button>
+  <button id="mute-btn" class="topbar-btn" title="Toggle sound">🔊</button>
+  <button id="settings-btn" class="topbar-btn" title="Settings">⚙️</button>
+</div>
 <div id="ach-backdrop"></div>
 <div id="ach-modal">
   <div id="ach-modal-header">
@@ -48,8 +51,10 @@
   <button id="reset-btn">Reset Data</button>
 </div>
 
+<div id="panel-backdrop"></div>
 <div id="panel">
-  <div id="panel-tab"><span id="panel-arrow">›</span></div>
+  <div id="panel-resize-handle"></div>
+  <button id="panel-close-btn">✕</button>
   <div id="panel-content">
     <div class="panel-label">Seeds</div>
     <div id="seeds-list"></div>

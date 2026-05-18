@@ -20,9 +20,17 @@ function showBanner(text) {
 }
 
 function applyPanelState() {
-  const w = panelExpanded ? panelWidth + 'px' : '24px';
-  document.body.style.setProperty('--pw', w);
-  document.getElementById('panel-arrow').textContent = panelExpanded ? '›' : '‹';
+  const panelEl  = document.getElementById('panel');
+  const backdrop = document.getElementById('panel-backdrop');
+  if (!panelEl) return;
+  panelEl.style.width = panelWidth + 'px';
+  if (panelExpanded) {
+    panelEl.classList.add('panel-open');
+    if (backdrop) backdrop.classList.add('panel-open');
+  } else {
+    panelEl.classList.remove('panel-open');
+    if (backdrop) backdrop.classList.remove('panel-open');
+  }
   if (state.upgrades.windUpCrank) RenderSellbox.positionCrank();
 }
 
@@ -302,9 +310,30 @@ window.RenderHUD = (() => {
 
   // ── setupUI ──────────────────────────────────────────────────────────────────
   function setupUI() {
-    const panelTabEl = document.getElementById('panel-tab');
-    const panelEl    = document.getElementById('panel');
-    panelTabEl.addEventListener('mousedown', e => {
+    const panelEl = document.getElementById('panel');
+
+    // Panel open/close
+    document.getElementById('menu-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      panelExpanded = true;
+      applyPanelState();
+      save();
+    });
+    document.getElementById('panel-close-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      panelExpanded = false;
+      applyPanelState();
+      save();
+    });
+    document.getElementById('panel-backdrop').addEventListener('click', () => {
+      panelExpanded = false;
+      applyPanelState();
+      save();
+    });
+    panelEl.addEventListener('click', e => e.stopPropagation());
+
+    // Panel resize from left edge
+    document.getElementById('panel-resize-handle').addEventListener('mousedown', e => {
       resizing = true; resizeStartX = e.clientX; resizeStartW = panelWidth; resizeMoved = false;
       panelEl.classList.add('resizing'); e.preventDefault(); e.stopPropagation();
     });
@@ -313,15 +342,13 @@ window.RenderHUD = (() => {
       const dx = resizeStartX - e.clientX;
       if (Math.abs(dx) > 4) resizeMoved = true;
       if (resizeMoved && panelExpanded) {
-        panelWidth = Math.max(160, Math.min(400, resizeStartW + dx));
-        document.body.style.setProperty('--pw', panelWidth + 'px');
-        if (state.upgrades.windUpCrank) RenderSellbox.positionCrank();
+        panelWidth = Math.max(200, Math.min(500, resizeStartW + dx));
+        panelEl.style.width = panelWidth + 'px';
       }
     });
-    document.addEventListener('mouseup', e => {
+    document.addEventListener('mouseup', () => {
       if (!resizing) return;
       resizing = false; panelEl.classList.remove('resizing');
-      if (!resizeMoved) { panelExpanded = !panelExpanded; applyPanelState(); }
       save();
     });
     document.addEventListener('mousedown', () => { if (!drag && !resizing) deselect(); hideTileMenu(); });

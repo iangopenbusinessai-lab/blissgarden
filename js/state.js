@@ -89,7 +89,7 @@ var state = {
   hideBoughtUpgrades: false,
 };
 
-var nextId = 0, selectedTile = null, panelExpanded = true, panelWidth = 220;
+var nextId = 0, selectedTile = null, panelExpanded = false, panelWidth = 280;
 var crankMult = 1.0, crankAngle = 0;
 var prevReadyState = {};
 var resizing = false, resizeStartX = 0, resizeStartW = 0, resizeMoved = false;

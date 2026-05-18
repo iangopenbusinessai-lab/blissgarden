@@ -84,8 +84,8 @@ window.load = function load() {
     state.hideBoughtUpgrades      = d.hideBoughtUpgrades      ?? false;
     STATE.settings.debugMode      = d.debugMode               ?? false;
     nextId        = d.nextId        ?? 0;
-    panelExpanded = d.panelExpanded ?? true;
-    panelWidth    = d.panelWidth    ?? 220;
+    panelExpanded = d.panelExpanded ?? false;
+    panelWidth    = Math.max(200, Math.min(500, d.panelWidth ?? 280));
   } catch (_) {}
 };
 
