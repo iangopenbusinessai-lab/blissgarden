@@ -230,31 +230,31 @@ function setupTimers() {
   const cond = (minStage, checkMature = true) => () =>
     (!checkMature || state.mature) && getCurrentStage().stage >= minStage;
 
-  TimerManager.timers['crow'].fn        = crowTick;
+  TimerManager.timers['crow'].fn        = Events.crowTick;
   TimerManager.timers['crow'].condition = cond(0);
-  TimerManager.timers['weed'].fn        = weedTick;
+  TimerManager.timers['weed'].fn        = Events.weedTick;
   TimerManager.timers['weed'].condition = cond(0);
-  TimerManager.timers['hawk'].fn        = hawkTick;
+  TimerManager.timers['hawk'].fn        = Events.hawkTick;
   TimerManager.timers['hawk'].condition = cond(2);
   TimerManager.timers['hawk'].interval  = () => getCurrentStage().stage >= 3 ? 10000 : 15000;
-  TimerManager.timers['mole'].fn        = moleTick;
+  TimerManager.timers['mole'].fn        = Events.moleTick;
   TimerManager.timers['mole'].condition = cond(2);
-  TimerManager.timers['rootRot'].fn        = rootRotSpawnTick;
+  TimerManager.timers['rootRot'].fn        = Events.rootRotSpawnTick;
   TimerManager.timers['rootRot'].condition = cond(3);
-  TimerManager.timers['locust'].fn      = locustTick;
+  TimerManager.timers['locust'].fn      = Events.locustTick;
   TimerManager.timers['locust'].condition = cond(3);
-  TimerManager.timers['blight'].fn      = blightTick;
+  TimerManager.timers['blight'].fn      = Events.blightTick;
   TimerManager.timers['blight'].condition = cond(3);
-  TimerManager.timers['fungal'].fn        = fungalSpawnTick;
+  TimerManager.timers['fungal'].fn        = Events.fungalSpawnTick;
   TimerManager.timers['fungal'].condition = cond(3);
   TimerManager.timers['save'].fn        = save;
   TimerManager.timers['save'].condition = () => true;
 
-  TimerManager.register('mound',        { interval: 1000,  condition: () => true, fn: moundTick });
-  TimerManager.register('rot',          { interval: 1000,  condition: () => true, fn: rotTick });
-  TimerManager.register('thornedWeed',  { interval: 1000,  condition: () => true, fn: thornedWeedTick });
-  TimerManager.register('fungalSpread', { interval: 30000, condition: () => true, fn: fungalSpreadTick });
-  TimerManager.register('masterFarmer', { interval: 1000,  condition: () => true, fn: masterFarmerTick });
+  TimerManager.register('mound',        { interval: 1000,  condition: () => true, fn: Events.moundTick });
+  TimerManager.register('rot',          { interval: 1000,  condition: () => true, fn: Events.rotTick });
+  TimerManager.register('thornedWeed',  { interval: 1000,  condition: () => true, fn: Events.thornedWeedTick });
+  TimerManager.register('fungalSpread', { interval: 30000, condition: () => true, fn: Events.fungalSpreadTick });
+  TimerManager.register('masterFarmer', { interval: 1000,  condition: () => true, fn: Events.masterFarmerTick });
   TimerManager.register('crankDecay',   { interval: 1000,  condition: () => state.upgrades.windUpCrank, fn: () => {
     if (STATE.session.crankMultiplier > 1.0) {
       const cm = STATE.session.crankMultiplier;

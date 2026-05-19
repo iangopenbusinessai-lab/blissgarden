@@ -7,7 +7,8 @@
       "Bash(python3 -c \"from PIL import Image; img=Image.open\\('sprites.png'\\); print\\(img.size\\)\")",
       "Bash(python3 *)",
       "Bash(Get-Content \"C:\\\\Users\\\\iango\\\\OneDrive\\\\Desktop\\\\blissgarden\\\\js\\\\main.js\")",
-      "Bash(Measure-Object -Line)"
+      "Bash(Measure-Object -Line)",
+      "Bash(Remove-Item \"C:\\\\Users\\\\iango\\\\OneDrive\\\\Desktop\\\\blissgarden\\\\js\\\\events.js\" -Force)"
     ]
   }
 }
