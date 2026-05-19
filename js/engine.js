@@ -273,6 +273,23 @@ function setupTimers() {
         STATE.session.sellElapsed = 0;
       }
     }
+    // Tick burnedSeconds for every growing tile (permanent — not undone by day/night shifts).
+    for (let i = 0; i < tileCount(); i++) {
+      const td = state.tiles[i];
+      if (!td || !td.seed) continue;
+      const base = window.SEEDS?.[td.seed]?.grow;
+      if (!base) continue;
+      if (td.burnedSeconds === undefined) {
+        // Seed from plantedAt on first encounter (backward compat with existing saves).
+        const gs      = STATE.modifiers.growSpeed || 1;
+        const elapsed = Math.max(0, (Date.now() - td.plantedAt) / 1000);
+        td.burnedSeconds = Math.min(base, elapsed / gs);
+      }
+      if (td.burnedSeconds < base) {
+        td.burnedSeconds += 0.05 * getEffectiveSpeedMult(td.seed, i);
+        if (td.burnedSeconds > base) td.burnedSeconds = base;
+      }
+    }
     updateTimers();
     RenderSellbox.updateSellTimer();
     RenderSellbox.updateCrankLabel();

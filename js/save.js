@@ -3,7 +3,7 @@ const KEY     = 'blissfarm10';
 const KEY_OLD = 'blissfarm9';
 
 window.save = function save() {
-  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode }));
+  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode, dayOffset: STATE.meta.dayOffset }));
 };
 
 window.load = function load() {
@@ -14,7 +14,8 @@ window.load = function load() {
     if (!d) return;
     state.coins           = d.coins           ?? 10;
     state.coinsEarned     = d.coinsEarned     ?? 0;
-    state.gameStartTime   = d.gameStartTime   ?? Date.now();
+    state.gameStartTime       = d.gameStartTime       ?? Date.now();
+    STATE.meta.dayOffset      = d.dayOffset            ?? null;
     state.milestones      = d.milestones      ?? {};
     state.stagesSeen      = d.stagesSeen      ?? {};
     state.mature          = d.mature          ?? false;

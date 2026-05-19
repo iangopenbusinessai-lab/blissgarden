@@ -17,11 +17,38 @@ function rotFactor(idx) {
   if (rot && rot.infectedAt !== undefined && rot.deadAt === undefined) return 1 / 0.30;
   return 1.0;
 }
-function remSec(td, idx) {
-  const gt = SEEDS[td.seed].grow * STATE.modifiers.growSpeed * waterFactor(idx) * fertFactor(idx) * rotFactor(idx);
-  return Math.max(0, gt - (Date.now() - td.plantedAt) / 1000);
+// Returns the total effective speed multiplier for a growing crop.
+// growSpeed is treated as a speed factor (higher = faster accumulation of burnedSeconds).
+// Tile factors (water, fert, rot) convert time-mults to speed contributions.
+function getEffectiveSpeedMult(seedId, idx) {
+  const gs = STATE.modifiers.growSpeed || 1;
+  const dayNight = window.RenderEnv?.getDayNightMult?.(seedId) ?? 1.0;
+  let tile = 1.0;
+  if (idx !== undefined) {
+    if (state.tilesWatered?.[idx])            tile /= 0.75;
+    if (state.fertilizedTiles?.[idx])         tile /= 0.75;
+    if (state.uncommonFertilizedTiles?.[idx]) tile /= 0.60;
+    const rot = state.rotTiles?.[idx];
+    if (rot?.infectedAt !== undefined && rot?.deadAt === undefined) tile *= 0.30;
+  }
+  return gs * dayNight * tile;
 }
-function isReady(td, idx) { return remSec(td, idx) <= 0; }
+
+// Alias used by farm.js (which references getGrowMult but it was never defined).
+function getGrowMult() { return STATE.modifiers.growSpeed || 1; }
+
+// Remaining real seconds until crop is ready, based on burnedSeconds progress.
+function remSec(td, idx) {
+  const base   = SEEDS[td.seed].grow;
+  const burned = td.burnedSeconds ?? 0;
+  if (burned >= base) return 0;
+  return (base - burned) / getEffectiveSpeedMult(td.seed, idx);
+}
+
+// isReady uses burnedSeconds so day/night shifts don't undo accumulated progress.
+function isReady(td, idx) {
+  return (td.burnedSeconds ?? 0) >= SEEDS[td.seed].grow;
+}
 
 function getSellInterval()   { return STATE.modifiers.sellInterval / crankMult; }
 function canCapacity()       { return STATE.upgrades.copperSpout ? 2 : 1; }

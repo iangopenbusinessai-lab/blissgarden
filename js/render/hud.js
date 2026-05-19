@@ -53,6 +53,9 @@ window.RenderHUD = (() => {
   function renderStage() {
     const s = getCurrentStage();
     document.getElementById('stage-display').textContent = `Stage ${s.stage}: ${s.name}`;
+    const todIcons = { dawn:'🌅', day:'🌞', dusk:'🌆', night:'🌙' };
+    const iconEl = document.getElementById('tod-icon');
+    if (iconEl) iconEl.textContent = todIcons[STATE.session.timeOfDay] || '🌞';
   }
 
   function renderLog(msg) {
@@ -254,6 +257,19 @@ window.RenderHUD = (() => {
     html += row('Grow speed',        m.growSpeed.toFixed(3) + 'x');
     html += row('Sell value',        m.sellValue.toFixed(3) + 'x');
     html += row('Sell box capacity', m.sellBoxCapacity);
+
+    const tod = STATE.session.timeOfDay || 'day';
+    const globalMult = { day:1.15, night:0.85, dawn:1.0, dusk:1.0 }[tod] ?? 1.0;
+    html += h('DAY/NIGHT');
+    html += row('Time of day',   tod.toUpperCase());
+    html += row('Global mult',   globalMult.toFixed(2) + 'x');
+    const _daySeeds   = ['potato','carrot','moonbloom','voidbloom','chard'];
+    _daySeeds.forEach(id => {
+      const seed = window.SEEDS?.[id];
+      if (!seed) return;
+      const eff = window.RenderEnv?.getDayNightMult?.(id) ?? 1.0;
+      html += row(seed.name + ' mult', eff.toFixed(2) + 'x');
+    });
 
     html += h('STAGE &amp; STATE');
     html += row('Stage',         `${s.stage} — ${s.name}`);

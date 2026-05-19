@@ -157,7 +157,7 @@ window.DragSystem = (() => {
             && !(state.mounds       && state.mounds[i]       !== undefined)
             && !(state.rotTiles     && state.rotTiles[i]     && state.rotTiles[i].deadAt !== undefined)
             && hit(e.clientX, e.clientY, t)) {
-            state.tiles[i] = { seed, plantedAt: Date.now() };
+            state.tiles[i] = { seed, plantedAt: Date.now(), burnedSeconds: 0 };
             state.stats.totalPlanted = (state.stats.totalPlanted || 0) + 1;
             if (!state.stats.seedTypesPlanted) state.stats.seedTypesPlanted = {};
             state.stats.seedTypesPlanted[seed] = true;

@@ -11,8 +11,20 @@ window.RenderEnv = (() => {
     { t:1.00, r:10,  g:10,  b:30  },   // midnight
   ];
 
+  const DAY_SEEDS   = new Set(['potato','carrot','wheat','sunflower','pumpkin']);
+  const NIGHT_SEEDS = new Set(['moonbloom','voidbloom','eclipseLotus','netherfruit','genesisSeed']);
+
+  const TOD_ICONS = { dawn:'🌅', day:'🌞', dusk:'🌆', night:'🌙' };
+  const TOD_MSGS  = {
+    dawn:  '🌅 Dawn breaks.',
+    day:   '🌞 Day — crops thrive.',
+    dusk:  '🌆 Dusk settles.',
+    night: '🌙 Night falls — crops slow.',
+  };
+
   let skyEl, sunEl, moonEl, starsEl;
-  const DAY_MS = 10 * 60 * 1000; // 10-minute day cycle
+  let prevTod = null;
+  const DAY_MS = 20 * 60 * 1000; // 20-minute day cycle
 
   function lerpSky(frac) {
     let a = SKY[0], b = SKY[SKY.length - 1];
@@ -28,7 +40,35 @@ window.RenderEnv = (() => {
     };
   }
 
+  function _fracToTod(frac) {
+    if (frac >= 0.20 && frac < 0.28) return 'dawn';
+    if (frac >= 0.28 && frac < 0.72) return 'day';
+    if (frac >= 0.72 && frac < 0.80) return 'dusk';
+    return 'night';
+  }
+
+  // Returns the effective speed multiplier for a seed at the current time of day.
+  // day/night: global ±15%. Day/night-themed seeds get an additional ±20% on top.
+  function getDayNightMult(seedId) {
+    const tod = STATE.session.timeOfDay || 'day';
+    let global = 1.0;
+    if (tod === 'day')   global = 1.15;
+    if (tod === 'night') global = 0.85;
+    let crop = 1.0;
+    if (DAY_SEEDS.has(seedId)) {
+      if (tod === 'day')   crop = 1.20;
+      if (tod === 'night') crop = 0.80;
+    } else if (NIGHT_SEEDS.has(seedId)) {
+      if (tod === 'night') crop = 1.20;
+      if (tod === 'day')   crop = 0.80;
+    }
+    return global * crop;
+  }
+
   function init() {
+    if (!STATE.meta.dayOffset) {
+      STATE.meta.dayOffset = Date.now() - (DAY_MS * 0.25);
+    }
     skyEl = document.getElementById('game-area');
 
     // Sun
@@ -62,9 +102,18 @@ window.RenderEnv = (() => {
   }
 
   function updateSky() {
-    const frac = ((Date.now() % DAY_MS) / DAY_MS);
+    const frac = ((Date.now() - STATE.meta.dayOffset) % DAY_MS) / DAY_MS;
     const { r, g, b } = lerpSky(frac);
     document.body.style.background = `rgb(${r},${g},${b})`;
+
+    const tod = _fracToTod(frac);
+    if (tod !== prevTod) {
+      STATE.session.timeOfDay = tod;
+      if (prevTod !== null && typeof log === 'function') log(TOD_MSGS[tod]);
+      prevTod = tod;
+      const iconEl = document.getElementById('tod-icon');
+      if (iconEl) iconEl.textContent = TOD_ICONS[tod];
+    }
 
     const isDay   = frac > 0.28 && frac < 0.78;
     const isNight = frac < 0.22 || frac > 0.85;
@@ -86,5 +135,5 @@ window.RenderEnv = (() => {
     }
   }
 
-  return { init, updateSky };
+  return { init, updateSky, getDayNightMult };
 })();

@@ -813,6 +813,9 @@ function locustAttack() {
     const setback   = state.upgrades.cropShield ? 0.15 : 0.30;
     const newProgress = Math.max(0, progress - setback);
     td.plantedAt    = now - newProgress * gt * 1000;
+    if (td.burnedSeconds !== undefined) {
+      td.burnedSeconds = Math.max(0, newProgress * SEEDS[td.seed].grow);
+    }
   }
   sfx.locust();
   state.stats.locustsSurvived = (state.stats.locustsSurvived || 0) + 1;
