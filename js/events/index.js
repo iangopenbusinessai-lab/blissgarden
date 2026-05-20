@@ -12,24 +12,6 @@ var sfx = {
   locust()       { Audio.playLocust(); },
 };
 
-// ── LOG & BANNER ──
-var logEntries = [];
-function log(msg) {
-  logEntries.push(msg);
-  if (logEntries.length > 60) logEntries.shift();
-  RenderHUD.renderLog(msg);
-}
-function showBanner(text) {
-  const existing = document.querySelector('.world-banner');
-  if (existing) existing.remove();
-  const el = document.createElement('div');
-  el.className = 'world-banner';
-  el.textContent = text;
-  document.body.appendChild(el);
-  el.addEventListener('animationend', () => el.remove());
-  setTimeout(() => el.remove(), 4200);
-}
-
 // ── COINS & STAGES ──
 function getCurrentStage() {
   let current = STAGES[0];
