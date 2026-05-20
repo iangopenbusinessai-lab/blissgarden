@@ -100,11 +100,14 @@ window.ITEMS = {
 const ROW_MAP = {
   potato:0, carrot:1, wheat:2, sunflower:3, pumpkin:4, chard:5, moonbloom:6,
   starfruit:7, thornvine:8, glowshroom:9, voidbloom:10, aetherfern:11, solarspike:12,
-  // rows 13–22: no sprite rows in sheet; emoji fallback used at runtime
   netherfruit:13, duskpetal:14, ashbloom:15, voidcoral:16, eclipseLotus:17,
   stardustFern:18, celestialPod:19, auricBloom:20, prismaticRoot:21, genesisSeed:22,
 };
 const COL_MAP = { seed:0, sprout:1, grown:2 };
+
+// Items: rows 23–27, cols = idle(0) · active(1) · depleted(2)
+const ITEM_ROW_MAP = { wateringCan:23, cage:24, commonFertilizer:25, uncommonFertilizer:26, scarecrow:27 };
+const ITEM_COL_MAP = { idle:0, active:1, depleted:2 };
 
 const ITEM_ICONS = { water:'💧', cage:'🔒', fertilizer:'🌿', uncommonFert:'⚗️' };
 

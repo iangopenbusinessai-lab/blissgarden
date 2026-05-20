@@ -129,6 +129,9 @@ function tileCount() { const { cols, rows } = getGridDims(); return cols * rows;
 // ══════════════════════════════
 // SPRITE HELPERS
 // ══════════════════════════════
+// Sheet is 28 rows × 3 cols × 64px native = 192 × 1792px
+const SHEET_ROWS = 28;
+
 function getSpriteStyle(cropId, stage, size=64) {
   const row = ROW_MAP[cropId], col = COL_MAP[stage];
   if (row === undefined || col === undefined) {
@@ -138,7 +141,21 @@ function getSpriteStyle(cropId, stage, size=64) {
   return {
     backgroundImage:    "url('./sprites.png')",
     backgroundPosition: `${-(col*size)}px ${-(row*size)}px`,
-    backgroundSize:     `${size*3}px ${size*13}px`,
+    backgroundSize:     `${size*3}px ${size*SHEET_ROWS}px`,
+    backgroundRepeat:   'no-repeat',
+    width: size+'px', height: size+'px',
+    imageRendering: 'pixelated',
+    display: 'inline-block',
+    flexShrink: '0',
+  };
+}
+function getItemSpriteStyle(itemId, itemState, size=64) {
+  const row = ITEM_ROW_MAP[itemId], col = ITEM_COL_MAP[itemState];
+  if (row === undefined || col === undefined) return {};
+  return {
+    backgroundImage:    "url('./sprites.png')",
+    backgroundPosition: `${-(col*size)}px ${-(row*size)}px`,
+    backgroundSize:     `${size*3}px ${size*SHEET_ROWS}px`,
     backgroundRepeat:   'no-repeat',
     width: size+'px', height: size+'px',
     imageRendering: 'pixelated',
@@ -147,32 +164,16 @@ function getSpriteStyle(cropId, stage, size=64) {
   };
 }
 function makeSpriteDiv(cropId, stage, size=64) {
-  const row = ROW_MAP[cropId];
-  if (row !== undefined && row >= 13) {
-    const seed = window.SEEDS && window.SEEDS[cropId];
-    const emoji = seed ? (seed.icon || '🌱') : '🌱';
-    const el = document.createElement('span');
-    el.style.cssText = `font-size:${Math.round(size*0.65)}px;line-height:1;display:inline-flex;align-items:center;justify-content:center;width:${size}px;height:${size}px;flex-shrink:0;pointer-events:none`;
-    el.textContent = emoji;
-    return el;
-  }
   const el = document.createElement('div');
   Object.assign(el.style, getSpriteStyle(cropId, stage, size));
   el.style.pointerEvents = 'none';
   return el;
 }
 function spriteHTML(cropId, stage, size=64) {
-  const row = ROW_MAP[cropId];
-  if (row !== undefined && row >= 13) {
-    const seed = window.SEEDS && window.SEEDS[cropId];
-    const emoji = seed ? (seed.icon || '🌱') : '🌱';
-    const fs = Math.round(size * 0.65);
-    return `<span style="display:inline-flex;align-items:center;justify-content:center;width:${size}px;height:${size}px;font-size:${fs}px;line-height:1;vertical-align:middle;flex-shrink:0;pointer-events:none">${emoji}</span>`;
-  }
-  const col = COL_MAP[stage];
+  const row = ROW_MAP[cropId], col = COL_MAP[stage];
   if (row === undefined || col === undefined) {
     console.error('spriteHTML: unknown cropId or stage', cropId, stage);
     return '';
   }
-  return `<span style="display:inline-block;width:${size}px;height:${size}px;background:url('./sprites.png') no-repeat ${-(col*size)}px ${-(row*size)}px/${size*3}px ${size*13}px;image-rendering:pixelated;vertical-align:middle;flex-shrink:0;pointer-events:none"></span>`;
+  return `<span style="display:inline-block;width:${size}px;height:${size}px;background:url('./sprites.png') no-repeat ${-(col*size)}px ${-(row*size)}px/${size*3}px ${size*SHEET_ROWS}px;image-rendering:pixelated;vertical-align:middle;flex-shrink:0;pointer-events:none"></span>`;
 }
