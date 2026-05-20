@@ -159,7 +159,7 @@ function migrate(data) {
     upgrades,
     settings: {
       muted:         false,
-      hidePurchased: old.hideBoughtUpgrades ?? false,
+      hidePurchased: old.hideBoughtUpgrades ?? true,
     },
     milestones: old.milestones ?? {},
   };

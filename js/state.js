@@ -39,7 +39,7 @@ window.STATE = {
   },
   settings: {
     muted: false,
-    hidePurchased: false,
+    hidePurchased: true,
     debugMode: false,
   },
   milestones: {},
