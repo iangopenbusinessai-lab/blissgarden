@@ -129,24 +129,25 @@ function tileCount() { const { cols, rows } = getGridDims(); return cols * rows;
 // ══════════════════════════════
 // SPRITE HELPERS
 // ══════════════════════════════
-// Sheet is 28 rows × 3 cols × 64px native = 192 × 1792px
+// Sheet is 384px wide × (rows×128)px tall. Each cell is 128×128px native.
 const SHEET_ROWS = 28;
 
 function getSpriteStyle(cropId, stage, size=64) {
-  const row = ROW_MAP[cropId], col = COL_MAP[stage];
-  if (row === undefined || col === undefined) {
-    console.error('getSpriteStyle: unknown cropId or stage', cropId, stage);
-    return {};
-  }
+  const col = COL_MAP[stage];
+  const row = ROW_MAP[cropId];
+  if (row === undefined || col === undefined) { console.error('getSpriteStyle unknown:', cropId, stage); return {}; }
+  const totalRows = 28; // update if more rows added
   return {
     backgroundImage:    "url('./sprites.png')",
-    backgroundPosition: `${-(col*size)}px ${-(row*size)}px`,
-    backgroundSize:     `${size*3}px ${size*SHEET_ROWS}px`,
+    backgroundPosition: `${-(col * 128)}px ${-(row * 128)}px`,
+    backgroundSize:     `384px ${totalRows * 128}px`,
     backgroundRepeat:   'no-repeat',
-    width: size+'px', height: size+'px',
-    imageRendering: 'pixelated',
-    display: 'inline-block',
-    flexShrink: '0',
+    width:  size + 'px',
+    height: size + 'px',
+    imageRendering:  'pixelated',
+    display:         'inline-block',
+    transform:       `scale(${size/128})`,
+    transformOrigin: 'top left',
   };
 }
 function getItemSpriteStyle(itemId, itemState, size=64) {
