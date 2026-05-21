@@ -139,15 +139,14 @@ function getSpriteStyle(cropId, stage, size=64) {
   const totalRows = 28; // update if more rows added
   return {
     backgroundImage:    "url('./sprites.png')",
-    backgroundPosition: `${-(col * 128)}px ${-(row * 128)}px`,
-    backgroundSize:     `384px ${totalRows * 128}px`,
+    backgroundPosition: `${-(col * size)}px ${-(row * size)}px`,
+    backgroundSize:     `${size * 3}px ${size * totalRows}px`,
     backgroundRepeat:   'no-repeat',
     width:  size + 'px',
     height: size + 'px',
     imageRendering:  'pixelated',
     display:         'inline-block',
-    transform:       `scale(${size/128})`,
-    transformOrigin: 'top left',
+    flexShrink:      '0',
   };
 }
 function getItemSpriteStyle(itemId, itemState, size=64) {

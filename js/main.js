@@ -160,6 +160,16 @@ function init() {
   setupUI();
   renderInitial();
   RenderFarm.probeSprites();
+
+  // Sprite load diagnostic — remove after confirming sprites.png loads correctly
+  const _spriteTest = document.createElement('div');
+  Object.assign(_spriteTest.style, getSpriteStyle('potato', 'grown', 64));
+  _spriteTest.style.position = 'fixed';
+  _spriteTest.style.top = '0';
+  _spriteTest.style.left = '0';
+  _spriteTest.style.zIndex = '9999';
+  document.body.appendChild(_spriteTest);
+  setTimeout(() => _spriteTest.remove(), 3000);
 }
 
 init();
