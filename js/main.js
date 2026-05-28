@@ -12,25 +12,6 @@ function setupUI() {
 
   const panelEl = document.getElementById('panel');
 
-  document.getElementById('menu-btn').addEventListener('click', e => {
-    e.stopPropagation();
-    panelExpanded = true;
-    applyPanelState();
-    save();
-  });
-  document.getElementById('panel-close-btn').addEventListener('click', e => {
-    e.stopPropagation();
-    panelExpanded = false;
-    applyPanelState();
-    save();
-  });
-  document.getElementById('panel-backdrop').addEventListener('click', () => {
-    panelExpanded = false;
-    applyPanelState();
-    save();
-  });
-  panelEl.addEventListener('click', e => e.stopPropagation());
-
   document.getElementById('panel-resize-handle').addEventListener('mousedown', e => {
     resizing = true; resizeStartX = e.clientX; resizeStartW = panelWidth; resizeMoved = false;
     panelEl.classList.add('resizing'); e.preventDefault(); e.stopPropagation();
@@ -39,9 +20,9 @@ function setupUI() {
     if (!resizing) return;
     const dx = resizeStartX - e.clientX;
     if (Math.abs(dx) > 4) resizeMoved = true;
-    if (resizeMoved && panelExpanded) {
+    if (resizeMoved) {
       panelWidth = Math.max(200, Math.min(500, resizeStartW + dx));
-      panelEl.style.width = panelWidth + 'px';
+      applyPanelState();
     }
   });
   document.addEventListener('mouseup', () => {

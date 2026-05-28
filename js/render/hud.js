@@ -1,15 +1,11 @@
 function applyPanelState() {
-  const panelEl  = document.getElementById('panel');
-  const backdrop = document.getElementById('panel-backdrop');
+  const panelEl = document.getElementById('panel');
   if (!panelEl) return;
   panelEl.style.width = panelWidth + 'px';
-  if (panelExpanded) {
-    panelEl.classList.add('panel-open');
-    if (backdrop) backdrop.classList.add('panel-open');
-  } else {
-    panelEl.classList.remove('panel-open');
-    if (backdrop) backdrop.classList.remove('panel-open');
-  }
+  const gameArea = document.getElementById('game-area');
+  if (gameArea) gameArea.style.right = panelWidth + 'px';
+  const topbarRight = document.getElementById('topbar-right');
+  if (topbarRight) topbarRight.style.right = (panelWidth + 8) + 'px';
   if (state.upgrades.windUpCrank) RenderSellbox.positionCrank();
 }
 
