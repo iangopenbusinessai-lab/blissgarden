@@ -117,6 +117,7 @@ window.RenderPanel = (() => {
   let _cageCard     = null, _cageBtn = null;
   let _fertCard     = null, _fertBtn = null;
   let _ufertCard    = null, _ufertBtn = null;
+  let _hhCard       = null, _hhBtn = null, _hhRepSpan = null;
 
   function buildItems() {
     _itemsEl = document.getElementById('items-list');
@@ -195,6 +196,32 @@ window.RenderPanel = (() => {
       updateCoins(); renderInventory(); save();
     });
     _itemsEl.appendChild(_ufertCard);
+
+    // Hired Hand
+    _hhCard = mk('div','upgrade-card');
+    _hhRepSpan = mk('span','');
+    _hhRepSpan.style.cssText = 'font-size:10px;color:#f0d080';
+    _hhCard.innerHTML = `<div class="ug-name">👨‍🌾 Hired Hand</div><div class="ug-desc">Drag from inventory to assign to a plot. Auto-harvests when ready. Max 3 total.</div>`;
+    _hhCard.appendChild(_hhRepSpan);
+    const hhBotDiv = mk('div','ug-bottom');
+    hhBotDiv.style.marginTop = '4px';
+    const hhCostSpan = mk('span','ug-cost');
+    hhCostSpan.textContent = '⭐5 rep';
+    hhBotDiv.appendChild(hhCostSpan);
+    _hhBtn = mk('button','ug-btn');
+    _hhBtn.textContent = 'Hire';
+    _hhBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const total = (state.hiredHandCount || 0) + Object.keys(state.hiredHandAssignments || {}).length;
+      if (total >= 3 || (STATE.meta.reputation || 0) < 5) return;
+      STATE.meta.reputation -= 5;
+      state.hiredHandCount = (state.hiredHandCount || 0) + 1;
+      RenderPanel.renderInventory(); RenderPanel.renderItems(); RenderHUD.renderReputation(); save();
+      log('👨‍🌾 Hired hand hired!');
+    });
+    hhBotDiv.appendChild(_hhBtn);
+    _hhCard.appendChild(hhBotDiv);
+    _itemsEl.appendChild(_hhCard);
   }
 
   function renderItems() {
@@ -234,6 +261,17 @@ window.RenderPanel = (() => {
     _cageBtn.disabled  = state.coins < 250;
     _fertBtn.disabled  = state.coins < 500;
     _ufertBtn.disabled = state.coins < 2000;
+
+    // Hired Hand (stage 4+)
+    const stage = getCurrentStage().stage;
+    _hhCard.style.display = stage >= 4 ? '' : 'none';
+    if (stage >= 4) {
+      const rep   = STATE.meta.reputation || 0;
+      const total = (state.hiredHandCount || 0) + Object.keys(state.hiredHandAssignments || {}).length;
+      _hhRepSpan.textContent = `⭐ ${rep} reputation`;
+      _hhBtn.disabled = total >= 3 || rep < 5;
+      _hhBtn.textContent = total >= 3 ? 'Max (3)' : 'Hire';
+    }
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -296,6 +334,8 @@ window.RenderPanel = (() => {
       const visible =
         (!u.stage2 || currentStage >= 2) &&
         (!u.stage3 || currentStage >= 3) &&
+        (!u.stage4 || currentStage >= 4) &&
+        (!u.stage5 || currentStage >= 5) &&
         (u.chain === null || u.chain === undefined || !!state.upgrades[u.chain]) &&
         !(bought && state.hideBoughtUpgrades);
       card.style.display = visible ? '' : 'none';
@@ -390,6 +430,7 @@ window.RenderPanel = (() => {
   let _cageEl = null, _cageBadge = null;
   let _fertEl = null, _fertBadge = null;
   let _ufertEl = null, _ufertBadge = null;
+  let _hhEl = null, _hhBadge = null;
 
   // Collection slot Maps
   const _bagSlots     = new Map(); // bagId    → { slot, badge }
@@ -430,9 +471,15 @@ window.RenderPanel = (() => {
     _wcFillBtn.addEventListener('click', e => {
       e.stopPropagation();
       if ((state.canCharges || 0) >= canCapacity() || state.canRefillAt) return;
-      state.canRefillAt = Date.now() + canFillTime();
-      renderInventory(); renderItems(); save();
-      log('💧 Watering can filling…');
+      if (state.upgrades.cosmicWell) {
+        state.canCharges = Math.min(canCapacity(), (state.canCharges || 0) + 1);
+        renderInventory(); renderItems(); save();
+        log('💫 Cosmic well filled the can instantly!');
+      } else {
+        state.canRefillAt = Date.now() + canFillTime();
+        renderInventory(); renderItems(); save();
+        log('💧 Watering can filling…');
+      }
     });
     _wcSlot.appendChild(_wcFillBtn);
     _invEl.appendChild(_wcSlot);
@@ -488,6 +535,25 @@ window.RenderPanel = (() => {
     });
     _invEl.appendChild(_ufertEl);
 
+    // ── Hired Hand ──
+    _hhEl = mk('div','inv-icon');
+    _hhEl.dataset.name = 'Hired Hand — drag onto a plot to assign';
+    _hhEl.style.cursor = 'grab';
+    const hhSpan = document.createElement('span');
+    hhSpan.style.cssText = 'pointer-events:none;font-size:22px;line-height:1';
+    hhSpan.textContent = '👨‍🌾';
+    _hhEl.appendChild(hhSpan);
+    _hhBadge = mk('span','inv-badge');
+    _hhEl.appendChild(_hhBadge);
+    _hhEl.addEventListener('mousedown', e => {
+      e.stopPropagation();
+      if ((state.hiredHandCount || 0) < 1) return;
+      state.hiredHandCount--;
+      renderInventory();
+      startItemDrag('hiredHand'); moveGhost(e.clientX, e.clientY);
+    });
+    _invEl.appendChild(_hhEl);
+
     // ── Bag slots (one per SEED_BAGS entry) ──
     SEED_BAGS.forEach(bag => {
       const slot = mk('div','inv-bag-slot');
@@ -510,6 +576,7 @@ window.RenderPanel = (() => {
 
     // ── Seed slots (one per SEEDS entry, shown/hidden by qty) ──
     Object.keys(SEEDS).forEach(key => {
+      if (SEEDS[key].ascension) return;
       const seed = SEEDS[key];
       const slot = mk('div','inv-seed-slot');
       const icon = mk('div','inv-seed-icon');
@@ -639,6 +706,11 @@ window.RenderPanel = (() => {
     const ufertHeld = state.uncommonFertCharges || 0;
     _ufertEl.style.display = ufertHeld > 0 ? '' : 'none';
     if (ufertHeld > 0) { count++; _ufertBadge.textContent = ufertHeld; }
+
+    // Hired Hand
+    const hhHeld = state.hiredHandCount || 0;
+    _hhEl.style.display = hhHeld > 0 ? '' : 'none';
+    if (hhHeld > 0) { count++; _hhBadge.textContent = hhHeld; }
 
     // Bags
     const bagInv = state.bagInventory || {};
@@ -911,5 +983,63 @@ window.RenderPanel = (() => {
     });
   }
 
-  return { renderSeeds, renderBags, renderItems, renderUpgrades, renderInventory, renderCrafting, renderAchievements, renderPrestige };
+  // ══════════════════════════════════════════════════════════════════════════
+  // ASCENSION SEEDS — Stage 5 only, bought with prestige points
+  // ══════════════════════════════════════════════════════════════════════════
+  let _ascEl = null;
+  const _ascCards = new Map(); // seedId → { card, btn, costSpan }
+
+  function buildAscension() {
+    _ascEl = document.getElementById('ascension-section');
+    if (!_ascEl) return;
+    const seeds = Object.entries(SEEDS).filter(([, s]) => s.ascension);
+    seeds.forEach(([key, seed]) => {
+      const card = mk('div','upgrade-card');
+      const nameDiv = mk('div','ug-name');
+      nameDiv.textContent = `${seed.icon} ${seed.name}`;
+      const descDiv = mk('div','ug-desc');
+      descDiv.textContent = `Grows in ${fmt(seed.grow)} · Sells for 🪙${seed.sell.toLocaleString()}`;
+      const botDiv = mk('div','ug-bottom');
+      const costSpan = mk('span','ug-cost');
+      costSpan.style.color = '#f0d080';
+      costSpan.textContent = `✨${seed.ppCost}pp`;
+      const btn = mk('button','ug-btn');
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const pr = STATE.prestige || {};
+        if ((pr.points || 0) < seed.ppCost) return;
+        pr.points -= seed.ppCost;
+        if (!state.seedInventory) state.seedInventory = {};
+        state.seedInventory[key] = (state.seedInventory[key] || 0) + 1;
+        renderInventory(); renderAscension(); save();
+        log(`✨ Bought ${seed.name} seed for ${seed.ppCost} prestige points`);
+      });
+      botDiv.appendChild(costSpan);
+      botDiv.appendChild(btn);
+      card.appendChild(nameDiv);
+      card.appendChild(descDiv);
+      card.appendChild(botDiv);
+      _ascEl.appendChild(card);
+      _ascCards.set(key, { card, btn, costSpan });
+    });
+  }
+
+  function renderAscension() {
+    const ascSection = document.getElementById('ascension-section');
+    const ascLabel   = document.getElementById('ascension-label');
+    const stage = getCurrentStage().stage;
+    if (ascSection) ascSection.style.display = stage >= 5 ? '' : 'none';
+    if (ascLabel)   ascLabel.style.display   = stage >= 5 ? '' : 'none';
+    if (stage < 5) return;
+    if (!_ascEl) buildAscension();
+    const pr = STATE.prestige || {};
+    const pts = pr.points || 0;
+    _ascCards.forEach(({ btn, costSpan }, key) => {
+      const seed = SEEDS[key];
+      btn.disabled = pts < seed.ppCost;
+      btn.textContent = pts >= seed.ppCost ? 'Buy' : `Need ✨${seed.ppCost}`;
+    });
+  }
+
+  return { renderSeeds, renderBags, renderItems, renderUpgrades, renderInventory, renderCrafting, renderAchievements, renderPrestige, renderAscension };
 })();

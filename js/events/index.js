@@ -61,6 +61,7 @@ function updateCoins() {
   RenderPanel.renderItems();
   RenderPanel.renderSeeds();
   RenderPanel.renderBags();
+  if (typeof RenderHUD.renderReputation === 'function') RenderHUD.renderReputation();
 }
 
 // ── WATER / DROWN ──

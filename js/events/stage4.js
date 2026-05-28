@@ -31,7 +31,8 @@ function showReclaimMenu(idx, cost, x, y) {
 // ── LAND DEVELOPERS ───────────────────────────────────────────────────────
 function landDeveloperTick() {
   if (!state.mature || getCurrentStage().stage < 4) return;
-  const chance = 0.15;
+  const resistance = (STATE.modifiers.eventResistance.developer || 0);
+  const chance = 0.15 * (1 - Math.min(0.95, resistance));
   if (Math.random() < chance) landDeveloperAttack();
 }
 
@@ -94,8 +95,8 @@ function claimedTileTick() {
 // ── PLAGUE RATS ───────────────────────────────────────────────────────────
 function plagueRatTick() {
   if (!state.mature || getCurrentStage().stage < 4) return;
-  const chance = (state.upgrades.groundMesh ? 0.10 * 0.60 : 0.10)
-    * (state.upgrades.ironGreenhouse ? 0.80 : 1);
+  const resistance = (STATE.modifiers.eventResistance.plagueRat || 0);
+  const chance = 0.10 * (1 - Math.min(0.95, resistance));
   if (Math.random() < chance) plagueRatAttack();
 }
 
@@ -160,15 +161,17 @@ function acidRainAttack() {
     state.firstAcidRainEver = true;
     showBanner('☠️ Acid rain is falling on your farm!');
   }
-  if (!state.upgrades.soilAnchor) {
+  const fertImmune = state.upgrades.soilAnchor || state.upgrades.acidProofSoil;
+  if (!fertImmune) {
     state.fertilizedTiles        = {};
     state.uncommonFertilizedTiles = {};
   }
   if (state.tilesWatered) Object.keys(state.tilesWatered).forEach(k => { delete state.tilesWatered[k]; });
+  const setbackFactor = state.upgrades.acidShield ? 0.95 : 0.80;
   for (let i = 0; i < tileCount(); i++) {
     const td = state.tiles[i];
     if (!td || !td.seed || isReady(td, i)) continue;
-    if (td.burnedSeconds !== undefined) td.burnedSeconds = Math.max(0, td.burnedSeconds * 0.80);
+    if (td.burnedSeconds !== undefined) td.burnedSeconds = Math.max(0, td.burnedSeconds * setbackFactor);
   }
   log('☠️ Acid rain stripped your soil and set back your crops!');
   RenderFarm.renderGrid();

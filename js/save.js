@@ -3,7 +3,7 @@ const KEY     = 'blissfarm10';
 const KEY_OLD = 'blissfarm9';
 
 window.save = function save() {
-  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode, dayOffset: STATE.meta.dayOffset, prestige: STATE.prestige }));
+  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode, dayOffset: STATE.meta.dayOffset, prestige: STATE.prestige, reputation: STATE.meta.reputation }));
 };
 
 window.load = function load() {
@@ -74,6 +74,9 @@ window.load = function load() {
     state.firstVoidRiftEver        = d.firstVoidRiftEver        ?? false;
     state.firstCosmicCrowEver      = d.firstCosmicCrowEver      ?? false;
     state.firstRealityStormEver    = d.firstRealityStormEver    ?? false;
+    state.hiredHandCount           = d.hiredHandCount           ?? 0;
+    state.hiredHandAssignments     = d.hiredHandAssignments     ?? {};
+    STATE.meta.reputation          = d.reputation               ?? 0;
     state.achievements             = d.achievements             ?? {};
     const _ds = d.stats || {};
     state.stats = {

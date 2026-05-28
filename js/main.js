@@ -5,6 +5,9 @@ function setupEvents() {
   EventBus.on('stage:advanced', ({ stage, name }) => {
     showBanner(`Stage ${stage}: ${name}`); sfx.stageAdvance(); RenderHUD.renderStage();
     RenderPanel.renderPrestige();
+    RenderPanel.renderAscension();
+    RenderHUD.renderReputation();
+    RenderPanel.renderItems();
   });
   EventBus.on('prestige:reset', () => {
     DIRTY.grid    = true;
@@ -25,6 +28,8 @@ function setupEvents() {
     RenderPanel.renderBags();
     RenderPanel.renderCrafting();
     RenderPanel.renderPrestige();
+    RenderPanel.renderAscension();
+    RenderHUD.renderReputation();
     applyPanelState();
   });
 }
@@ -146,6 +151,8 @@ function renderInitial() {
   RenderHUD.renderStage();
   RenderPanel.renderAchievements();
   RenderPanel.renderPrestige();
+  RenderPanel.renderAscension();
+  RenderHUD.renderReputation();
   if (typeof checkAchievements === 'function') checkAchievements();
   applyPanelState();
 

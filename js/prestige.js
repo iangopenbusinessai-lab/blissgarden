@@ -32,6 +32,12 @@ function prestige() {
   STATE.stats        = STATE.stats || {};
   state.stats.prestigeCount = pr.count;
 
+  // ── Earn reputation (Stage 4+) ────────────────────────────────────────────
+  if ((getCurrentStage().stage || 0) >= 4) {
+    const repBonus = Math.max(0, Math.floor(Math.log10(Math.max(1, state.coinsEarned || 0))) - 4);
+    STATE.meta.reputation = (STATE.meta.reputation || 0) + 1 + repBonus;
+  }
+
   // ── Apply extraPlot flags BEFORE tileCount() ──────────────────────────────
   const extraPlots     = pr.perks.extraPlot || 0;
   state.expanded       = extraPlots >= 1;
@@ -95,6 +101,8 @@ function prestige() {
   state.firstVoidRiftEver       = false;
   state.firstCosmicCrowEver     = false;
   state.firstRealityStormEver   = false;
+  state.hiredHandCount          = 0;
+  state.hiredHandAssignments    = {};
 
   // ── Reset STATE.events ────────────────────────────────────────────────────
   STATE.events = {

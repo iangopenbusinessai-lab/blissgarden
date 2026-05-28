@@ -22,6 +22,7 @@ function voidRiftTick() {
 }
 
 function voidRiftOpen() {
+  if (state.upgrades.voidSeal && Object.keys(state.voidRifts || {}).length >= 1) return;
   const cands = [];
   for (let i = 0; i < tileCount(); i++) {
     if (state.voidRifts     && state.voidRifts[i]     !== undefined) continue;
@@ -50,7 +51,9 @@ function voidRiftEffectTick() {
   if (!state.voidRifts) return;
   const keys = Object.keys(state.voidRifts);
   if (!keys.length) return;
-  const dilationFactor = state.upgrades.timeDilation ? 0.05 : 0.10;
+  let dilationFactor = 0.10;
+  if (state.upgrades.timeDilation)   dilationFactor *= 0.50;
+  if (state.upgrades.riftStabilizer) dilationFactor *= 0.70;
   keys.forEach(k => {
     const idx = parseInt(k);
     getAdjacentIdxs(idx).forEach(adj => {
@@ -67,8 +70,9 @@ function voidRiftEffectTick() {
 // ── COSMIC CROWS ───────────────────────────────────────────────────────────
 function cosmicCrowTick() {
   if (!state.mature || getCurrentStage().stage < 5) return;
-  const deterrence = state.upgrades.scarecrowCoat ? 0.20 : 0;
-  if (Math.random() < 0.06 * (1 - deterrence)) cosmicCrowAttack();
+  const resistance = (STATE.modifiers.eventResistance.cosmicCrow || 0)
+    + (state.upgrades.scarecrowCoat ? 0.20 : 0);
+  if (Math.random() < 0.06 * (1 - Math.min(0.95, resistance))) cosmicCrowAttack();
 }
 
 function cosmicCrowAttack() {
@@ -151,20 +155,22 @@ function realityStormAttack() {
       if (Math.random() < 0.40) delete state.uncommonFertilizedTiles[k];
     });
   }
-  if (state.cages && state.cages.length) {
+  if (state.cages && state.cages.length && !(state.upgrades.realityAnchor || state.upgrades.quantumCage)) {
     const survived = state.cages.filter(() => Math.random() >= 0.40);
     const removed  = state.cages.length - survived.length;
     state.cages      = survived;
     state.cageCount  = (state.cageCount || 0) + removed;
   }
   if (state.tilesWatered) Object.keys(state.tilesWatered).forEach(k => { delete state.tilesWatered[k]; });
-  for (let i = 0; i < tileCount(); i++) {
-    const td = state.tiles[i];
-    if (!td || isReady(td, i)) continue;
-    if (state.rotTiles && state.rotTiles[i] && state.rotTiles[i].infectedAt !== undefined) continue;
-    if (Math.random() < 0.15) {
-      if (!state.rotTiles) state.rotTiles = {};
-      state.rotTiles[i] = { infectedAt: Date.now() };
+  if (!state.upgrades.stormShelter) {
+    for (let i = 0; i < tileCount(); i++) {
+      const td = state.tiles[i];
+      if (!td || isReady(td, i)) continue;
+      if (state.rotTiles && state.rotTiles[i] && state.rotTiles[i].infectedAt !== undefined) continue;
+      if (Math.random() < 0.15) {
+        if (!state.rotTiles) state.rotTiles = {};
+        state.rotTiles[i] = { infectedAt: Date.now() };
+      }
     }
   }
   log('🌌 A reality storm tore through the farm!');

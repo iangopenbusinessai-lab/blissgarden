@@ -79,9 +79,10 @@ function deselect() {
 function hideTileMenu() { document.getElementById('tile-menu').style.display = 'none'; }
 
 function showTileMenu(idx, x, y) {
-  const isCaged = state.cages && state.cages.includes(idx);
-  const isFert  = !!(state.fertilizedTiles && state.fertilizedTiles[idx]);
-  if (!isCaged && !isFert) return;
+  const isCaged     = state.cages && state.cages.includes(idx);
+  const isFert      = !!(state.fertilizedTiles && state.fertilizedTiles[idx]);
+  const isHiredHand = !!(state.hiredHandAssignments && state.hiredHandAssignments[idx]);
+  if (!isCaged && !isFert && !isHiredHand) return;
   const menu = document.getElementById('tile-menu');
   menu.innerHTML = '';
   if (isCaged) {
@@ -100,6 +101,16 @@ function showTileMenu(idx, x, y) {
       e.stopPropagation();
       delete state.fertilizedTiles[idx];
       RenderFarm.renderTile(idx); save(); hideTileMenu();
+    });
+    menu.appendChild(btn);
+  }
+  if (isHiredHand) {
+    const btn = mk('button'); btn.className = 'tmenu-btn'; btn.textContent = '👨‍🌾 Remove Hired Hand';
+    btn.addEventListener('mousedown', e => {
+      e.stopPropagation();
+      delete state.hiredHandAssignments[idx];
+      state.hiredHandCount = (state.hiredHandCount || 0) + 1;
+      RenderFarm.renderTile(idx); RenderPanel.renderInventory(); save(); hideTileMenu();
     });
     menu.appendChild(btn);
   }
@@ -238,9 +249,10 @@ function onTileDown(e) {
 
   if (!td) {
     deselect();
-    const _caged = state.cages && state.cages.includes(idx);
-    const _fert  = !!(state.fertilizedTiles && state.fertilizedTiles[idx]);
-    if (_caged || _fert) showTileMenu(idx, e.clientX + 4, e.clientY + 4);
+    const _caged  = state.cages && state.cages.includes(idx);
+    const _fert   = !!(state.fertilizedTiles && state.fertilizedTiles[idx]);
+    const _hhand  = !!(state.hiredHandAssignments && state.hiredHandAssignments[idx]);
+    if (_caged || _fert || _hhand) showTileMenu(idx, e.clientX + 4, e.clientY + 4);
     else if (_isFungal)  showFungalCureMenu(idx, 50, e.clientX + 4, e.clientY + 4);
     return;
   }
@@ -523,6 +535,9 @@ window.RenderFarm = (() => {
       }
     }
     if (isFungal) { const fi = mk('div','t-fungal-icon'); fi.textContent='🍄'; el.appendChild(fi); }
+    if (state.hiredHandAssignments?.[idx]) {
+      const hh = mk('div','t-diseased-icon'); hh.textContent='👨‍🌾'; hh.title='Hired hand assigned'; el.appendChild(hh);
+    }
   }
 
   function renderGrid() {

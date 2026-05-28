@@ -95,6 +95,7 @@ window.DragSystem = (() => {
         if (it === 'cage')         valid = !state.cages.includes(i);
         if (it === 'fertilizer')   valid = !(state.fertilizedTiles?.[i]) && !(state.uncommonFertilizedTiles?.[i]);
         if (it === 'uncommonFert') valid = !(state.uncommonFertilizedTiles?.[i]);
+        if (it === 'hiredHand')    valid = !blocked && !(state.hiredHandAssignments?.[i]);
         if (valid) t.classList.add('drop-hi');
       });
 
@@ -245,6 +246,33 @@ DragSystem.register('inventory-item', 'tile', (item, tileEl) => {
 
   if (it === 'water' && td && !isReady(td, i) && !blocked) {
     applyWater(i);
+    if (state.upgrades.cosmicWell) {
+      let extra = 0;
+      for (const ai of getAdjacentIdxs(i)) {
+        if (extra >= 2) break;
+        const atd = state.tiles[ai];
+        if (!atd || isReady(atd, ai) || state.tilesWatered?.[ai]) continue;
+        const baseGT = SEEDS[atd.seed].grow * getGrowMult() * fertFactor(ai);
+        const newGT  = baseGT * 0.75;
+        const elapsed = (Date.now() - atd.plantedAt) / 1000;
+        const oldRem = Math.max(0, baseGT - elapsed);
+        atd.plantedAt = Date.now() - (newGT - oldRem * 0.75) * 1000;
+        atd.sellBonus = 1.25;
+        if (!state.tilesWatered) state.tilesWatered = {};
+        state.tilesWatered[ai] = true;
+        RenderFarm.renderTile(ai);
+        log(`💫 Cosmic well watered ${SEEDS[atd.seed].name}`);
+        extra++;
+      }
+      if (extra > 0) save();
+    }
+
+  } else if (it === 'hiredHand' && !blocked && !(state.hiredHandAssignments?.[i])) {
+    if (!state.hiredHandAssignments) state.hiredHandAssignments = {};
+    state.hiredHandAssignments[i] = true;
+    state.hiredHandCount = Math.max(0, (state.hiredHandCount || 0) - 1);
+    log(`👨‍🌾 Hired hand assigned to plot ${i + 1}`);
+    RenderFarm.renderTile(i); RenderPanel.renderInventory(); save();
 
   } else if (it === 'cage' && !state.cages.includes(i) && !blocked) {
     state.cages.push(i);
@@ -295,9 +323,10 @@ DragSystem.register('inventory-item', 'tile', (item, tileEl) => {
     RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save();
 
   } else {
-    // Invalid drop — restore charges deducted on mousedown (water, cage only)
-    if (it === 'water')     state.canCharges++;
-    else if (it === 'cage') state.cageCount++;
+    // Invalid drop — restore charges deducted on mousedown (water, cage, hiredHand only)
+    if (it === 'water')          state.canCharges++;
+    else if (it === 'cage')      state.cageCount++;
+    else if (it === 'hiredHand') state.hiredHandCount++;
     RenderPanel.renderInventory(); RenderPanel.renderItems();
   }
 });

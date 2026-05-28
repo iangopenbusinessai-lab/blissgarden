@@ -156,14 +156,17 @@ function recalculateModifiers() {
   const gh  = bought.ironGreenhouse  ? 0.20 : 0;  // global all-event reduction
   const tsk = 0.05 * (prestige.thickSkin || 0);   // per prestige stack
   mods.eventResistance = {
-    crow:        (bought.scarecrowCoat  ? 0.30 : 0) + gh + tsk,
-    hawk:                                              gh + tsk,
-    mole:        (bought.groundMesh     ? 0.40 : 0) + gh + tsk,
-    thornedWeed: (bought.herbicideI     ? 0.25 : 0) + gh + tsk,
-    rot:         (bought.soilTreatment  ? 0.40 : 0) + gh + tsk,
-    locust:      (bought.locustWard     ? 0.50 : 0) + gh + tsk,
-    blight:      (bought.weathervane    ? 0.40 : 0) + gh + tsk,
-    fungal:      (bought.antifungalSpray? 0.50 : 0) + gh + tsk,
+    crow:        (bought.scarecrowCoat   ? 0.30 : 0) + gh + tsk,
+    hawk:                                               gh + tsk,
+    mole:        (bought.groundMesh      ? 0.40 : 0) + gh + tsk,
+    thornedWeed: (bought.herbicideI      ? 0.25 : 0) + gh + tsk,
+    rot:         (bought.soilTreatment   ? 0.40 : 0) + gh + tsk,
+    locust:      (bought.locustWard      ? 0.50 : 0) + gh + tsk,
+    blight:      (bought.weathervane     ? 0.40 : 0) + gh + tsk,
+    fungal:      (bought.antifungalSpray ? 0.50 : 0) + gh + tsk,
+    developer:   (bought.developerBribe  ? 0.50 : 0) + gh + tsk,
+    plagueRat:   (bought.ratPoison       ? 0.50 : 0) + gh + tsk,
+    cosmicCrow:  (bought.cosmicRepellent ? 0.35 : 0),
   };
 
   TimerManager.restart('sell');

@@ -5,6 +5,7 @@ window.STATE = {
     gameStartTime: Date.now(),
     stage: 0,
     matureState: false,
+    reputation: 0,
   },
   plots: Array(9).fill(null),
   fallenCrops: [],
@@ -98,6 +99,8 @@ var state = {
   claimedTiles: {}, diseasedTiles: {},
   firstDeveloperEver: false, firstRatEver: false, firstAcidRainEver: false,
   voidRifts: {}, firstVoidRiftEver: false, firstCosmicCrowEver: false, firstRealityStormEver: false,
+  hiredHandCount: 0,
+  hiredHandAssignments: {},
   hideBoughtUpgrades: false,
 };
 

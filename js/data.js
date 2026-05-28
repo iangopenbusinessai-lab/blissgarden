@@ -29,6 +29,10 @@ window.SEEDS = {
   auricBloom:    { name:'Auric Bloom',    icon:'🌟', seedIcon:'🌟', grow:691200,  sell:22000000, bag:'divine'  },
   prismaticRoot: { name:'Prismatic Root', icon:'🌈', seedIcon:'🌈', grow:1382400, sell:90000000, bag:'divine'  },
   genesisSeed:   { name:'Genesis Seed',   icon:'✨', seedIcon:'✨', grow:2592000, sell:400000000,bag:'divine'  },
+  // Ascension seeds — bought with prestige points at Stage 5
+  ascendedWheat:  { name:'Ascended Wheat',  icon:'🌾', seedIcon:'🌾', grow:3600,   sell:2500000,   ascension:true, ppCost:5  },
+  cosmicPumpkin:  { name:'Cosmic Pumpkin',  icon:'🎃', seedIcon:'🎃', grow:21600,  sell:25000000,  ascension:true, ppCost:15 },
+  voidLotus:      { name:'Void Lotus',      icon:'🪷', seedIcon:'🪷', grow:86400,  sell:250000000, ascension:true, ppCost:50 },
 };
 
 window.BASIC_SEEDS = ['potato','carrot','wheat','sunflower'];
@@ -102,6 +106,7 @@ const ROW_MAP = {
   starfruit:7, thornvine:8, glowshroom:9, voidbloom:10, aetherfern:11, solarspike:12,
   netherfruit:13, duskpetal:14, ashbloom:15, voidcoral:16, eclipseLotus:17,
   stardustFern:18, celestialPod:19, auricBloom:20, prismaticRoot:21, genesisSeed:22,
+  ascendedWheat:2, cosmicPumpkin:4, voidLotus:6,
 };
 const COL_MAP = { seed:0, sprout:1, grown:2 };
 
@@ -109,7 +114,7 @@ const COL_MAP = { seed:0, sprout:1, grown:2 };
 const ITEM_ROW_MAP = { wateringCan:23, cage:24, commonFertilizer:25, uncommonFertilizer:26, scarecrow:27 };
 const ITEM_COL_MAP = { idle:0, active:1, depleted:2 };
 
-const ITEM_ICONS = { water:'💧', cage:'🔒', fertilizer:'🌿', uncommonFert:'⚗️' };
+const ITEM_ICONS = { water:'💧', cage:'🔒', fertilizer:'🌿', uncommonFert:'⚗️', hiredHand:'👨‍🌾' };
 
 const MILESTONE_VALS = [100, 1000, 10000, 100000, 1000000];
 const STAGES = [
@@ -197,7 +202,21 @@ window.UPGRADES = [
   { id:'antifungalSpray',name:'Antifungal Spray 🧪',      desc:'Fungal bloom chance reduced 50%.',                           cost:350000,  type:'mitigation', stage3:true, chain:null               },
   { id:'containment',    name:'Containment 🚧',           desc:'Fungal bloom cannot spread past its origin tile.',           cost:900000,  type:'mitigation', stage3:true, chain:'antifungalSpray'  },
   { id:'ironGreenhouse', name:'Iron Greenhouse 🏠',        desc:'All Stage 2 & 3 event chances reduced 20% globally.',        cost:2000000, type:'mitigation', stage3:true, chain:null               },
-  { id:'masterFarmer',   name:'Master Farmer 👨‍🌾',         desc:'Weeds and thorned weeds auto-clear after 10s.',              cost:5000000, type:'mitigation', stage3:true, chain:null               },
+  { id:'masterFarmer',   name:'Master Farmer 👨‍🌾',         desc:'Weeds and thorned weeds auto-clear after 10s.',              cost:5000000,   type:'mitigation', stage3:true, chain:null               },
+  // ── STAGE 4 MITIGATION ──
+  { id:'developerBribe', name:'Developer Bribe 💰',        desc:'Land developers 50% less likely to claim tiles.',           cost:5000000,   type:'mitigation', stage4:true, chain:null           },
+  { id:'ratPoison',      name:'Rat Poison ☠️',              desc:'Plague rat spawn chance reduced 50%.',                      cost:8000000,   type:'mitigation', stage4:true, chain:null           },
+  { id:'acidShield',     name:'Acid Shield 🛡️',             desc:'Acid rain sets crops back 5% instead of 20%.',             cost:12000000,  type:'mitigation', stage4:true, chain:null           },
+  { id:'acidProofSoil',  name:'Acid-Proof Soil 🧪',         desc:'Fertilizer tiles immune to acid rain.',                    cost:25000000,  type:'mitigation', stage4:true, chain:'acidShield'   },
+  // ── STAGE 5 MITIGATION ──
+  { id:'timeDilation',   name:'Time Dilation ⏱️',           desc:'Void rift drain reduced from 10% to 5% per tick.',         cost:80000000,  type:'mitigation', stage5:true, chain:null           },
+  { id:'riftStabilizer', name:'Rift Stabilizer 🔧',         desc:'Void rift drain reduced by an additional 30%.',            cost:80000000,  type:'mitigation', stage5:true, chain:'timeDilation' },
+  { id:'cosmicWell',     name:'Cosmic Well 💫',             desc:'Watering can fills instantly and waters 3 tiles.',          cost:150000000, type:'mitigation', stage5:true, chain:null           },
+  { id:'cosmicRepellent',name:'Cosmic Repellent 🧴',        desc:'Cosmic crow deterrence +35%.',                             cost:150000000, type:'mitigation', stage5:true, chain:null           },
+  { id:'realityAnchor',  name:'Reality Anchor ⚓',          desc:'Reality storms cannot strip cages.',                       cost:300000000, type:'mitigation', stage5:true, chain:null           },
+  { id:'stormShelter',   name:'Storm Shelter 🏠',           desc:'Reality storms cannot cause root rot.',                    cost:300000000, type:'mitigation', stage5:true, chain:null           },
+  { id:'voidSeal',       name:'Void Seal 🔒',               desc:'Maximum of 1 void rift can exist at a time.',              cost:600000000, type:'mitigation', stage5:true, chain:'riftStabilizer'},
+  { id:'quantumCage',    name:'Quantum Cage 🔒',            desc:'Cages immune to reality storm stripping.',                 cost:600000000, type:'mitigation', stage5:true, chain:'realityAnchor'},
 ];
 
 window.SEED_BAGS = window.BAGS;

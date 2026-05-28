@@ -276,6 +276,28 @@ function setupTimers() {
   TimerManager.register('thornedWeed',  { interval: 1000,  condition: () => true, fn: Events.thornedWeedTick });
   TimerManager.register('fungalSpread', { interval: 30000, condition: () => true, fn: Events.fungalSpreadTick });
   TimerManager.register('masterFarmer', { interval: 1000,  condition: () => true, fn: Events.masterFarmerTick });
+  TimerManager.register('hiredHand',    { interval: 1000,  condition: () => Object.keys(state.hiredHandAssignments || {}).length > 0, fn: () => {
+    if (!state.hiredHandAssignments) return;
+    let changed = false;
+    Object.keys(state.hiredHandAssignments).forEach(k => {
+      const idx = parseInt(k);
+      const td = state.tiles[idx];
+      if (!td || !isReady(td, idx)) return;
+      const cx = window.innerWidth  / 2 + (Math.random() - 0.5) * 200;
+      const cy = window.innerHeight / 2 + (Math.random() - 0.5) * 200;
+      const rotInf = !!(state.rotTiles && state.rotTiles[idx] && state.rotTiles[idx].infectedAt !== undefined && state.rotTiles[idx].deadAt === undefined);
+      const bonus  = rotInf ? 0.5 : (td.sellBonus || 1.0);
+      const drowned = rotInf || (td.drowned || false);
+      if (state.rotTiles) delete state.rotTiles[idx];
+      dropLoose(td.seed, cx, cy, bonus, drowned, false);
+      state.tiles[idx] = null;
+      if (state.tilesWatered) delete state.tilesWatered[idx];
+      RenderFarm.renderTile(idx);
+      log(`👨‍🌾 Hired hand harvested a ${SEEDS[td.seed].name}!`);
+      changed = true;
+    });
+    if (changed) { renderLoose(); save(); }
+  }});
   TimerManager.register('crankDecay',   { interval: 1000,  condition: () => state.upgrades.windUpCrank, fn: () => {
     if (STATE.session.crankMultiplier > 1.0) {
       const cm = STATE.session.crankMultiplier;

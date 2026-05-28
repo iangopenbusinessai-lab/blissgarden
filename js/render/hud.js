@@ -26,5 +26,13 @@ window.RenderHUD = (() => {
     if (iconEl) iconEl.textContent = todIcons[STATE.session.timeOfDay] || '🌞';
   }
 
-  return { renderCoin, renderStage, renderTimeOfDay };
+  function renderReputation() {
+    const el = document.getElementById('rep-display');
+    if (!el) return;
+    const stage = getCurrentStage().stage;
+    el.style.display = stage >= 4 ? '' : 'none';
+    el.textContent = `⭐ ${STATE.meta.reputation || 0}`;
+  }
+
+  return { renderCoin, renderStage, renderTimeOfDay, renderReputation };
 })();
