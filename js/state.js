@@ -42,6 +42,14 @@ window.STATE = {
     hidePurchased: true,
     debugMode: false,
   },
+  prestige: {
+    count: 0,
+    points: 0,
+    spent: 0,
+    perks: {},
+    highestStage: 0,
+    totalGoldEarned: 0,
+  },
   milestones: {},
   session: {
     dragItem: null,

@@ -4,6 +4,28 @@ function setupEvents() {
   EventBus.on('upgrade:purchased', () => { RenderPanel.renderUpgrades(); sfx.upgrade(); });
   EventBus.on('stage:advanced', ({ stage, name }) => {
     showBanner(`Stage ${stage}: ${name}`); sfx.stageAdvance(); RenderHUD.renderStage();
+    RenderPanel.renderPrestige();
+  });
+  EventBus.on('prestige:reset', () => {
+    DIRTY.grid    = true;
+    DIRTY.hud     = true;
+    DIRTY.panel   = true;
+    DIRTY.sellbox = true;
+    RenderFarm.buildGrid();
+    RenderFarm.renderGrid();
+    RenderSellbox.renderQueue();
+    RenderSellbox.renderCrank();
+    renderLoose();
+    updateCoins();
+    RenderHUD.renderStage();
+    RenderPanel.renderInventory();
+    RenderPanel.renderUpgrades();
+    RenderPanel.renderItems();
+    RenderPanel.renderSeeds();
+    RenderPanel.renderBags();
+    RenderPanel.renderCrafting();
+    RenderPanel.renderPrestige();
+    applyPanelState();
   });
 }
 
@@ -123,6 +145,7 @@ function renderInitial() {
   updateCoins();
   RenderHUD.renderStage();
   RenderPanel.renderAchievements();
+  RenderPanel.renderPrestige();
   if (typeof checkAchievements === 'function') checkAchievements();
   applyPanelState();
 

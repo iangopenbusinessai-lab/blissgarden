@@ -259,3 +259,15 @@ window.RECIPES = [
   { id: 'carrotStew',   name: 'Carrot Stew',   emoji: '🍲', ingredients: { carrot: 4, potato: 1 },        sellValue: 120, unlocked: true },
   { id: 'sunflowerOil', name: 'Sunflower Oil',  emoji: '🫙', ingredients: { sunflower: 3 },                sellValue: 200, unlocked: true },
 ];
+
+// ══════════════════════════════
+// PRESTIGE PERKS
+// ══════════════════════════════
+window.PRESTIGE_PERKS = [
+  { id:'fertileLegacy',  name:'Fertile Legacy',   desc:'Crops grow 15% faster per stack',      cost:1, maxStack:10, type:'growSpeed',      valuePerStack:0.15 },
+  { id:'goldenMemory',   name:'Golden Memory',     desc:'Crops sell for 20% more per stack',     cost:1, maxStack:10, type:'sellValue',       valuePerStack:0.20 },
+  { id:'swiftReturn',    name:'Swift Return',      desc:'Sell interval -10% per stack',          cost:2, maxStack:5,  type:'sellInterval',    valuePerStack:0.10 },
+  { id:'headStart',      name:'Head Start',        desc:'Start with 500 extra coins per stack',  cost:1, maxStack:10, type:'startGold',       valuePerStack:500  },
+  { id:'thickSkin',      name:'Thick Skin',        desc:'All event chances -5% per stack',       cost:2, maxStack:6,  type:'eventResistance', valuePerStack:0.05 },
+  { id:'extraPlot',      name:'Extra Plot',        desc:'Start with 1 extra unlocked plot',      cost:3, maxStack:6,  type:'plotCount',       valuePerStack:1    },
+];

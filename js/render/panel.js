@@ -766,5 +766,150 @@ window.RenderPanel = (() => {
     }
   }
 
-  return { renderSeeds, renderBags, renderItems, renderUpgrades, renderInventory, renderCrafting, renderAchievements };
+  // ══════════════════════════════════════════════════════════════════════════
+  // PRESTIGE — status, prestige button w/ inline confirm, perk cards
+  // ══════════════════════════════════════════════════════════════════════════
+  let _prestigeEl        = null;
+  let _prestigeConfirming = false;
+  let _pCountEl = null, _pPointsEl = null;
+  let _pBtn = null, _pBtnWrap = null, _pConfirmWrap = null;
+  const _perkCards = new Map(); // perkId → { stackEl, btn, effectEl }
+
+  function buildPrestige() {
+    _prestigeEl = document.getElementById('prestige-section');
+    if (!_prestigeEl) return;
+
+    // ── Status row ────────────────────────────────────────────────────────
+    const statusRow = mk('div', '');
+    statusRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:6px 12px 4px;';
+    _pCountEl = mk('span', '');
+    _pCountEl.style.cssText = 'font-size:12px;font-weight:700;color:rgba(255,255,255,.85)';
+    _pPointsEl = mk('span', '');
+    _pPointsEl.style.cssText = 'font-size:11px;color:#f0d080;font-weight:700';
+    statusRow.appendChild(_pCountEl);
+    statusRow.appendChild(_pPointsEl);
+    _prestigeEl.appendChild(statusRow);
+
+    // ── Prestige button ───────────────────────────────────────────────────
+    _pBtnWrap = mk('div', '');
+    _pBtnWrap.style.cssText = 'padding:2px 10px 6px;';
+    _pBtn = mk('button', 'ug-btn');
+    _pBtn.style.cssText = 'width:100%;padding:7px 0;font-size:12px;';
+    _pBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (!canPrestige().can) return;
+      _prestigeConfirming = true;
+      renderPrestige();
+    });
+    _pBtnWrap.appendChild(_pBtn);
+    _prestigeEl.appendChild(_pBtnWrap);
+
+    // ── Inline confirm ────────────────────────────────────────────────────
+    _pConfirmWrap = mk('div', '');
+    _pConfirmWrap.style.cssText = 'padding:2px 10px 8px;display:none;align-items:center;gap:8px;';
+    const confirmLbl = mk('span', '');
+    confirmLbl.style.cssText = 'font-size:11px;color:rgba(255,255,255,.7);flex:1';
+    confirmLbl.textContent = 'Confirm reset?';
+    const yesBtn = mk('button', 'ug-btn');
+    yesBtn.textContent = 'Yes';
+    yesBtn.style.background = '#b03020';
+    yesBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      _prestigeConfirming = false;
+      prestige();
+    });
+    const noBtn = mk('button', 'ug-btn');
+    noBtn.textContent = 'No';
+    noBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      _prestigeConfirming = false;
+      renderPrestige();
+    });
+    _pConfirmWrap.appendChild(confirmLbl);
+    _pConfirmWrap.appendChild(yesBtn);
+    _pConfirmWrap.appendChild(noBtn);
+    _prestigeEl.appendChild(_pConfirmWrap);
+
+    // ── Perk cards ────────────────────────────────────────────────────────
+    (window.PRESTIGE_PERKS || []).forEach(perk => {
+      const card = mk('div', 'upgrade-card');
+      const nameDiv = mk('div', 'ug-name');
+      nameDiv.textContent = perk.name;
+      const descDiv = mk('div', 'ug-desc');
+      descDiv.textContent = perk.desc;
+      const effectEl = mk('div', '');
+      effectEl.style.cssText = 'font-size:10px;color:#8de88d;margin:1px 0 5px;display:none';
+      const botDiv = mk('div', 'ug-bottom');
+      const stackEl = mk('span', 'ug-cost');
+      const btn = mk('button', 'ug-btn');
+      btn.addEventListener('click', e => { e.stopPropagation(); buyPerk(perk.id); });
+      botDiv.appendChild(stackEl);
+      botDiv.appendChild(btn);
+      card.appendChild(nameDiv);
+      card.appendChild(descDiv);
+      card.appendChild(effectEl);
+      card.appendChild(botDiv);
+      _prestigeEl.appendChild(card);
+      _perkCards.set(perk.id, { stackEl, btn, effectEl });
+    });
+  }
+
+  function renderPrestige() {
+    if (!_prestigeEl) buildPrestige();
+    if (!_prestigeEl) return;
+    const pr     = STATE.prestige || {};
+    const points = pr.points || 0;
+    const count  = pr.count  || 0;
+    const check  = canPrestige();
+    const earned = getPrestigePointsEarned();
+
+    _pCountEl.textContent  = count > 0 ? `Prestige ${count}` : 'Not yet prestiged';
+    _pPointsEl.textContent = `✨ ${points} pt${points !== 1 ? 's' : ''}`;
+
+    if (_prestigeConfirming) {
+      _pBtnWrap.style.display    = 'none';
+      _pConfirmWrap.style.display = 'flex';
+    } else {
+      _pBtnWrap.style.display    = '';
+      _pConfirmWrap.style.display = 'none';
+      _pBtn.disabled = !check.can;
+      if (check.can) {
+        _pBtn.style.background = '#5A8A3C';
+        _pBtn.textContent = `✨ Prestige (+${earned} pt${earned !== 1 ? 's' : ''})`;
+      } else {
+        _pBtn.style.background = '';
+        _pBtn.textContent = check.reason;
+      }
+    }
+
+    _perkCards.forEach(({ stackEl, btn, effectEl }, perkId) => {
+      const perk   = (window.PRESTIGE_PERKS || []).find(p => p.id === perkId);
+      if (!perk) return;
+      const stacks = (pr.perks && pr.perks[perkId]) || 0;
+      const maxed  = stacks >= perk.maxStack;
+
+      stackEl.innerHTML = `<span style="color:#f0d080">✨${perk.cost}</span> · ${stacks}/${perk.maxStack}`;
+      btn.disabled  = maxed || points < perk.cost;
+      btn.textContent = maxed ? 'Max' : 'Buy';
+
+      if (stacks > 0) {
+        let txt = '';
+        const v = stacks * perk.valuePerStack;
+        switch (perk.type) {
+          case 'growSpeed':       txt = `+${Math.round(v * 100)}% grow speed`; break;
+          case 'sellValue':       txt = `+${Math.round(v * 100)}% sell value`; break;
+          case 'sellInterval':    txt = `-${Math.round(v * 100)}% sell interval`; break;
+          case 'startGold':       txt = `+${stacks * perk.valuePerStack} starting coins`; break;
+          case 'eventResistance': txt = `-${Math.round(v * 100)}% event chance`; break;
+          case 'plotCount':       txt = `${stacks} extra plot${stacks !== 1 ? 's' : ''} unlocked`; break;
+        }
+        effectEl.textContent  = `Current: ${txt}`;
+        effectEl.style.display = '';
+      } else {
+        effectEl.style.display = 'none';
+      }
+    });
+  }
+
+  return { renderSeeds, renderBags, renderItems, renderUpgrades, renderInventory, renderCrafting, renderAchievements, renderPrestige };
 })();
