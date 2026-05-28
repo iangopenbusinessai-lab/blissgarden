@@ -73,6 +73,8 @@ window.DragSystem = (() => {
           && !(state.thornedWeeds && state.thornedWeeds[i] !== undefined)
           && !(state.mounds       && state.mounds[i]       !== undefined)
           && !(state.rotTiles     && state.rotTiles[i]     && state.rotTiles[i].deadAt !== undefined)
+          && !(state.claimedTiles && state.claimedTiles[i])
+          && !(state.voidRifts    && state.voidRifts[i]    !== undefined)
           && hit(e.clientX, e.clientY, t))
           t.classList.add('drop-hi');
       });
@@ -156,6 +158,8 @@ window.DragSystem = (() => {
             && !(state.thornedWeeds && state.thornedWeeds[i] !== undefined)
             && !(state.mounds       && state.mounds[i]       !== undefined)
             && !(state.rotTiles     && state.rotTiles[i]     && state.rotTiles[i].deadAt !== undefined)
+            && !(state.claimedTiles && state.claimedTiles[i])
+            && !(state.voidRifts   && state.voidRifts[i]   !== undefined)
             && hit(e.clientX, e.clientY, t)) {
             state.tiles[i] = { seed, plantedAt: Date.now(), burnedSeconds: 0 };
             state.stats.totalPlanted = (state.stats.totalPlanted || 0) + 1;
@@ -165,6 +169,12 @@ window.DragSystem = (() => {
             Audio.playPlant();
             const tr = t.getBoundingClientRect();
             Particles.dirtPuff(tr.left + tr.width / 2, tr.top + tr.height / 2);
+            if (state.diseasedTiles && state.diseasedTiles[i]) {
+              if (!state.rotTiles) state.rotTiles = {};
+              state.rotTiles[i] = { infectedAt: Date.now() };
+              delete state.diseasedTiles[i];
+              log(`🐀 Diseased soil infected the ${SEEDS[seed].name}!`);
+            }
             RenderFarm.renderTile(i); save();
             log(`🌱 Planted ${SEEDS[seed].name}`);
             planted = true;
@@ -229,7 +239,9 @@ DragSystem.register('inventory-item', 'tile', (item, tileEl) => {
   const blocked = (state.weeds && state.weeds[i] !== undefined)
     || (state.thornedWeeds && state.thornedWeeds[i] !== undefined)
     || (state.mounds       && state.mounds[i]       !== undefined)
-    || (state.rotTiles     && state.rotTiles[i]     && state.rotTiles[i].deadAt !== undefined);
+    || (state.rotTiles     && state.rotTiles[i]     && state.rotTiles[i].deadAt !== undefined)
+    || (state.claimedTiles && state.claimedTiles[i])
+    || (state.voidRifts    && state.voidRifts[i]    !== undefined);
 
   if (it === 'water' && td && !isReady(td, i) && !blocked) {
     applyWater(i);

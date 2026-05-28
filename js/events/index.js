@@ -285,5 +285,11 @@ window.Events = {
   locustTick, blightTick,
   fungalSpawnTick, fungalSpreadTick,
   masterFarmerTick,
+  landDeveloperTick, claimedTileTick,
+  plagueRatTick, diseasedTileTick,
+  acidRainTick,
+  voidRiftTick, voidRiftEffectTick,
+  cosmicCrowTick,
+  realityStormTick,
   addToSellQueue, tickSellBox, canTick,
 };

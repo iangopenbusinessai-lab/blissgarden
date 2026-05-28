@@ -160,6 +160,7 @@ function animateLocust() {
 // ── BLIGHT ────────────────────────────────────────────────────────────────
 function blightTick() {
   if (!state.mature || getCurrentStage().stage < 3) return;
+  if (getCurrentStage().stage >= 4) return;
   const chance = 0.15
     * (state.upgrades.weathervane    ? 0.60 : 1)
     * (state.upgrades.ironGreenhouse ? 0.80 : 1);

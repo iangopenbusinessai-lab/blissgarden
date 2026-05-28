@@ -95,6 +95,9 @@ var state = {
   thornedWeeds: {}, mounds: {}, rotTiles: {},
   firstRotEver: false, firstLocustEver: false, firstBlightEver: false,
   fungalTiles: {}, firstFungalEver: false,
+  claimedTiles: {}, diseasedTiles: {},
+  firstDeveloperEver: false, firstRatEver: false, firstAcidRainEver: false,
+  voidRifts: {}, firstVoidRiftEver: false, firstCosmicCrowEver: false, firstRealityStormEver: false,
   hideBoughtUpgrades: false,
 };
 

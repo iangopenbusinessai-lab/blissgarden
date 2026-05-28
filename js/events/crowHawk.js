@@ -75,6 +75,7 @@ function animateCrow() {
 // ── HAWK ──────────────────────────────────────────────────────────────────
 function hawkTick() {
   if (!state.mature || getCurrentStage().stage < 2) return;
+  if (getCurrentStage().stage >= 5) return;
   const chance = (getCurrentStage().stage >= 3 ? 0.06 : 0.05)
     * (state.upgrades.ironGreenhouse ? 0.80 : 1);
   if (Math.random() < chance) hawkAttack();

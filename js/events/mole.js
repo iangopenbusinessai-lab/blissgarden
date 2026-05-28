@@ -1,6 +1,7 @@
 // ── MOLE ──────────────────────────────────────────────────────────────────
 function moleTick() {
   if (!state.mature || getCurrentStage().stage < 2) return;
+  if (getCurrentStage().stage >= 4) return;
   const chance = (state.upgrades.groundMesh ? 0.08 * 0.60 : 0.08)
     * (state.upgrades.ironGreenhouse ? 0.80 : 1);
   if (Math.random() < chance) moleAttack();

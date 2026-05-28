@@ -179,6 +179,26 @@ function onTileDown(e) {
   if (state.rotTiles && state.rotTiles[idx] && state.rotTiles[idx].deadAt !== undefined) {
     e.stopPropagation(); return;
   }
+  if (state.voidRifts && state.voidRifts[idx] !== undefined) {
+    e.stopPropagation();
+    state.voidRifts[idx].clicks++;
+    if (state.voidRifts[idx].clicks >= VOID_RIFT_CLICKS) {
+      delete state.voidRifts[idx];
+      log('🌀 Void rift sealed!');
+      RenderFarm.renderTile(idx);
+    } else {
+      e.currentTarget.classList.add('tile-rift-hit');
+      setTimeout(() => RenderFarm.renderTile(idx), 80);
+    }
+    save(); return;
+  }
+  if (state.claimedTiles && state.claimedTiles[idx]) {
+    e.stopPropagation();
+    const cl = state.claimedTiles[idx];
+    if (cl.releasesAt !== undefined) return;
+    showReclaimMenu(idx, cl.reclaimCost, e.clientX + 4, e.clientY + 4);
+    return;
+  }
   if (state.mounds && state.mounds[idx] !== undefined) {
     e.stopPropagation();
     state.mounds[idx] = Math.min(state.mounds[idx], Date.now() + 5000);
@@ -327,6 +347,14 @@ function updateTimers() {
     if (state.mounds && state.mounds[mIdx] !== undefined)
       timerEl.textContent = fmt(Math.max(0, (state.mounds[mIdx] - Date.now()) / 1000));
   });
+  document.querySelectorAll('.t-claimed-timer').forEach(timerEl => {
+    const cIdx = parseInt(timerEl.dataset.claimedIdx);
+    const cl = state.claimedTiles && state.claimedTiles[cIdx];
+    if (cl) {
+      const deadline = cl.releasesAt !== undefined ? cl.releasesAt : cl.deadlineAt;
+      timerEl.textContent = fmt(Math.max(0, (deadline - Date.now()) / 1000));
+    }
+  });
   document.querySelectorAll('.t-rot-timer').forEach(timerEl => {
     const rIdx = parseInt(timerEl.dataset.rotTimerIdx);
     const rot  = state.rotTiles && state.rotTiles[rIdx];
@@ -361,6 +389,15 @@ window.RenderFarm = (() => {
       return;
     }
 
+    // ── Void rift tile ──
+    if (state.voidRifts && state.voidRifts[idx] !== undefined) {
+      el.classList.add('tile-rift');
+      const rIcon = mk('div','t-rift-icon'); rIcon.textContent = '🌀'; el.appendChild(rIcon);
+      const rCount = mk('div','t-rift-count');
+      rCount.textContent = `${state.voidRifts[idx].clicks}/${VOID_RIFT_CLICKS}`; el.appendChild(rCount);
+      return;
+    }
+
     // ── Mound tile ──
     if (state.mounds && state.mounds[idx] !== undefined) {
       el.classList.add('tile-mound');
@@ -368,6 +405,22 @@ window.RenderFarm = (() => {
       const rem = Math.max(0, (state.mounds[idx] - Date.now()) / 1000);
       const mTimer = mk('div','t-mound-timer');
       mTimer.dataset.moundIdx = idx; mTimer.textContent = fmt(rem); el.appendChild(mTimer);
+      return;
+    }
+
+    // ── Claimed tile ──
+    if (state.claimedTiles && state.claimedTiles[idx]) {
+      const cl = state.claimedTiles[idx];
+      if (cl.releasesAt !== undefined) {
+        el.classList.add('tile-claimed-locked');
+      } else {
+        el.classList.add('tile-claimed');
+      }
+      const cIcon = mk('div','t-claimed-icon'); cIcon.textContent = '🏗️'; el.appendChild(cIcon);
+      const deadline = cl.releasesAt !== undefined ? cl.releasesAt : cl.deadlineAt;
+      const rem = Math.max(0, (deadline - Date.now()) / 1000);
+      const cTimer = mk('div','t-claimed-timer');
+      cTimer.dataset.claimedIdx = idx; cTimer.textContent = fmt(rem); el.appendChild(cTimer);
       return;
     }
 
@@ -399,18 +452,21 @@ window.RenderFarm = (() => {
                              state.rotTiles[idx].infectedAt !== undefined &&
                              state.rotTiles[idx].deadAt === undefined);
     const isFungal      = !!(state.fungalTiles && state.fungalTiles[idx] !== undefined);
+    const isDiseased    = !!(state.diseasedTiles && state.diseasedTiles[idx]);
 
     if (isRotInfected) el.classList.add('tile-rot');
     if (isCaged)       el.classList.add('tile-caged');
     if (isUFertilized) el.classList.add('tile-ufertilized');
     else if (isFertilized) el.classList.add('tile-fertilized');
     if (isFungal)      el.classList.add('tile-fungal');
+    if (isDiseased)    el.classList.add('tile-diseased');
 
     if (!td) {
       if (isCaged)           { const c = mk('div','t-cage-icon');  c.textContent='🔒'; el.appendChild(c); }
       if (isUFertilized)     { const f = mk('div','t-ufert-icon'); f.textContent='⚗️'; el.appendChild(f); }
       else if (isFertilized) { const f = mk('div','t-fert-icon');  f.textContent='🌿'; el.appendChild(f); }
       if (isFungal)          { const fi = mk('div','t-fungal-icon'); fi.textContent='🍄'; el.appendChild(fi); }
+      if (isDiseased)        { const di = mk('div','t-diseased-icon'); di.textContent='☣️'; el.appendChild(di); }
       return;
     }
 

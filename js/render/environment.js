@@ -22,7 +22,7 @@ window.RenderEnv = (() => {
     night: '🌙 Night falls — crops slow.',
   };
 
-  let skyEl, sunEl, moonEl, starsEl;
+  let skyEl, sunEl, moonEl, starsEl, auroraEl;
   let prevTod = null;
   const DAY_MS = 20 * 60 * 1000; // 20-minute day cycle
 
@@ -98,6 +98,9 @@ window.RenderEnv = (() => {
     }
     document.body.appendChild(starsEl);
 
+    // Aurora (Stage 5)
+    auroraEl = document.getElementById('aurora');
+
     updateSky();
   }
 
@@ -105,6 +108,34 @@ window.RenderEnv = (() => {
     const frac = ((Date.now() - STATE.meta.dayOffset) % DAY_MS) / DAY_MS;
     const { r, g, b } = lerpSky(frac);
     document.body.style.background = `rgb(${r},${g},${b})`;
+
+    const earned = state.coinsEarned || 0;
+
+    const s4Overlay = document.getElementById('s4-overlay');
+    if (s4Overlay) {
+      if (earned >= 50000000 && earned < 500000000) {
+        const progress = Math.min(1, (earned - 50000000) / 450000000);
+        s4Overlay.style.opacity = String(0.05 + progress * 0.20);
+      } else if (earned >= 500000000) {
+        s4Overlay.style.opacity = '0.05';
+      } else {
+        s4Overlay.style.opacity = '0';
+      }
+    }
+
+    const s5Overlay = document.getElementById('s5-overlay');
+    if (s5Overlay) {
+      if (earned >= 500000000) {
+        const progress = Math.min(1, (earned - 500000000) / 4500000000);
+        s5Overlay.style.opacity = String(0.06 + progress * 0.30);
+      } else {
+        s5Overlay.style.opacity = '0';
+      }
+    }
+
+    if (auroraEl) {
+      auroraEl.style.opacity = earned >= 500000000 ? String(Math.min(1, (earned - 500000000) / 2000000000)) : '0';
+    }
 
     const tod = _fracToTod(frac);
     if (tod !== prevTod) {

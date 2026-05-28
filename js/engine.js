@@ -61,8 +61,14 @@ TimerManager.register('mole',    { interval: 45000,  condition: _stage(2), fn: (
 TimerManager.register('rootRot', { interval: 180000, condition: _stage(3), fn: () => {} });
 TimerManager.register('locust',  { interval: 30000,  condition: _stage(3), fn: () => {} });
 TimerManager.register('blight',  { interval: 300000, condition: _stage(3), fn: () => {} });
-TimerManager.register('fungal',  { interval: 240000, condition: _stage(3), fn: () => {} });
-TimerManager.register('save',    { interval: 10000,  condition: () => true, fn: () => {} });
+TimerManager.register('fungal',        { interval: 240000, condition: _stage(3), fn: () => {} });
+TimerManager.register('landDeveloper', { interval: 180000, condition: _stage(4), fn: () => {} });
+TimerManager.register('plagueRat',     { interval: 40000,  condition: _stage(4), fn: () => {} });
+TimerManager.register('acidRain',      { interval: 300000, condition: _stage(4), fn: () => {} });
+TimerManager.register('voidRift',      { interval: 240000, condition: _stage(5), fn: () => {} });
+TimerManager.register('cosmicCrow',    { interval: 12000,  condition: _stage(5), fn: () => {} });
+TimerManager.register('realityStorm',  { interval: 360000, condition: _stage(5), fn: () => {} });
+TimerManager.register('save',          { interval: 10000,  condition: () => true, fn: () => {} });
 
 // ══════════════════════════════
 // OFFLINE PROGRESS
@@ -247,11 +253,26 @@ function setupTimers() {
   TimerManager.timers['blight'].condition = cond(3);
   TimerManager.timers['fungal'].fn        = Events.fungalSpawnTick;
   TimerManager.timers['fungal'].condition = cond(3);
+  TimerManager.timers['landDeveloper'].fn        = Events.landDeveloperTick;
+  TimerManager.timers['landDeveloper'].condition = cond(4);
+  TimerManager.timers['plagueRat'].fn        = Events.plagueRatTick;
+  TimerManager.timers['plagueRat'].condition = cond(4);
+  TimerManager.timers['acidRain'].fn        = Events.acidRainTick;
+  TimerManager.timers['acidRain'].condition = cond(4);
+  TimerManager.timers['voidRift'].fn        = Events.voidRiftTick;
+  TimerManager.timers['voidRift'].condition = cond(5);
+  TimerManager.timers['cosmicCrow'].fn      = Events.cosmicCrowTick;
+  TimerManager.timers['cosmicCrow'].condition = cond(5);
+  TimerManager.timers['realityStorm'].fn    = Events.realityStormTick;
+  TimerManager.timers['realityStorm'].condition = cond(5);
   TimerManager.timers['save'].fn        = save;
   TimerManager.timers['save'].condition = () => true;
 
-  TimerManager.register('mound',        { interval: 1000,  condition: () => true, fn: Events.moundTick });
-  TimerManager.register('rot',          { interval: 1000,  condition: () => true, fn: Events.rotTick });
+  TimerManager.register('mound',        { interval: 1000, condition: () => true, fn: Events.moundTick });
+  TimerManager.register('rot',          { interval: 1000, condition: () => true, fn: Events.rotTick });
+  TimerManager.register('claimedTile',   { interval: 1000, condition: () => true, fn: Events.claimedTileTick });
+  TimerManager.register('diseasedTile',  { interval: 1000, condition: () => true, fn: Events.diseasedTileTick });
+  TimerManager.register('voidRiftEffect',{ interval: 5000, condition: () => true, fn: Events.voidRiftEffectTick });
   TimerManager.register('thornedWeed',  { interval: 1000,  condition: () => true, fn: Events.thornedWeedTick });
   TimerManager.register('fungalSpread', { interval: 30000, condition: () => true, fn: Events.fungalSpreadTick });
   TimerManager.register('masterFarmer', { interval: 1000,  condition: () => true, fn: Events.masterFarmerTick });
@@ -277,6 +298,8 @@ function setupTimers() {
     for (let i = 0; i < tileCount(); i++) {
       const td = state.tiles[i];
       if (!td || !td.seed) continue;
+      if (state.claimedTiles && state.claimedTiles[i]) continue;
+      if (state.voidRifts    && state.voidRifts[i]    !== undefined) continue;
       const base = window.SEEDS?.[td.seed]?.grow;
       if (!base) continue;
       if (td.burnedSeconds === undefined) {

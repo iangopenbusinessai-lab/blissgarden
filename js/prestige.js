@@ -86,6 +86,15 @@ function prestige() {
   state.firstLocustEver         = false;
   state.firstBlightEver         = false;
   state.firstFungalEver         = false;
+  state.claimedTiles            = {};
+  state.diseasedTiles           = {};
+  state.firstDeveloperEver      = false;
+  state.firstRatEver            = false;
+  state.firstAcidRainEver       = false;
+  state.voidRifts               = {};
+  state.firstVoidRiftEver       = false;
+  state.firstCosmicCrowEver     = false;
+  state.firstRealityStormEver   = false;
 
   // ── Reset STATE.events ────────────────────────────────────────────────────
   STATE.events = {
