@@ -1,4 +1,5 @@
 window.RenderCrafting = (() => {
+  // ── RECIPE CARDS ──────────────────────────────────────────────────────────
   const _craftCards = new Map(); // recipeId → { card, btn, ingSpans }
   let _craftingEl = null;
 
@@ -35,6 +36,50 @@ window.RenderCrafting = (() => {
     });
   }
 
+  // ── CRAFTED ITEM SLOTS ────────────────────────────────────────────────────
+  const _craftedSlots = new Map(); // recipeId → { el, badge }
+  let _craftedInvEl = null;
+
+  function buildCraftedSlots() {
+    _craftedInvEl = document.getElementById('crafting-modal-inv');
+    if (!_craftedInvEl) return;
+    (window.RECIPES || []).forEach(recipe => {
+      if (!recipe.unlocked) return;
+      const el = mk('div', 'inv-icon');
+      el.dataset.name = `${recipe.name} (crafted) — drag to sell`;
+      el.style.cursor = 'grab';
+      const emojiSpan = document.createElement('span');
+      emojiSpan.style.cssText = 'pointer-events:none;font-size:22px;line-height:1';
+      emojiSpan.textContent = recipe.emoji;
+      el.appendChild(emojiSpan);
+      const badge = mk('span', 'inv-badge');
+      el.appendChild(badge);
+      el.addEventListener('mousedown', e => {
+        e.stopPropagation();
+        if (!state.craftedInventory) state.craftedInventory = {};
+        if ((state.craftedInventory[recipe.id] || 0) < 1) return;
+        state.craftedInventory[recipe.id]--;
+        if (state.craftedInventory[recipe.id] <= 0) delete state.craftedInventory[recipe.id];
+        RenderInventory.renderInventory(); save();
+        startCraftedDrag(recipe.id, recipe.emoji);
+        moveGhost(e.clientX, e.clientY);
+      });
+      _craftedInvEl.appendChild(el);
+      _craftedSlots.set(recipe.id, { el, badge });
+    });
+  }
+
+  function renderCraftedSlots() {
+    if (!_craftedInvEl) buildCraftedSlots();
+    const craftedInv = state.craftedInventory || {};
+    _craftedSlots.forEach(({ el, badge }, id) => {
+      const qty = craftedInv[id] || 0;
+      el.style.display = qty > 0 ? '' : 'none';
+      if (qty > 0) badge.textContent = qty;
+    });
+  }
+
+  // ── PUBLIC ────────────────────────────────────────────────────────────────
   function renderCraftingPanel() {
     if (!_craftingEl) buildCrafting();
     _craftCards.forEach(({ btn, ingSpans }, recipeId) => {
@@ -51,6 +96,7 @@ window.RenderCrafting = (() => {
       btn.disabled = !canCraft;
       btn.style.background = canCraft ? '#3a7a3a' : '';
     });
+    renderCraftedSlots();
   }
 
   return { renderCraftingPanel };

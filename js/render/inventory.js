@@ -12,10 +12,9 @@ window.RenderInventory = (() => {
   let _hhEl = null, _hhBadge = null;
 
   // Collection slot Maps
-  const _bagSlots     = new Map(); // bagId    → { slot, badge }
-  const _seedSlots    = new Map(); // cropId   → { slot, badge }
-  const _cropSlots    = new Map(); // cropId   → { el,   badge }
-  const _craftedSlots = new Map(); // recipeId → { el,   badge }
+  const _bagSlots  = new Map(); // bagId  → { slot, badge }
+  const _seedSlots = new Map(); // cropId → { slot, badge }
+  const _cropSlots = new Map(); // cropId → { el,   badge }
   let _emptyEl = null;
 
   function buildInventory() {
@@ -186,29 +185,6 @@ window.RenderInventory = (() => {
       _cropSlots.set(key, { el, badge });
     });
 
-    // ── Crafted slots ─────────────────────────────────────────────────────
-    (window.RECIPES || []).forEach(recipe => {
-      if (!recipe.unlocked) return;
-      const el = mk('div', 'inv-icon');
-      el.dataset.name = `${recipe.name} (crafted) — drag to sell`; el.style.cursor = 'grab';
-      const emojiSpan = document.createElement('span');
-      emojiSpan.style.cssText = 'pointer-events:none;font-size:22px;line-height:1';
-      emojiSpan.textContent = recipe.emoji;
-      el.appendChild(emojiSpan);
-      const badge = mk('span', 'inv-badge'); el.appendChild(badge);
-      el.addEventListener('mousedown', e => {
-        e.stopPropagation();
-        if (!state.craftedInventory) state.craftedInventory = {};
-        if ((state.craftedInventory[recipe.id] || 0) < 1) return;
-        state.craftedInventory[recipe.id]--;
-        if (state.craftedInventory[recipe.id] <= 0) delete state.craftedInventory[recipe.id];
-        renderInventory(); save();
-        startCraftedDrag(recipe.id, recipe.emoji); moveGhost(e.clientX, e.clientY);
-      });
-      _invEl.appendChild(el);
-      _craftedSlots.set(recipe.id, { el, badge });
-    });
-
     // ── Empty placeholder ─────────────────────────────────────────────────
     _emptyEl = mk('div'); _emptyEl.id = 'inv-empty'; _emptyEl.textContent = 'Empty';
     _invEl.appendChild(_emptyEl);
@@ -268,13 +244,6 @@ window.RenderInventory = (() => {
 
     _cropSlots.forEach(({ el, badge }, key) => {
       const qty = state.inventory[key] || 0;
-      el.style.display = qty > 0 ? '' : 'none';
-      if (qty > 0) { count++; badge.textContent = qty; }
-    });
-
-    const craftedInv = state.craftedInventory || {};
-    _craftedSlots.forEach(({ el, badge }, id) => {
-      const qty = craftedInv[id] || 0;
       el.style.display = qty > 0 ? '' : 'none';
       if (qty > 0) { count++; badge.textContent = qty; }
     });

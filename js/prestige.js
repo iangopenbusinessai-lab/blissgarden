@@ -10,7 +10,7 @@ function getPrestigePointsEarned() {
 
 function canPrestige() {
   if ((state.coins || 0) < 1000000)
-    return { can: false, reason: 'Requires 1M coins in hand' };
+    return { can: false, reason: 'Requires 1,000,000 coins in hand' };
   return { can: true, reason: '' };
 }
 

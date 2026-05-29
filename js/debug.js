@@ -60,6 +60,16 @@ window.DebugPanel = (() => {
     const body = document.createElement('div');
     wrapper.appendChild(body);
 
+    const forcePrestigeBtn = document.createElement('button');
+    forcePrestigeBtn.textContent = '✨ Force Prestige';
+    forcePrestigeBtn.style.cssText = 'background:#b03020;color:#fff;border:none;border-radius:4px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;margin-top:6px;width:100%';
+    forcePrestigeBtn.addEventListener('click', () => {
+      state.coins = 1000000;
+      STATE.meta.gold = 1000000;
+      prestige();
+    });
+    wrapper.appendChild(forcePrestigeBtn);
+
     const priceDivider = document.createElement('div');
     priceDivider.style.cssText = 'border-top:1px solid rgba(255,255,255,.08);margin-top:6px';
     wrapper.appendChild(priceDivider);

@@ -188,7 +188,6 @@ window.RenderPanel = (() => {
     renderItems:        () => RenderItems.renderItems(),
     renderUpgrades:     () => RenderUpgrades.renderUpgrades(),
     renderInventory:    () => RenderInventory.renderInventory(),
-    renderCrafting:     () => RenderCrafting.renderCraftingPanel(),
     renderAchievements,
     renderPrestige,
     renderAscension,

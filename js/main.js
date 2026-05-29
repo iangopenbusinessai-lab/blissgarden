@@ -26,7 +26,6 @@ function setupEvents() {
     RenderPanel.renderItems();
     RenderPanel.renderSeeds();
     RenderPanel.renderBags();
-    RenderPanel.renderCrafting();
     RenderPanel.renderPrestige();
     RenderPanel.renderAscension();
     RenderHUD.renderReputation();
@@ -109,6 +108,28 @@ function setupUI() {
   }());
 
   (function () {
+    const craftingBtn = document.getElementById('crafting-btn');
+    const backdrop    = document.getElementById('crafting-backdrop');
+    const modal       = document.getElementById('crafting-modal');
+    const closeBtn    = document.getElementById('crafting-close-btn');
+
+    function openCrafting() {
+      backdrop.style.display = 'block';
+      modal.style.display = 'flex';
+      if (typeof RenderCrafting !== 'undefined') RenderCrafting.renderCraftingPanel();
+    }
+    function closeCrafting() {
+      backdrop.style.display = 'none';
+      modal.style.display = 'none';
+    }
+
+    craftingBtn.addEventListener('click', e => { e.stopPropagation(); openCrafting(); });
+    backdrop.addEventListener('click', closeCrafting);
+    modal.addEventListener('click', e => e.stopPropagation());
+    closeBtn.addEventListener('click', closeCrafting);
+  }());
+
+  (function () {
     const prestigeBtn = document.getElementById('prestige-btn');
     const backdrop    = document.getElementById('prestige-backdrop');
     const modal       = document.getElementById('prestige-modal');
@@ -162,7 +183,6 @@ function setupUI() {
 function renderInitial() {
   RenderFarm.renderGrid();
   RenderPanel.renderInventory();
-  RenderPanel.renderCrafting();
   try { RenderPanel.renderSeeds(); } catch (e) { console.error('renderSeeds failed:', e); }
   RenderPanel.renderBags();
   RenderPanel.renderItems();
@@ -195,16 +215,6 @@ function init() {
   setupUI();
   renderInitial();
   RenderFarm.probeSprites();
-
-  // Sprite load diagnostic — remove after confirming sprites.png loads correctly
-  const _spriteTest = document.createElement('div');
-  Object.assign(_spriteTest.style, getSpriteStyle('potato', 'grown', 64));
-  _spriteTest.style.position = 'fixed';
-  _spriteTest.style.top = '0';
-  _spriteTest.style.left = '0';
-  _spriteTest.style.zIndex = '9999';
-  document.body.appendChild(_spriteTest);
-  setTimeout(() => _spriteTest.remove(), 3000);
 }
 
 init();

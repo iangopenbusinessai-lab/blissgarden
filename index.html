@@ -31,10 +31,22 @@
 <div id="stage-display"></div><span id="tod-icon" style="position:fixed;top:38px;left:50%;transform:translateX(-50%);font-size:16px;pointer-events:none;z-index:10"></span>
 
 <div id="topbar-right">
+  <button id="crafting-btn" class="topbar-btn" title="Crafting">⚒️</button>
   <button id="prestige-btn" class="topbar-btn" title="Prestige">✨</button>
   <button id="ach-btn" class="topbar-btn" title="Achievements">🏆</button>
   <button id="mute-btn" class="topbar-btn" title="Toggle sound">🔊</button>
   <button id="settings-btn" class="topbar-btn" title="Settings">⚙️</button>
+</div>
+<div id="crafting-backdrop"></div>
+<div id="crafting-modal">
+  <div id="crafting-modal-header">
+    <span>⚒️ Crafting</span>
+    <button id="crafting-close-btn">✕</button>
+  </div>
+  <div id="crafting-modal-body">
+    <div id="crafting-list"></div>
+    <div id="crafting-modal-inv"></div>
+  </div>
 </div>
 <div id="prestige-backdrop"></div>
 <div id="prestige-modal">
@@ -84,9 +96,6 @@
     <div class="panel-divider"></div>
     <div class="panel-label">Upgrades</div>
     <div id="upgrades-list"></div>
-    <div class="panel-divider"></div>
-    <div class="panel-label">Crafting</div>
-    <div id="crafting-list"></div>
     <div class="panel-divider"></div>
     <div class="panel-label">Inventory</div>
     <div id="inv-grid"></div>

@@ -20,7 +20,7 @@ window.craftItem = function craftItem(recipeId) {
   EventBus.emit('item:crafted', { recipeId });
   if (typeof checkAchievements === 'function') checkAchievements();
   DIRTY.panel = true;
-  RenderPanel.renderCrafting();
+  RenderCrafting.renderCraftingPanel();
   RenderPanel.renderInventory();
   log(`${recipe.emoji} Crafted ${recipe.name}!`);
   save();
