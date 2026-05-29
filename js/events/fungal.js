@@ -7,7 +7,7 @@ function showFungalCureMenu(idx, cost, x, y) {
   header.textContent = '🍄 Fungal Bloom';
   menu.appendChild(header);
   const btn = mk('button'); btn.className = 'tmenu-btn';
-  btn.innerHTML = `🧹 Clear — ${coinHTML()}${cost}`;
+  btn.innerHTML = `🧹 Clear — ${coinHTML()}${formatNumber(cost)}`;
   if (state.coins < cost) { btn.disabled = true; btn.style.opacity = '0.4'; }
   btn.addEventListener('mousedown', e => {
     e.stopPropagation();

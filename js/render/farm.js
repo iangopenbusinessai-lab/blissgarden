@@ -127,7 +127,7 @@ function showRotCureMenu(idx, cost, x, y) {
   header.textContent = '🍂 Root Rot — cure or harvest fast';
   menu.appendChild(header);
   const btn = mk('button'); btn.className = 'tmenu-btn';
-  btn.innerHTML = `💊 Cure — ${coinHTML()}${cost}`;
+  btn.innerHTML = `💊 Cure — ${coinHTML()}${formatNumber(cost)}`;
   if (state.coins < cost) { btn.disabled = true; btn.style.opacity = '0.4'; }
   btn.addEventListener('mousedown', e => {
     e.stopPropagation();
@@ -163,7 +163,7 @@ function showFungalCureMenu(idx, cost, x, y) {
   header.textContent = '🍄 Fungal Bloom';
   menu.appendChild(header);
   const btn = mk('button'); btn.className = 'tmenu-btn';
-  btn.innerHTML = `🧹 Clear — ${coinHTML()}${cost}`;
+  btn.innerHTML = `🧹 Clear — ${coinHTML()}${formatNumber(cost)}`;
   if (state.coins < cost) { btn.disabled = true; btn.style.opacity = '0.4'; }
   btn.addEventListener('mousedown', e => {
     e.stopPropagation();
@@ -303,7 +303,7 @@ function onTileDown(e) {
         log('💊 Root rot cured.');
         updateCoins(); RenderFarm.renderTile(idx); save();
       } else {
-        log(`💊 Need ${coinHTML()}${cureCost} to cure root rot.`);
+        log(`💊 Need ${coinHTML()}${formatNumber(cureCost)} to cure root rot.`);
       }
     } else {
       showRotCureMenu(idx, cureCost, e.clientX + 4, e.clientY + 4);

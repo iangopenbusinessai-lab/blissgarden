@@ -12,7 +12,7 @@ function applyPanelState() {
 window.RenderHUD = (() => {
   function renderCoin() {
     const el = document.getElementById('coin-count');
-    if (el) el.textContent = state.coins;
+    if (el) el.textContent = formatNumber(state.coins);
   }
 
   function renderStage() {

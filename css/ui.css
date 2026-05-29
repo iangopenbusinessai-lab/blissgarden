@@ -232,6 +232,16 @@
 .ach-desc { font-size: 10.5px; color: rgba(255,255,255,.6); margin-top: 2px; }
 .ach-date { font-size: 10px; color: rgba(255,220,80,.65); margin-top: 3px; }
 
+/* ── PRESTIGE MODAL ── */
+#prestige-backdrop { position: fixed; inset: 0; z-index: 950; background: rgba(0,0,0,.55); display: none; }
+#prestige-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 951; background: #6B4432; border: 2px solid #3d2010; border-radius: 10px; width: 420px; max-width: 92vw; max-height: 82vh; display: none; flex-direction: column; color: #fff; overflow: hidden; }
+#prestige-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 13px; font-size: 15px; font-weight: 700; letter-spacing: .4px; background: rgba(0,0,0,.18); border-bottom: 1px solid rgba(0,0,0,.3); flex-shrink: 0; }
+#prestige-close-btn { background: none; border: none; color: #bbb; cursor: pointer; font-size: 16px; padding: 0; line-height: 1; }
+#prestige-close-btn:hover { color: #fff; }
+#prestige-modal-body { overflow-y: auto; padding: 8px 6px 18px; flex: 1; }
+#prestige-modal-body::-webkit-scrollbar { width: 5px; }
+#prestige-modal-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,.3); border-radius: 3px; }
+
 /* ── ACHIEVEMENT TOAST ── */
 .ach-toast { position: fixed; bottom: 24px; right: 24px; z-index: 9000; background: #3a2510; border: 1.5px solid rgba(255,220,80,.4); border-radius: 10px; padding: 10px 16px; display: flex; align-items: center; gap: 10px; max-width: 280px; pointer-events: none; opacity: 0; transform: translateX(60px); }
 .ach-toast.ach-toast-in { animation: achToastIn .35s forwards; }

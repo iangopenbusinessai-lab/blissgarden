@@ -18,6 +18,7 @@ window.load = function load() {
     STATE.meta.dayOffset      = d.dayOffset            ?? null;
     state.milestones      = d.milestones      ?? {};
     state.stagesSeen      = d.stagesSeen      ?? {};
+    STATE.meta.stage      = Object.keys(state.stagesSeen).reduce((m, s) => Math.max(m, parseInt(s)), 0);
     state.mature          = d.mature          ?? false;
     state.tiles           = d.tiles           ?? Array(9).fill(null);
     state.inventory       = d.inventory       ?? {};

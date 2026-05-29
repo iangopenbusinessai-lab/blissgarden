@@ -109,6 +109,30 @@ function setupUI() {
   }());
 
   (function () {
+    const prestigeBtn = document.getElementById('prestige-btn');
+    const backdrop    = document.getElementById('prestige-backdrop');
+    const modal       = document.getElementById('prestige-modal');
+    const closeBtn    = document.getElementById('prestige-close-btn');
+
+    function openPrestige() {
+      backdrop.style.display = 'block';
+      modal.style.display = 'flex';
+      if (typeof RenderPanel !== 'undefined' && RenderPanel.renderPrestige) {
+        RenderPanel.renderPrestige();
+      }
+    }
+    function closePrestige() {
+      backdrop.style.display = 'none';
+      modal.style.display = 'none';
+    }
+
+    prestigeBtn.addEventListener('click', e => { e.stopPropagation(); openPrestige(); });
+    backdrop.addEventListener('click', closePrestige);
+    modal.addEventListener('click', e => e.stopPropagation());
+    closeBtn.addEventListener('click', closePrestige);
+  }());
+
+  (function () {
     const achBtn   = document.getElementById('ach-btn');
     const backdrop = document.getElementById('ach-backdrop');
     const modal    = document.getElementById('ach-modal');

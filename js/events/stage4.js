@@ -11,7 +11,7 @@ function showReclaimMenu(idx, cost, x, y) {
   header.textContent = '🏗️ Claimed — pay to reclaim';
   menu.appendChild(header);
   const btn = mk('button'); btn.className = 'tmenu-btn';
-  btn.innerHTML = `💰 Reclaim — ${coinHTML()}${cost}`;
+  btn.innerHTML = `💰 Reclaim — ${coinHTML()}${formatNumber(cost)}`;
   if (state.coins < cost) { btn.disabled = true; btn.style.opacity = '0.4'; }
   btn.addEventListener('mousedown', e => {
     e.stopPropagation();
@@ -58,7 +58,7 @@ function landDeveloperAttack() {
   const cost = 500 + (getCurrentStage().stage || 4) * 100;
   if (!state.claimedTiles) state.claimedTiles = {};
   state.claimedTiles[idx] = { claimedAt: Date.now(), deadlineAt: Date.now() + 60000, reclaimCost: cost };
-  log(`🏗️ Developers claimed plot ${idx + 1}! Pay ${coinHTML()}${cost} within 60s or lose it.`);
+  log(`🏗️ Developers claimed plot ${idx + 1}! Pay ${coinHTML()}${formatNumber(cost)} within 60s or lose it.`);
   RenderFarm.renderTile(idx); save();
 }
 

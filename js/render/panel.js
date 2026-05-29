@@ -68,7 +68,7 @@ window.RenderPanel = (() => {
     _seedRows.forEach(({ btn, metaSpan }, key) => {
       const seed = SEEDS[key];
       btn.disabled = state.coins < seed.cost;
-      metaSpan.innerHTML = `${coinHTML()}${seed.cost} - ${fmt(seed.grow * mult)}`;
+      metaSpan.innerHTML = `${coinHTML()}${formatNumber(seed.cost)} - ${fmt(seed.grow * mult)}`;
     });
   }
 
@@ -85,7 +85,7 @@ window.RenderPanel = (() => {
       const card = mk('div','upgrade-card');
       const desc = bag.seeds.map((s,i) =>
         `${spriteHTML(s, 'seed', 20)} ${SEEDS[s].name} ${Math.round(bag.odds[i]*100)}%`).join(' · ');
-      card.innerHTML = `<div class="ug-name">${bag.icon} ${bag.name}</div><div class="ug-desc">Opens for 3 seeds: ${desc}</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}${bag.cost}</span><button class="ug-btn">Buy</button></div>`;
+      card.innerHTML = `<div class="ug-name">${bag.icon} ${bag.name}</div><div class="ug-desc">Opens for 3 seeds: ${desc}</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}${formatNumber(bag.cost)}</span><button class="ug-btn">Buy</button></div>`;
       const btn = card.querySelector('.ug-btn');
       btn.addEventListener('click', e => {
         e.stopPropagation();
@@ -130,7 +130,7 @@ window.RenderPanel = (() => {
     _wcDescSpan   = mk('span',''); wcDescDiv.appendChild(_wcDescSpan);
     _wcStatusSpan = mk('span',''); wcDescDiv.appendChild(_wcStatusSpan);
     const wcBotDiv  = mk('div','ug-bottom');
-    wcBotDiv.innerHTML = `<span class="ug-cost">${coinHTML()}100</span>`;
+    wcBotDiv.innerHTML = `<span class="ug-cost">${coinHTML()}${formatNumber(100)}</span>`;
     _wcBtn = mk('button','ug-btn');
     _wcBtn.addEventListener('click', e => {
       e.stopPropagation();
@@ -148,7 +148,7 @@ window.RenderPanel = (() => {
 
     // Copper Spout (always in DOM, hidden unless WC owned)
     _spoutCard = mk('div','upgrade-card');
-    _spoutCard.innerHTML = `<div class="ug-name">${coinHTML()} Copper Spout</div><div class="ug-desc">Upgrade the can: fill time reduced to 8s, capacity increases to 2 charges.</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}800</span><button class="ug-btn">Buy</button></div>`;
+    _spoutCard.innerHTML = `<div class="ug-name">${coinHTML()} Copper Spout</div><div class="ug-desc">Upgrade the can: fill time reduced to 8s, capacity increases to 2 charges.</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}${formatNumber(800)}</span><button class="ug-btn">Buy</button></div>`;
     _spoutBtn = _spoutCard.querySelector('.ug-btn');
     _spoutBtn.addEventListener('click', e => {
       e.stopPropagation();
@@ -163,7 +163,7 @@ window.RenderPanel = (() => {
 
     // Cage
     _cageCard = mk('div','upgrade-card');
-    _cageCard.innerHTML = `<div class="ug-name">🔒 Cage</div><div class="ug-desc">Drag from inventory onto a tile for 75% crow resistance. Stays until removed.</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}250</span><button class="ug-btn">Buy</button></div>`;
+    _cageCard.innerHTML = `<div class="ug-name">🔒 Cage</div><div class="ug-desc">Drag from inventory onto a tile for 75% crow resistance. Stays until removed.</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}${formatNumber(250)}</span><button class="ug-btn">Buy</button></div>`;
     _cageBtn = _cageCard.querySelector('.ug-btn');
     _cageBtn.addEventListener('click', e => {
       e.stopPropagation();
@@ -175,7 +175,7 @@ window.RenderPanel = (() => {
 
     // Common Fertilizer
     _fertCard = mk('div','upgrade-card');
-    _fertCard.innerHTML = `<div class="ug-name">🌿 Common Fertilizer</div><div class="ug-desc">Drag from inventory onto any tile. Crops grown there are 25% faster permanently.</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}500</span><button class="ug-btn">Buy</button></div>`;
+    _fertCard.innerHTML = `<div class="ug-name">🌿 Common Fertilizer</div><div class="ug-desc">Drag from inventory onto any tile. Crops grown there are 25% faster permanently.</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}${formatNumber(500)}</span><button class="ug-btn">Buy</button></div>`;
     _fertBtn = _fertCard.querySelector('.ug-btn');
     _fertBtn.addEventListener('click', e => {
       e.stopPropagation();
@@ -187,7 +187,7 @@ window.RenderPanel = (() => {
 
     // Uncommon Fertilizer
     _ufertCard = mk('div','upgrade-card');
-    _ufertCard.innerHTML = `<div class="ug-name">⚗️ Uncommon Fertilizer</div><div class="ug-desc">Drag from inventory onto any tile. Crops grown there are 40% faster permanently.</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}2000</span><button class="ug-btn">Buy</button></div>`;
+    _ufertCard.innerHTML = `<div class="ug-name">⚗️ Uncommon Fertilizer</div><div class="ug-desc">Drag from inventory onto any tile. Crops grown there are 40% faster permanently.</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}${formatNumber(2000)}</span><button class="ug-btn">Buy</button></div>`;
     _ufertBtn = _ufertCard.querySelector('.ug-btn');
     _ufertBtn.addEventListener('click', e => {
       e.stopPropagation();
@@ -286,7 +286,7 @@ window.RenderPanel = (() => {
     const sorted = [...UPGRADES].sort((a,b) => a.cost - b.cost);
     sorted.forEach(u => {
       const card = mk('div','upgrade-card');
-      card.innerHTML = `<div class="ug-name">${u.name}</div><div class="ug-desc">${u.desc}</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}${u.cost.toLocaleString()}</span><button class="ug-btn">Buy</button></div>`;
+      card.innerHTML = `<div class="ug-name">${u.name}</div><div class="ug-desc">${u.desc}</div><div class="ug-bottom"><span class="ug-cost">${coinHTML()}${formatNumber(u.cost)}</span><button class="ug-btn">Buy</button></div>`;
       const btn = card.querySelector('.ug-btn');
       btn.addEventListener('click', e => {
         e.stopPropagation();
@@ -373,7 +373,7 @@ window.RenderPanel = (() => {
 
       const botDiv = mk('div', 'ug-bottom');
       const costSpan = mk('span', 'ug-cost');
-      costSpan.innerHTML = `${coinHTML()}${recipe.sellValue}`;
+      costSpan.innerHTML = `${coinHTML()}${formatNumber(recipe.sellValue)}`;
       botDiv.appendChild(costSpan);
 
       const btn = mk('button', 'ug-btn');
@@ -391,7 +391,7 @@ window.RenderPanel = (() => {
       const tipLines = Object.entries(recipe.ingredients)
         .map(([cropId, needed]) => `${SEEDS[cropId] ? SEEDS[cropId].icon + ' ' + SEEDS[cropId].name : cropId}: ${needed}`)
         .join(', ');
-      card.title = `${recipe.name}: ${tipLines} → 🪙${recipe.sellValue}`;
+      card.title = `${recipe.name}: ${tipLines} → 🪙${formatNumber(recipe.sellValue)}`;
 
       _craftingEl.appendChild(card);
       _craftCards.set(recipe.id, { card, btn, ingSpans });
@@ -594,7 +594,7 @@ window.RenderPanel = (() => {
       });
       const price = SEED_SELL_PRICES[key] || 0;
       const sellBtn = mk('button','inv-seed-sell');
-      sellBtn.innerHTML = `Sell ${coinHTML()}${price}`;
+      sellBtn.innerHTML = `Sell ${coinHTML()}${formatNumber(price)}`;
       sellBtn.title = `Sell ${seed.name} seed for ${price} coins`;
       sellBtn.addEventListener('click', e => {
         e.stopPropagation();
@@ -971,7 +971,7 @@ window.RenderPanel = (() => {
           case 'growSpeed':       txt = `+${Math.round(v * 100)}% grow speed`; break;
           case 'sellValue':       txt = `+${Math.round(v * 100)}% sell value`; break;
           case 'sellInterval':    txt = `-${Math.round(v * 100)}% sell interval`; break;
-          case 'startGold':       txt = `+${stacks * perk.valuePerStack} starting coins`; break;
+          case 'startGold':       txt = `+${formatNumber(stacks * perk.valuePerStack)} starting coins`; break;
           case 'eventResistance': txt = `-${Math.round(v * 100)}% event chance`; break;
           case 'plotCount':       txt = `${stacks} extra plot${stacks !== 1 ? 's' : ''} unlocked`; break;
         }
@@ -998,7 +998,7 @@ window.RenderPanel = (() => {
       const nameDiv = mk('div','ug-name');
       nameDiv.textContent = `${seed.icon} ${seed.name}`;
       const descDiv = mk('div','ug-desc');
-      descDiv.textContent = `Grows in ${fmt(seed.grow)} · Sells for 🪙${seed.sell.toLocaleString()}`;
+      descDiv.textContent = `Grows in ${fmt(seed.grow)} · Sells for 🪙${formatNumber(seed.sell)}`;
       const botDiv = mk('div','ug-bottom');
       const costSpan = mk('span','ug-cost');
       costSpan.style.color = '#f0d080';

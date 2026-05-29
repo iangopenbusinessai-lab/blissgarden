@@ -14,22 +14,21 @@ var sfx = {
 
 // ── COINS & STAGES ──
 function getCurrentStage() {
-  let current = STAGES[0];
-  for (const s of STAGES) { if ((state.coinsEarned || 0) >= s.threshold) current = s; }
-  return current;
+  const stage = STATE.meta.stage || 0;
+  return STAGES.find(s => s.stage === stage) || STAGES[0];
 }
 function checkMilestones() {
   MILESTONE_VALS.forEach(m => {
     if (state.coinsEarned >= m && !state.milestones[m]) {
       state.milestones[m] = true;
-      log(`⏱️ Reached ${coinHTML()}${m.toLocaleString()} — ${fmtElapsed(Date.now() - state.gameStartTime)}`);
+      log(`⏱️ Reached ${coinHTML()}${formatNumber(m)} — ${fmtElapsed(Date.now() - state.gameStartTime)}`);
     }
   });
 }
 function checkStages() {
   for (const s of STAGES) {
-    if (s.stage === 0) continue;
-    if ((state.coinsEarned || 0) >= s.threshold && !state.stagesSeen[s.stage]) {
+    if (s.stage === 0 || s.stage <= STATE.meta.stage) continue;
+    if (state.coins >= s.threshold) {
       state.stagesSeen[s.stage] = true;
       STATE.meta.stage = s.stage;
       if (s.log) log(s.log);
@@ -39,8 +38,9 @@ function checkStages() {
   }
 }
 function checkMaturity() {
-  if (!state.mature && state.coinsEarned >= 1000) {
+  if (!state.mature && STATE.meta.stage >= 1) {
     state.mature = true;
+    STATE.meta.matureState = true;
     log('🌿 The farm has matured. Nature has taken notice...');
     showBanner('🌿 The farm has matured. Nature is watching.');
   }
@@ -50,8 +50,8 @@ function addCoins(amount) {
   state.coinsEarned = (state.coinsEarned || 0) + amount;
   STATE.meta.allTimeGold = (STATE.meta.allTimeGold || 0) + amount;
   checkMilestones();
-  checkMaturity();
   checkStages();
+  checkMaturity();
   updateCoins();
   if (typeof checkAchievements === 'function') checkAchievements();
 }

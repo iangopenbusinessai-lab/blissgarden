@@ -220,9 +220,9 @@ function applyOfflineProgress(elapsedMs) {
 
   setTimeout(() => {
     if (typeof window.log === 'function') {
-      const goldPart = coinsEarned > 0 ? ` Earned 🪙${coinsEarned.toLocaleString()} while away.` : '';
+      const goldPart = coinsEarned > 0 ? ` Earned 🪙${formatNumber(coinsEarned)} while away.` : '';
       window.log(`💤 Returned after ${logTime}.${goldPart}`);
-      milestonesHit.forEach(m => window.log(`⏱️ Reached 🪙${m.toLocaleString()} while you were away.`));
+      milestonesHit.forEach(m => window.log(`⏱️ Reached 🪙${formatNumber(m)} while you were away.`));
       stagesHit.forEach(s => { if (s.log) window.log(s.log); });
     }
     _showOfflineModal(elapsedMs, coinsEarned, cropsFinished, milestonesHit, stagesHit);
@@ -368,7 +368,7 @@ function _showOfflineModal(elapsedMs, coinsEarned, cropsFinished, milestonesHit,
   title.style.cssText = 'font-size:1.4rem;font-weight:700;color:#f0d080;margin-bottom:14px';
   panel.appendChild(title);
   panel.appendChild(row(`You were gone ${timeStr}`));
-  if (coinsEarned > 0)   panel.appendChild(row(`+🪙${coinsEarned.toLocaleString()} from sell box`, '#ffd700'));
+  if (coinsEarned > 0)   panel.appendChild(row(`+🪙${formatNumber(coinsEarned)} from sell box`, '#ffd700'));
   if (cropsFinished > 0) panel.appendChild(row(`${cropsFinished} crop${cropsFinished !== 1 ? 's' : ''} finished growing`, '#90ee90'));
   (stagesHit || []).forEach(s => panel.appendChild(row(`🌱 Stage ${s.stage}: ${s.name} reached`, '#90ee90')));
 
@@ -380,7 +380,7 @@ function _showOfflineModal(elapsedMs, coinsEarned, cropsFinished, milestonesHit,
       : 'margin:4px 0';
     milestonesHit.forEach(m => {
       const p = document.createElement('p');
-      p.textContent = `⏱️ Reached 🪙${m.toLocaleString()} while you were away`;
+      p.textContent = `⏱️ Reached 🪙${formatNumber(m)} while you were away`;
       p.style.cssText = 'margin:3px 0;color:#ffd700;font-size:13px';
       wrap.appendChild(p);
     });

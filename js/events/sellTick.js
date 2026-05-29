@@ -19,16 +19,16 @@ function tickSellBox() {
       const recipe = window.RECIPES && window.RECIPES.find(r => r.id === item.seed);
       coins = recipe ? recipe.sellValue : 0;
       state.stats.craftedSold = (state.stats.craftedSold || 0) + 1;
-      log(`${recipe ? recipe.emoji : '?'} ${recipe ? recipe.name : item.seed} sold for ${coinHTML()}${coins}`);
+      log(`${recipe ? recipe.emoji : '?'} ${recipe ? recipe.name : item.seed} sold for ${coinHTML()}${formatNumber(coins)}`);
     } else if (item.fungal) {
       coins = 0;
-      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${coins} (fungal)`);
+      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${formatNumber(coins)} (fungal)`);
     } else if (item.drowned) {
       coins = Math.round(SEEDS[item.seed].sell * (item.bonus || 1));
-      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${coins}`);
+      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${formatNumber(coins)}`);
     } else {
       coins = Math.round(SEEDS[item.seed].sell * STATE.modifiers.sellValue * (item.bonus || 1));
-      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${coins}`);
+      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${formatNumber(coins)}`);
     }
     totalCoins += coins; sold++;
   }
@@ -37,7 +37,7 @@ function tickSellBox() {
     const sb = document.getElementById('sell-box');
     const r  = sb.getBoundingClientRect();
     Particles.coinBurst(r.left + r.width / 2, r.top + r.height / 2);
-    showPop(`+${coinHTML()}${totalCoins}`, r.left + r.width / 2, r.top - 6);
+    showPop(`+${coinHTML()}${formatNumber(totalCoins)}`, r.left + r.width / 2, r.top - 6);
     addCoins(totalCoins);
     EventBus.emit('crop:sold', { coins: totalCoins });
   }

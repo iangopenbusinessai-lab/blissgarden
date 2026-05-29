@@ -9,10 +9,8 @@ function getPrestigePointsEarned() {
 }
 
 function canPrestige() {
-  if ((getCurrentStage().stage || 0) < 2)
-    return { can: false, reason: 'Reach Stage 2 + 500k coins' };
-  if ((state.coinsEarned || 0) < 500000)
-    return { can: false, reason: 'Reach Stage 2 + 500k coins' };
+  if ((state.coins || 0) < 1000000)
+    return { can: false, reason: 'Requires 1M coins in hand' };
   return { can: true, reason: '' };
 }
 

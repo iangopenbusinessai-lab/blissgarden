@@ -125,7 +125,7 @@ window.DebugPanel = (() => {
       const effSell  = Math.floor(s.sell * sv);
       const ratio    = (s.cost > 0) ? effSell / s.cost : null;
       const ratioStr = ratio === null ? '—' : ratio.toFixed(2) + 'x';
-      const buyCost  = s.cost !== undefined ? s.cost.toLocaleString() : '—';
+      const buyCost  = s.cost !== undefined ? formatNumber(s.cost) : '—';
       let effColor = '#b8c8d8';
       if (ratio !== null) {
         if (ratio >= 3) effColor = '#4d4';
@@ -137,8 +137,8 @@ window.DebugPanel = (() => {
       html += cell(s.icon || '', 'left', '#ccc', false);
       html += cell(s.name, 'left', '#b8c8d8', false);
       html += cell(buyCost, 'right', '#556', false);
-      html += cell(s.sell.toLocaleString(), 'right', '#556', false);
-      html += cell(effSell.toLocaleString(), 'right', effColor, false);
+      html += cell(formatNumber(s.sell), 'right', '#556', false);
+      html += cell(formatNumber(effSell), 'right', effColor, false);
       html += cell(ratioStr, 'right', effColor, true);
       html += '</tr>';
     });
@@ -185,7 +185,7 @@ window.DebugPanel = (() => {
     html += h('STAGE &amp; STATE');
     html += row('Stage',         `${s.stage} — ${s.name}`);
     html += row('Mature',        String(!!state.mature));
-    html += row('All-time gold', (state.coinsEarned || 0).toLocaleString());
+    html += row('All-time gold', formatNumber(state.coinsEarned || 0));
     html += h('EVENT TIMERS');
     TIMERS.forEach(({ id, label, stage: req }) => {
       const rem = TimerManager.getRemaining(id);
