@@ -217,9 +217,25 @@ window.UPGRADES = [
   { id:'stormShelter',   name:'Storm Shelter 🏠',           desc:'Reality storms cannot cause root rot.',                    cost:300000000, type:'mitigation', stage5:true, chain:null           },
   { id:'voidSeal',       name:'Void Seal 🔒',               desc:'Maximum of 1 void rift can exist at a time.',              cost:600000000, type:'mitigation', stage5:true, chain:'riftStabilizer'},
   { id:'quantumCage',    name:'Quantum Cage 🔒',            desc:'Cages immune to reality storm stripping.',                 cost:600000000, type:'mitigation', stage5:true, chain:'realityAnchor'},
+  // ── SPECIAL ──
+  { id:'workshop', name:'Workshop Area 🔨', desc:'Unlocks the crafting and artifact system', cost:5000, type:'special', chain:null },
 ];
 
 window.SEED_BAGS = window.BAGS;
+
+// ══════════════════════════════
+// ARTIFACTS
+// ══════════════════════════════
+window.ARTIFACTS = [
+  { id:'breadTotem',   name:'Bread Totem',   emoji:'🍞', desc:'+25% grow speed permanently',         ingredients:{ bread:30 },                                     effect:{ type:'growSpeed',          value:0.25 } },
+  { id:'stewCauldron', name:'Stew Cauldron',  emoji:'🍲', desc:'+20% sell value permanently',         ingredients:{ carrotStew:20 },                                 effect:{ type:'sellValue',          value:0.20 } },
+  { id:'sunObelisk',   name:'Sun Obelisk',    emoji:'🌻', desc:'Day bonus increased to +25%',         ingredients:{ sunflowerOil:25, bread:10 },                     effect:{ type:'dayBonus',           value:0.25 } },
+  { id:'moonShrine',   name:'Moon Shrine',    emoji:'🌙', desc:'Night crops grow 30% faster',         ingredients:{ sunflowerOil:15, carrotStew:15 },                effect:{ type:'nightCropSpeed',     value:0.30 } },
+  { id:'harvestIdol',  name:'Harvest Idol',   emoji:'🏺', desc:'Auto-sell interval -20% permanently', ingredients:{ bread:20, carrotStew:20 },                       effect:{ type:'sellInterval',       value:0.20 } },
+  { id:'goldSigil',    name:'Gold Sigil',     emoji:'✴️', desc:'+35% sell value permanently',         ingredients:{ bread:50, sunflowerOil:40 },                     effect:{ type:'sellValue',          value:0.35 } },
+  { id:'voidRelic',    name:'Void Relic',     emoji:'🌑', desc:'Night penalty removed entirely',      ingredients:{ carrotStew:50, sunflowerOil:30 },                effect:{ type:'removeNightPenalty', value:1 } },
+  { id:'cosmicAnvil',  name:'Cosmic Anvil',   emoji:'⚒️', desc:'+50% grow speed permanently',         ingredients:{ bread:100, carrotStew:80, sunflowerOil:60 },    effect:{ type:'growSpeed',          value:0.50 } },
+];
 
 // ══════════════════════════════
 // RECIPES
@@ -259,6 +275,8 @@ window.ACHIEVEMENTS = [
   { id:'craft10',         name:'Regular Chef',         desc:'Craft 10 items',                                 category:'crafting',    stars:2 },
   { id:'craft100',        name:'Master Crafter',       desc:'Craft 100 items',                                category:'crafting',    stars:3 },
   { id:'craftAll',        name:'Full Menu',            desc:'Craft every available recipe at least once',     category:'crafting',    stars:3 },
+  { id:'firstArtifact',  name:'Relic Hunter',          desc:'Craft your first artifact',                      category:'crafting',    stars:3 },
+  { id:'allArtifacts',   name:'The Collector',         desc:'Craft every artifact',                           category:'crafting',    stars:5 },
   // PRESTIGE
   { id:'firstPrestige',   name:'Reborn',               desc:'Prestige for the first time',                    category:'prestige',    stars:3 },
   { id:'prestige5',       name:'Cycle of Life',        desc:'Prestige 5 times',                               category:'prestige',    stars:4 },

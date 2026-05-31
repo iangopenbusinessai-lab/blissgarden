@@ -2,6 +2,14 @@ function setupEvents() {
   EventBus.on('crop:harvested', () => {});
   EventBus.on('crop:sold',      () => {});
   EventBus.on('upgrade:purchased', () => { RenderPanel.renderUpgrades(); sfx.upgrade(); });
+  EventBus.on('artifact:crafted', ({ artifactId }) => {
+    const art = (window.ARTIFACTS || []).find(a => a.id === artifactId);
+    const name = art ? art.name : artifactId;
+    DIRTY.panel = true;
+    log(`🏺 ${name} artifact activated!`);
+    showBanner(`🏺 ${name} is now active.`);
+    if (typeof checkAchievements === 'function') checkAchievements();
+  });
   EventBus.on('stage:advanced', ({ stage, name }) => {
     showBanner(`Stage ${stage}: ${name}`); sfx.stageAdvance(); RenderHUD.renderStage();
     RenderPanel.renderPrestige();
@@ -104,6 +112,15 @@ function setupUI() {
       e.stopPropagation();
       if (!confirmed) { confirmed = true; resetBtn.textContent = 'Are you sure?'; }
       else { localStorage.clear(); location.reload(); }
+    });
+  }());
+
+  (function () {
+    const artifactsBtn = document.getElementById('artifacts-btn');
+    artifactsBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (RenderArtifacts.isOpen()) RenderArtifacts.close();
+      else RenderArtifacts.open();
     });
   }());
 

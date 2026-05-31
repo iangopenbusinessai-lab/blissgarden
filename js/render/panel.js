@@ -64,7 +64,7 @@ window.RenderPanel = (() => {
 
   // ── PRESTIGE ──────────────────────────────────────────────────────────────
   let _prestigeEl = null, _prestigeConfirming = false;
-  let _pCountEl = null, _pPointsEl = null, _pBtn = null, _pBtnWrap = null, _pConfirmWrap = null;
+  let _pCountEl = null, _pPointsEl = null, _pBtn = null, _pBtnWrap = null, _pConfirmWrap = null, _pBreakdownEl = null;
   const _perkCards = new Map();
 
   function buildPrestige() {
@@ -76,6 +76,9 @@ window.RenderPanel = (() => {
     _pPointsEl = mk('span', ''); _pPointsEl.style.cssText = 'font-size:11px;color:#f0d080;font-weight:700';
     statusRow.appendChild(_pCountEl); statusRow.appendChild(_pPointsEl);
     _prestigeEl.appendChild(statusRow);
+    _pBreakdownEl = mk('div', '');
+    _pBreakdownEl.style.cssText = 'padding:6px 12px 8px;font-size:11px;color:rgba(255,255,255,.7);line-height:1.65;border-bottom:1px solid rgba(255,255,255,.1)';
+    _prestigeEl.appendChild(_pBreakdownEl);
     _pBtnWrap = mk('div', ''); _pBtnWrap.style.cssText = 'padding:2px 10px 6px;';
     _pBtn = mk('button', 'ug-btn'); _pBtn.style.cssText = 'width:100%;padding:7px 0;font-size:12px;';
     _pBtn.addEventListener('click', e => { e.stopPropagation(); if (!canPrestige().can) return; _prestigeConfirming = true; renderPrestige(); });
@@ -110,6 +113,17 @@ window.RenderPanel = (() => {
     const check = canPrestige(), earned = getPrestigePointsEarned();
     _pCountEl.textContent  = count > 0 ? `Prestige ${count}` : 'Not yet prestiged';
     _pPointsEl.textContent = `✨ ${points} pt${points !== 1 ? 's' : ''}`;
+    if (_pBreakdownEl) {
+      const coinPoints  = Math.floor(Math.log10(Math.max(state.coins, 10))) - 3;
+      const upgCnt      = Object.keys(state.upgrades).filter(k => state.upgrades[k]).length;
+      const upgScore    = Math.floor(upgCnt / 5);
+      const total       = Math.max(1, coinPoints + upgScore);
+      _pBreakdownEl.innerHTML =
+        `<div>Coins: <span style="color:#f0d080">+${coinPoints}</span> pts</div>` +
+        `<div>Upgrades: <span style="color:#f0d080">+${upgScore}</span> pts (${upgCnt} purchased)</div>` +
+        `<div style="font-weight:700;color:#8de88d">Total: ${total} prestige pt${total !== 1 ? 's' : ''}</div>` +
+        `<div style="color:rgba(255,255,255,.4);font-size:10px;margin-top:3px">Requires Stage 3 + 1M coins in hand</div>`;
+    }
     if (_prestigeConfirming) {
       _pBtnWrap.style.display = 'none'; _pConfirmWrap.style.display = 'flex';
     } else {

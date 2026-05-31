@@ -28,7 +28,7 @@ function checkMilestones() {
 function checkStages() {
   for (const s of STAGES) {
     if (s.stage === 0 || s.stage <= STATE.meta.stage) continue;
-    if (state.coins >= s.threshold) {
+    if (STATE.meta.allTimeGold >= s.threshold) {
       state.stagesSeen[s.stage] = true;
       STATE.meta.stage = s.stage;
       if (s.log) log(s.log);

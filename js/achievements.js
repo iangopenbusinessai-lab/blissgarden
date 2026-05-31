@@ -52,6 +52,8 @@ window.checkAchievements = function checkAchievements() {
     craft10:        () => (s.stats.totalCrafted     || 0) >= 10,
     craft100:       () => (s.stats.totalCrafted     || 0) >= 100,
     craftAll:       () => (window.RECIPES || []).every(r => s.stats.recipesEverCrafted && s.stats.recipesEverCrafted[r.id]),
+    firstArtifact:  () => Object.keys(STATE.artifacts || {}).some(k => STATE.artifacts[k]),
+    allArtifacts:   () => (window.ARTIFACTS || []).length > 0 && (window.ARTIFACTS || []).every(a => STATE.artifacts[a.id]),
     // PRESTIGE
     firstPrestige:  () => (s.stats.prestigeCount    || 0) >= 1,
     prestige5:      () => (s.stats.prestigeCount    || 0) >= 5,

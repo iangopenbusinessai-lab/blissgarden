@@ -3,7 +3,7 @@ const KEY     = 'blissfarm10';
 const KEY_OLD = 'blissfarm9';
 
 window.save = function save() {
-  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode, dayOffset: STATE.meta.dayOffset, prestige: STATE.prestige, reputation: STATE.meta.reputation }));
+  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode, dayOffset: STATE.meta.dayOffset, prestige: STATE.prestige, reputation: STATE.meta.reputation, artifacts: STATE.artifacts }));
 };
 
 window.load = function load() {
@@ -110,6 +110,7 @@ window.load = function load() {
       totalGoldEarned: _dp.totalGoldEarned ?? 0,
     };
     state.stats.prestigeCount = STATE.prestige.count;
+    STATE.artifacts = d.artifacts ?? {};
   } catch (_) {}
 };
 

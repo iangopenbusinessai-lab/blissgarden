@@ -21,7 +21,14 @@ window.DebugPanel = (() => {
       if (!_coinEditActive) return;
       _coinEditActive = false;
       const val = parseInt(input.value);
-      if (!isNaN(val) && val >= 0) { state.coins = val; STATE.meta.gold = val; }
+      if (!isNaN(val) && val >= 0) {
+        state.coins = val; STATE.meta.gold = val;
+        if (val > (STATE.meta.allTimeGold || 0)) {
+          STATE.meta.allTimeGold = val;
+          state.coinsEarned = val;
+        }
+        checkStages(); checkMaturity();
+      }
       input.remove();
       display.style.display = '';
       RenderHUD.renderCoin();

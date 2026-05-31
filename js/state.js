@@ -52,11 +52,15 @@ window.STATE = {
     totalGoldEarned: 0,
   },
   milestones: {},
+  artifacts: {},
   session: {
     dragItem: null,
     debugCounts: { crow:0, hawk:0, weed:0, mole:0, rootRot:0, locust:0, blight:0, fungal:0 },
     crankMultiplier: 1,
     timeOfDay: 'day',
+    artifactDayBonus:   0,
+    artifactNightSpeed: 0,
+    artifactNoNightPen: false,
   },
 };
 

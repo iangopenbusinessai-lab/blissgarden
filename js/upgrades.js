@@ -170,6 +170,7 @@ function recalculateModifiers() {
   };
 
   TimerManager.restart('sell');
+  if (typeof applyArtifacts === 'function') applyArtifacts();
 }
 
 function applyUpgrade(id) {

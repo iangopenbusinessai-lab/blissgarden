@@ -253,6 +253,16 @@
 @keyframes achToastIn  { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes achToastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(60px); } }
 
+/* ── ARTIFACTS MODAL ── */
+#artifacts-backdrop { position: fixed; inset: 0; z-index: 950; background: rgba(0,0,0,.55); display: none; }
+#artifacts-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 951; background: #6B4432; border: 2px solid #3d2010; border-radius: 10px; width: 520px; max-width: 94vw; max-height: 85vh; display: none; flex-direction: column; color: #fff; overflow: hidden; }
+#artifacts-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 13px; font-size: 15px; font-weight: 700; letter-spacing: .4px; background: rgba(0,0,0,.18); border-bottom: 1px solid rgba(0,0,0,.3); flex-shrink: 0; }
+#artifacts-close-btn { background: none; border: none; color: #bbb; cursor: pointer; font-size: 16px; padding: 0; line-height: 1; }
+#artifacts-close-btn:hover { color: #fff; }
+#artifacts-modal-body { overflow-y: auto; flex: 1; }
+#artifacts-modal-body::-webkit-scrollbar { width: 5px; }
+#artifacts-modal-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,.3); border-radius: 3px; }
+
 /* ── CRAFTING MODAL ── */
 #crafting-backdrop { position: fixed; inset: 0; z-index: 950; background: rgba(0,0,0,.55); display: none; }
 #crafting-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 951; background: #6B4432; border: 2px solid #3d2010; border-radius: 10px; width: 420px; max-width: 92vw; max-height: 82vh; display: none; flex-direction: column; color: #fff; overflow: hidden; }

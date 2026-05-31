@@ -3,14 +3,17 @@
 // ══════════════════════════════════════════════════════════════════════════
 
 function getPrestigePointsEarned() {
-  const gold = state.coinsEarned || 0;
-  if (gold < 1000) return 0;
-  return Math.max(1, Math.floor(Math.log10(gold)) - 3);
+  const coinPoints   = Math.floor(Math.log10(Math.max(state.coins, 10))) - 3;
+  const upgradeCount = Object.keys(state.upgrades).filter(k => state.upgrades[k]).length;
+  const upgradeScore = Math.floor(upgradeCount / 5);
+  return Math.max(1, coinPoints + upgradeScore);
 }
 
 function canPrestige() {
+  if (STATE.meta.stage < 3)
+    return { can: false, reason: 'Requires Stage 3 + 1M coins in hand' };
   if ((state.coins || 0) < 1000000)
-    return { can: false, reason: 'Requires 1,000,000 coins in hand' };
+    return { can: false, reason: 'Requires Stage 3 + 1M coins in hand' };
   return { can: true, reason: '' };
 }
 

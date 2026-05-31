@@ -49,17 +49,19 @@ window.RenderEnv = (() => {
 
   // Returns the effective speed multiplier for a seed at the current time of day.
   // day/night: global ±15%. Day/night-themed seeds get an additional ±20% on top.
+  // Artifact effects (artifactDayBonus, artifactNightSpeed, artifactNoNightPen) layer on top.
   function getDayNightMult(seedId) {
-    const tod = STATE.session.timeOfDay || 'day';
+    const tod    = STATE.session.timeOfDay || 'day';
+    const sess   = STATE.session;
     let global = 1.0;
-    if (tod === 'day')   global = 1.15;
-    if (tod === 'night') global = 0.85;
+    if (tod === 'day')   global = sess.artifactDayBonus   ? (1 + sess.artifactDayBonus) : 1.15;
+    if (tod === 'night') global = sess.artifactNoNightPen ? 1.0                         : 0.85;
     let crop = 1.0;
     if (DAY_SEEDS.has(seedId)) {
       if (tod === 'day')   crop = 1.20;
       if (tod === 'night') crop = 0.80;
     } else if (NIGHT_SEEDS.has(seedId)) {
-      if (tod === 'night') crop = 1.20;
+      if (tod === 'night') crop = 1.20 * (1 + (sess.artifactNightSpeed || 0));
       if (tod === 'day')   crop = 0.80;
     }
     return global * crop;
