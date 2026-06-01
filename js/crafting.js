@@ -39,6 +39,7 @@ window.craftItem = function craftItem(recipeId) {
   const craftMs = Math.ceil((recipe.craftTime * 1000) / (STATE.modifiers.craftSpeedMult || 1));
   if (!state.craftQueue) state.craftQueue = [];
   state.craftQueue.push({ recipeId, startedAt: now, finishAt: now + craftMs });
+  EventBus.emit('craft:started', { recipeId });
 
   DIRTY.panel = true;
   if (typeof RenderCrafting !== 'undefined' && RenderCrafting.isOpen()) RenderCrafting.renderCraftingPanel();

@@ -30,6 +30,7 @@ window.purchaseBlueprint = function purchaseBlueprint(blueprintId) {
   if (state.coins < bp.cost) return;
   state.coins -= bp.cost;
   STATE.blueprints[blueprintId] = true;
+  EventBus.emit('blueprint:unlocked', { blueprintId });
   save();
   DIRTY.panel = true;
 };

@@ -75,6 +75,7 @@ window.RenderArtifacts = (() => {
         `background:${crafted ? 'rgba(180,140,30,.2)' : bpUnlocked ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.15)'};` +
         `border:2px solid ${crafted ? '#c8a820' : bpUnlocked ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.06)'};` +
         `border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:6px`;
+      if (typeof Tooltip !== 'undefined') card.dataset.tooltip = Tooltip.artifactTip(art);
 
       const top = mk('div'); top.style.cssText = 'display:flex;align-items:center;gap:8px';
       const emojiEl = mk('span');

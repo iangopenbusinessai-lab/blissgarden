@@ -120,7 +120,7 @@ function hawkAttack() {
   });
   if (stolen > 0) {
     STATE.session.debugCounts.hawk++;
-    sfx.attack();
+    EventBus.emit('event:hawk');
     state.stats.crowsSurvived = (state.stats.crowsSurvived || 0) + 1;
     if (typeof checkAchievements === 'function') checkAchievements();
     renderLoose(); animateHawk(); save();

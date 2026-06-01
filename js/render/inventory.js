@@ -164,7 +164,7 @@ window.RenderInventory = (() => {
       });
       slot.appendChild(icon); slot.appendChild(sellBtn);
       _invEl.appendChild(slot);
-      _seedSlots.set(key, { slot, badge });
+      _seedSlots.set(key, { slot, badge, icon });
     });
 
     // ── Crop slots ────────────────────────────────────────────────────────
@@ -182,7 +182,7 @@ window.RenderInventory = (() => {
         startDrag(key, 'inventory'); moveGhost(e.clientX, e.clientY);
       });
       _invEl.appendChild(el);
-      _cropSlots.set(key, { el, badge });
+      _cropSlots.set(key, { el, badge, key });
     });
 
     // ── Empty placeholder ─────────────────────────────────────────────────
@@ -236,16 +236,28 @@ window.RenderInventory = (() => {
     });
 
     const seedInv = state.seedInventory || {};
-    _seedSlots.forEach(({ slot, badge }, key) => {
+    _seedSlots.forEach(({ slot, badge, icon }, key) => {
       const qty = seedInv[key] || 0;
       slot.style.display = qty > 0 ? '' : 'none';
-      if (qty > 0) { count++; badge.textContent = qty; }
+      if (qty > 0) {
+        count++;
+        badge.textContent = qty;
+        if (icon && typeof Tooltip !== 'undefined') icon.dataset.tooltip = Tooltip.invSeedTip(key, qty);
+      }
     });
 
     _cropSlots.forEach(({ el, badge }, key) => {
       const qty = state.inventory[key] || 0;
       el.style.display = qty > 0 ? '' : 'none';
-      if (qty > 0) { count++; badge.textContent = qty; }
+      if (qty > 0) {
+        count++;
+        badge.textContent = qty;
+        if (typeof Tooltip !== 'undefined') {
+          const seed = SEEDS[key];
+          const sellVal = seed ? Math.round(seed.sell * (STATE.modifiers.sellValue || 1)) : 0;
+          el.dataset.tooltip = `<b>${seed ? seed.name : key}</b><br>Quantity: ${qty}<br>Sell: ${seed ? formatNumber(sellVal) : '?'}`;
+        }
+      }
     });
 
     _emptyEl.style.display = count === 0 ? '' : 'none';

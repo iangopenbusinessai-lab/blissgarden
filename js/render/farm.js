@@ -15,6 +15,7 @@ function applyWater(idx) {
   state.tilesWatered[idx] = true;
   RenderFarm.renderTile(idx); RenderPanel.renderInventory(); RenderPanel.renderItems();
   log(`💧 ${SEEDS[td.seed].name} watered (+25% value, +25% speed)`);
+  EventBus.emit('crop:watered');
   save();
 }
 
@@ -222,6 +223,7 @@ function onTileDown(e) {
     if (state.thornedWeeds[idx].clicks >= THORNED_WEED_CLICKS) {
       delete state.thornedWeeds[idx];
       log('✅ Thorned weed cleared!');
+      EventBus.emit('weed:cleared');
       RenderFarm.renderTile(idx);
     } else {
       e.currentTarget.classList.add('tile-weed-hit');
@@ -236,6 +238,7 @@ function onTileDown(e) {
     if (state.weeds[idx].clicks >= WEED_CLICKS) {
       delete state.weeds[idx];
       log('✅ Weed cleared!');
+      EventBus.emit('weed:cleared');
       RenderFarm.renderTile(idx);
     } else {
       e.currentTarget.classList.add('tile-weed-hit');
@@ -537,6 +540,12 @@ window.RenderFarm = (() => {
     if (isFungal) { const fi = mk('div','t-fungal-icon'); fi.textContent='🍄'; el.appendChild(fi); }
     if (state.hiredHandAssignments?.[idx]) {
       const hh = mk('div','t-diseased-icon'); hh.textContent='👨‍🌾'; hh.title='Hired hand assigned'; el.appendChild(hh);
+    }
+
+    if (td && typeof Tooltip !== 'undefined') {
+      el.dataset.tooltip = Tooltip.tileTip(idx);
+    } else {
+      delete el.dataset.tooltip;
     }
   }
 

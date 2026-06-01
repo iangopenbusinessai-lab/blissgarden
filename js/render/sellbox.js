@@ -37,6 +37,8 @@ window.RenderSellbox = (() => {
     });
     updateSellTimer();
     updateBoxStyle();
+    const sb = document.getElementById('sell-box');
+    if (sb && typeof Tooltip !== 'undefined') sb.dataset.tooltip = Tooltip.sellboxTip();
   }
 
   function updateSellTimer() {

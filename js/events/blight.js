@@ -102,6 +102,7 @@ function rootRotInfect() {
   if (!state.rotTiles) state.rotTiles = {};
   state.rotTiles[idx] = { infectedAt: Date.now() };
   log(`🍂 Root rot infected your ${SEEDS[td.seed].name}!`);
+  EventBus.emit('event:rootRot');
   RenderFarm.renderTile(idx); save();
 }
 
@@ -182,6 +183,7 @@ function blightAttack() {
   state.stats.blightsSurvived = (state.stats.blightsSurvived || 0) + 1;
   if (typeof checkAchievements === 'function') checkAchievements();
   log('🌪️ A blight storm stripped your soil!');
+  EventBus.emit('event:blight');
   RenderFarm.renderGrid();
   animateBlight();
 }

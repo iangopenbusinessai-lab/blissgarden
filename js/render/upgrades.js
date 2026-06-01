@@ -38,6 +38,7 @@ window.RenderUpgrades = (() => {
         if (typeof checkAchievements === 'function') checkAchievements();
         save();
       });
+      if (typeof Tooltip !== 'undefined') card.dataset.tooltip = Tooltip.upgradeTip(u);
       _upgradesEl.appendChild(card);
       _upgradeCards.set(u.id, { card, btn, u });
     });

@@ -174,6 +174,7 @@ function acidRainAttack() {
     if (td.burnedSeconds !== undefined) td.burnedSeconds = Math.max(0, td.burnedSeconds * setbackFactor);
   }
   log('☠️ Acid rain stripped your soil and set back your crops!');
+  EventBus.emit('event:acidRain');
   RenderFarm.renderGrid();
   animateAcidRain();
   save();

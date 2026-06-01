@@ -94,7 +94,10 @@ window.checkAchievements = function checkAchievements() {
 EventBus.on('achievement:unlocked', ({ id }) => {
   (window.BLUEPRINTS || [])
     .filter(b => b.source === 'achievement' && b.achievementId === id)
-    .forEach(b => { STATE.blueprints[b.id] = true; });
+    .forEach(b => {
+      STATE.blueprints[b.id] = true;
+      EventBus.emit('blueprint:unlocked', { blueprintId: b.id });
+    });
 });
 
 // ══════════════════════════════

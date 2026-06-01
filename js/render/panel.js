@@ -102,7 +102,7 @@ window.RenderPanel = (() => {
       botDiv.appendChild(stackEl); botDiv.appendChild(btn);
       card.appendChild(nameDiv); card.appendChild(descDiv); card.appendChild(effectEl); card.appendChild(botDiv);
       _prestigeEl.appendChild(card);
-      _perkCards.set(perk.id, { stackEl, btn, effectEl });
+      _perkCards.set(perk.id, { stackEl, btn, effectEl, card });
     });
   }
 
@@ -131,8 +131,9 @@ window.RenderPanel = (() => {
       _pBtn.disabled = !check.can; _pBtn.style.background = check.can ? '#5A8A3C' : '';
       _pBtn.textContent = check.can ? `✨ Prestige (+${earned} pt${earned !== 1 ? 's' : ''})` : check.reason;
     }
-    _perkCards.forEach(({ stackEl, btn, effectEl }, perkId) => {
+    _perkCards.forEach(({ stackEl, btn, effectEl, card }, perkId) => {
       const perk = (window.PRESTIGE_PERKS || []).find(p => p.id === perkId); if (!perk) return;
+      if (card && typeof Tooltip !== 'undefined') card.dataset.tooltip = Tooltip.perkTip(perk);
       const stacks = (pr.perks && pr.perks[perkId]) || 0, maxed = stacks >= perk.maxStack;
       stackEl.innerHTML = `<span style="color:#f0d080">✨${perk.cost}</span> · ${stacks}/${perk.maxStack}`;
       btn.disabled = maxed || points < perk.cost; btn.textContent = maxed ? 'Max' : 'Buy';

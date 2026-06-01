@@ -373,6 +373,7 @@ window.RenderCrafting = (() => {
         'display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;' +
         'background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);cursor:grab';
       card.title = `Drag ${recipe.name} to sell box`;
+      if (typeof Tooltip !== 'undefined') card.dataset.tooltip = Tooltip.invCraftedTip(recipe.id, qty);
 
       const emEl = mk('span'); emEl.style.cssText = 'font-size:1.5rem;line-height:1;flex-shrink:0;pointer-events:none';
       emEl.textContent = recipe.emoji;

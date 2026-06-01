@@ -44,22 +44,24 @@ window.RenderSeeds = (() => {
         state.coins -= seed.cost;
         if (!state.seedInventory) state.seedInventory = {};
         state.seedInventory[key] = (state.seedInventory[key] || 0) + 1;
+        EventBus.emit('seed:purchased', { seed: key });
         updateCoins(); RenderInventory.renderInventory(); save();
         log(`🌱 Bought ${seed.name} seed`);
       });
       row.appendChild(iconSpan); row.appendChild(infoDiv); row.appendChild(btn);
       _seedsEl.appendChild(row);
-      _seedRows.set(key, { btn, metaSpan });
+      _seedRows.set(key, { btn, metaSpan, row });
     });
   }
 
   function renderBasicSeeds() {
     if (!_seedsEl) buildSeeds();
     const mult = STATE.modifiers.growSpeed;
-    _seedRows.forEach(({ btn, metaSpan }, key) => {
+    _seedRows.forEach(({ btn, metaSpan, row }, key) => {
       const seed = SEEDS[key];
       btn.disabled = state.coins < seed.cost;
       metaSpan.innerHTML = `${coinHTML()}${formatNumber(seed.cost)} - ${fmt(seed.grow * mult)}`;
+      if (row && typeof Tooltip !== 'undefined') row.dataset.tooltip = Tooltip.seedShopTip(key);
     });
   }
 
@@ -84,11 +86,13 @@ window.RenderSeeds = (() => {
         state.bagInventory[bag.id] = (state.bagInventory[bag.id] || 0) + 1;
         state.stats.bagsBought = (state.stats.bagsBought || 0) + 1;
         if (typeof checkAchievements === 'function') checkAchievements();
+        EventBus.emit('bag:purchased', { bag: bag.id });
         updateCoins(); RenderInventory.renderInventory(); save();
         log(`🎒 Bought ${bag.name}`);
       });
+      if (typeof Tooltip !== 'undefined') card.dataset.tooltip = Tooltip.bagTip(bag);
       _bagsEl.appendChild(card);
-      _bagRows.set(bag.id, { btn, bag });
+      _bagRows.set(bag.id, { btn, bag, card });
     });
   }
 

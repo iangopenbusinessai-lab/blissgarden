@@ -44,6 +44,7 @@ function voidRiftOpen() {
   if (!state.voidRifts) state.voidRifts = {};
   state.voidRifts[idx] = { openedAt: Date.now(), clicks: 0 };
   log('🌀 A void rift opened!');
+  EventBus.emit('event:voidRift');
   RenderFarm.renderTile(idx); save();
 }
 
@@ -114,7 +115,7 @@ function cosmicCrowAttack() {
     }
   });
   if (stolen > 0) {
-    sfx.attack();
+    EventBus.emit('event:cosmicCrow');
     state.stats.crowsSurvived = (state.stats.crowsSurvived || 0) + 1;
     if (typeof checkAchievements === 'function') checkAchievements();
     renderLoose(); animateCosmicCrow(); save();
@@ -174,6 +175,7 @@ function realityStormAttack() {
     }
   }
   log('🌌 A reality storm tore through the farm!');
+  EventBus.emit('event:realityStorm');
   RenderFarm.renderGrid();
   animateRealityStorm();
   save();

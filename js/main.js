@@ -8,6 +8,7 @@ function setupEvents() {
     DIRTY.panel = true;
     log(`🏺 ${name} artifact activated!`);
     showBanner(`🏺 ${name} is now active.`);
+    Audio.playArtifactCraft();
     if (typeof checkAchievements === 'function') checkAchievements();
   });
   EventBus.on('stage:advanced', ({ stage, name }) => {
@@ -20,7 +21,30 @@ function setupEvents() {
   EventBus.on('achievement:unlocked', ({ id }) => {
     if (typeof checkAchievementUnlocks === 'function') checkAchievementUnlocks(id);
   });
+  // ── Audio event wiring ────────────────────────────────────────────────────
+  EventBus.on('crop:watered',      () => Audio.playWater());
+  EventBus.on('tile:fertilized',   () => Audio.playFertilize());
+  EventBus.on('cage:placed',       () => Audio.playCagePlace());
+  EventBus.on('weed:cleared',      () => Audio.playWeedClear());
+  EventBus.on('event:hawk',        () => Audio.playHawkAttack());
+  EventBus.on('event:mole',        () => Audio.playMoleAttack());
+  EventBus.on('event:rootRot',     () => Audio.playRootRot());
+  EventBus.on('event:blight',      () => Audio.playBlightStorm());
+  EventBus.on('event:fungal',      () => Audio.playFungalBloom());
+  EventBus.on('event:acidRain',    () => Audio.playAcidRain());
+  EventBus.on('event:voidRift',    () => Audio.playVoidRift());
+  EventBus.on('event:cosmicCrow',  () => Audio.playCosmicCrow());
+  EventBus.on('event:realityStorm',() => Audio.playRealityStorm());
+  EventBus.on('craft:started',     () => Audio.playCraftStart());
+  EventBus.on('item:crafted',      () => Audio.playCraftFinish());
+  EventBus.on('blueprint:unlocked',() => Audio.playBlueprintUnlock());
+  EventBus.on('seed:purchased',    () => Audio.playSeedPurchase());
+  EventBus.on('bag:purchased',     () => Audio.playBagPurchase());
+  EventBus.on('modal:open',        () => Audio.playModalOpen());
+  EventBus.on('modal:close',       () => Audio.playModalClose());
+
   EventBus.on('prestige:reset', () => {
+    Audio.playPrestige();
     if (typeof checkPrestigeUnlocks === 'function') checkPrestigeUnlocks();
     DIRTY.grid    = true;
     DIRTY.hud     = true;
@@ -106,12 +130,14 @@ function setupUI() {
       if (farmNameInput) farmNameInput.value = STATE.meta.farmName || 'Bliss Farm';
       backdrop.style.display = 'block';
       panel.style.display = 'block';
+      EventBus.emit('modal:open');
     }
     function closeSettings() {
       confirmed = false;
       resetBtn.textContent = 'Reset Data';
       backdrop.style.display = 'none';
       panel.style.display = 'none';
+      EventBus.emit('modal:close');
     }
 
     hideBoughtToggle.addEventListener('change', () => {
@@ -138,8 +164,8 @@ function setupUI() {
     const artifactsBtn = document.getElementById('artifacts-btn');
     artifactsBtn.addEventListener('click', e => {
       e.stopPropagation();
-      if (RenderArtifacts.isOpen()) RenderArtifacts.close();
-      else RenderArtifacts.open();
+      if (RenderArtifacts.isOpen()) { RenderArtifacts.close(); EventBus.emit('modal:close'); }
+      else { RenderArtifacts.open(); EventBus.emit('modal:open'); }
     });
   }());
 
@@ -153,10 +179,12 @@ function setupUI() {
       backdrop.style.display = 'block';
       modal.style.display = 'flex';
       if (typeof RenderCrafting !== 'undefined') RenderCrafting.renderCraftingPanel();
+      EventBus.emit('modal:open');
     }
     function closeCrafting() {
       backdrop.style.display = 'none';
       modal.style.display = 'none';
+      EventBus.emit('modal:close');
     }
 
     craftingBtn.addEventListener('click', e => { e.stopPropagation(); openCrafting(); });
@@ -177,10 +205,12 @@ function setupUI() {
       if (typeof RenderPanel !== 'undefined' && RenderPanel.renderPrestige) {
         RenderPanel.renderPrestige();
       }
+      EventBus.emit('modal:open');
     }
     function closePrestige() {
       backdrop.style.display = 'none';
       modal.style.display = 'none';
+      EventBus.emit('modal:close');
     }
 
     prestigeBtn.addEventListener('click', e => { e.stopPropagation(); openPrestige(); });
@@ -201,10 +231,12 @@ function setupUI() {
       if (typeof RenderPanel !== 'undefined' && RenderPanel.renderAchievements) {
         RenderPanel.renderAchievements();
       }
+      EventBus.emit('modal:open');
     }
     function closeAch() {
       backdrop.style.display = 'none';
       modal.style.display = 'none';
+      EventBus.emit('modal:close');
     }
 
     achBtn.addEventListener('click',   e => { e.stopPropagation(); openAch(); });
@@ -310,6 +342,7 @@ function init() {
   setupEvents();
   setupUI();
   setupMobilePanel();
+  if (typeof Tooltip !== 'undefined') Tooltip.init();
   renderInitial();
   applyFarmScale();
   RenderFarm.probeSprites();

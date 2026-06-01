@@ -57,6 +57,7 @@ function fungalBloom() {
   const idx = cands[Math.floor(Math.random() * cands.length)];
   state.fungalTiles[idx] = { spawnedAt: Date.now() };
   log('🍄 Fungal bloom appeared!');
+  EventBus.emit('event:fungal');
   RenderFarm.renderTile(idx); save();
 }
 

@@ -316,6 +316,7 @@ DragSystem.register('inventory-item', 'tile', (item, tileEl) => {
   } else if (it === 'cage' && !state.cages.includes(i) && !blocked) {
     state.cages.push(i);
     log('🔒 Cage placed on tile');
+    EventBus.emit('cage:placed');
     RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save();
 
   } else if (it === 'fertilizer'
@@ -338,6 +339,7 @@ DragSystem.register('inventory-item', 'tile', (item, tileEl) => {
       }
     }
     log('🌿 Plot fertilized — crops grow 25% faster here');
+    EventBus.emit('tile:fertilized');
     RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save();
 
   } else if (it === 'uncommonFert'
@@ -359,6 +361,7 @@ DragSystem.register('inventory-item', 'tile', (item, tileEl) => {
       }
     }
     log('⚗️ Plot uncommon fertilized — crops grow 40% faster here');
+    EventBus.emit('tile:fertilized');
     RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save();
 
   } else {
