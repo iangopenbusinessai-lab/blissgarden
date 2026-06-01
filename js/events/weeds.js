@@ -2,7 +2,8 @@
 function weedTick() {
   if (!state.mature) return;
   const chance = (getCurrentStage().stage >= 3 ? 0.18 : 0.12)
-    * (state.upgrades.ironGreenhouse ? 0.80 : 1);
+    * (state.upgrades.ironGreenhouse ? 0.80 : 1)
+    * (STATE.modifiers.seasonWeedMult || 1);
   if (Math.random() < chance) weedSpawn();
 }
 

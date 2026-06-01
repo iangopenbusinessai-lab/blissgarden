@@ -39,9 +39,9 @@ window.BASIC_SEEDS = ['potato','carrot','wheat','sunflower'];
 
 window.SEED_SELL_PRICES = {
   potato:2, carrot:7, wheat:20, sunflower:60,
-  pumpkin:150, chard:150, moonbloom:150,
-  starfruit:2500, thornvine:2500, glowshroom:2500,
-  voidbloom:35000, aetherfern:35000, solarspike:35000,
+  pumpkin:133, chard:133, moonbloom:133,
+  starfruit:1333, thornvine:1333, glowshroom:1333,
+  voidbloom:13333, aetherfern:13333, solarspike:13333,
   netherfruit:83333, duskpetal:83333, ashbloom:83333, voidcoral:83333, eclipseLotus:83333,
   stardustFern:833333, celestialPod:833333, auricBloom:833333, prismaticRoot:833333, genesisSeed:833333,
 };
@@ -50,13 +50,13 @@ window.SEED_SELL_PRICES = {
 // SEED BAGS
 // ══════════════════════════════
 window.BAGS = [
-  { id:'fieldBag',     name:'Field Bag',     icon:'🎒', cost:1000,    seedsPerOpen:3,
+  { id:'fieldBag',     name:'Field Bag',     icon:'🎒', cost:800,     seedsPerOpen:3,
     seeds:['pumpkin','chard','moonbloom','starfruit','thornvine'],
     odds:[0.65,0.15,0.10,0.05,0.05] },
-  { id:'forestBag',    name:'Forest Bag',    icon:'🌲', cost:50000,   seedsPerOpen:3,
+  { id:'forestBag',    name:'Forest Bag',    icon:'🌲', cost:8000,    seedsPerOpen:3,
     seeds:['starfruit','thornvine','glowshroom','voidbloom','aetherfern'],
     odds:[0.60,0.18,0.12,0.06,0.04] },
-  { id:'celestialBag', name:'Celestial Bag', icon:'✨', cost:800000,  seedsPerOpen:3,
+  { id:'celestialBag', name:'Celestial Bag', icon:'✨', cost:80000,   seedsPerOpen:3,
     seeds:['voidbloom','aetherfern','solarspike','netherfruit','duskpetal'],
     odds:[0.60,0.18,0.12,0.06,0.04] },
   { id:'abyssalBag',   name:'Abyssal Bag',   icon:'🌑', cost:500000,  seedsPerOpen:3,
@@ -295,6 +295,24 @@ window.ACHIEVEMENTS = [
   { id:'stage5',          name:'Transcendence',        desc:'Reach Stage 5',                                  category:'exploration', stars:5 },
   { id:'expandPlot',      name:'More Room',            desc:'Expand your farm for the first time',            category:'exploration', stars:2 },
   { id:'buyBag',          name:'Mystery Box',          desc:'Purchase your first seed bag',                   category:'exploration', stars:1 },
+];
+
+// ══════════════════════════════
+// SEASONS
+// ══════════════════════════════
+window.SEASONS = [
+  { id:'spring', name:'Spring', emoji:'🌸', duration:300, skyTint:'#c8f0a0',
+    effects:{ growSpeed:1.10, weedChance:1.30, sellValue:1.0,  crowChance:1.0  },
+    dayNightMult:{ day:1.15, night:0.85 } },
+  { id:'summer', name:'Summer', emoji:'☀️', duration:300, skyTint:'#87CEEB',
+    effects:{ growSpeed:1.0,  weedChance:1.0,  sellValue:1.0,  crowChance:1.0  },
+    dayNightMult:{ day:1.25, night:0.85 }, specialEvent:'drought' },
+  { id:'autumn', name:'Autumn', emoji:'🍂', duration:300, skyTint:'#e8a870',
+    effects:{ growSpeed:0.95, weedChance:0.80, sellValue:1.15, crowChance:1.25 },
+    dayNightMult:{ day:1.10, night:0.90 } },
+  { id:'winter', name:'Winter', emoji:'❄️', duration:300, skyTint:'#d0e8f8',
+    effects:{ growSpeed:0.80, weedChance:0.50, sellValue:1.0,  crowChance:0.80 },
+    dayNightMult:{ day:1.0,  night:0.95 } },
 ];
 
 window.RECIPES = [

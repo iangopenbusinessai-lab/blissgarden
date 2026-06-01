@@ -53,9 +53,11 @@ window.RenderEnv = (() => {
   function getDayNightMult(seedId) {
     const tod    = STATE.session.timeOfDay || 'day';
     const sess   = STATE.session;
+    const dayMult   = sess.seasonDayMult   || 1.15;
+    const nightMult = sess.seasonNightMult || 0.85;
     let global = 1.0;
-    if (tod === 'day')   global = sess.artifactDayBonus   ? (1 + sess.artifactDayBonus) : 1.15;
-    if (tod === 'night') global = sess.artifactNoNightPen ? 1.0                         : 0.85;
+    if (tod === 'day')   global = sess.artifactDayBonus   ? (1 + sess.artifactDayBonus) : dayMult;
+    if (tod === 'night') global = sess.artifactNoNightPen ? 1.0                         : nightMult;
     let crop = 1.0;
     if (DAY_SEEDS.has(seedId)) {
       if (tod === 'day')   crop = 1.20;
@@ -108,7 +110,20 @@ window.RenderEnv = (() => {
 
   function updateSky() {
     const frac = ((Date.now() - STATE.meta.dayOffset) % DAY_MS) / DAY_MS;
-    const { r, g, b } = lerpSky(frac);
+    let { r, g, b } = lerpSky(frac);
+
+    // Blend season sky tint (20%)
+    const season = typeof Seasons !== 'undefined' ? Seasons.getCurrentSeason() : null;
+    if (season && season.skyTint) {
+      const sr = parseInt(season.skyTint.slice(1, 3), 16);
+      const sg = parseInt(season.skyTint.slice(3, 5), 16);
+      const sb = parseInt(season.skyTint.slice(5, 7), 16);
+      const blend = 0.20;
+      r = Math.round(r + (sr - r) * blend);
+      g = Math.round(g + (sg - g) * blend);
+      b = Math.round(b + (sb - b) * blend);
+    }
+
     document.body.style.background = `rgb(${r},${g},${b})`;
 
     const earned = state.coinsEarned || 0;
@@ -153,9 +168,12 @@ window.RenderEnv = (() => {
     const sunFrac = isDay ? (frac - 0.28) / 0.50 : 0;
 
     if (sunEl) {
-      sunEl.style.opacity  = isDay ? '1' : '0';
-      sunEl.style.left     = `${10 + sunFrac * 70}vw`;
-      sunEl.style.top      = `${8  + Math.sin(sunFrac * Math.PI) * -6 + 5}vh`;
+      const isSummer = season && season.id === 'summer';
+      sunEl.style.opacity   = isDay ? '1' : '0';
+      sunEl.style.left      = `${10 + sunFrac * 70}vw`;
+      sunEl.style.top       = `${8  + Math.sin(sunFrac * Math.PI) * -6 + 5}vh`;
+      sunEl.style.fontSize  = isSummer ? '38px' : '28px';
+      sunEl.style.filter    = isSummer ? 'brightness(1.3) saturate(1.2)' : '';
     }
     if (moonEl) {
       const moonFrac = isNight ? ((frac > 0.85 ? frac - 0.85 : frac + 0.15) / 0.37) : 0;

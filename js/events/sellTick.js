@@ -27,7 +27,7 @@ function tickSellBox() {
       coins = Math.round(SEEDS[item.seed].sell * (item.bonus || 1));
       log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${formatNumber(coins)}`);
     } else {
-      coins = Math.round(SEEDS[item.seed].sell * STATE.modifiers.sellValue * (item.bonus || 1));
+      coins = Math.round(SEEDS[item.seed].sell * STATE.modifiers.sellValue * (STATE.modifiers.seasonSellMult || 1) * (item.bonus || 1));
       log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${formatNumber(coins)}`);
     }
     totalCoins += coins; sold++;

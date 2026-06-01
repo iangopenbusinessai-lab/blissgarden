@@ -21,7 +21,8 @@ function rotFactor(idx) {
 // growSpeed is treated as a speed factor (higher = faster accumulation of burnedSeconds).
 // Tile factors (water, fert, rot) convert time-mults to speed contributions.
 function getEffectiveSpeedMult(seedId, idx) {
-  const gs = STATE.modifiers.growSpeed || 1;
+  const gs       = STATE.modifiers.growSpeed    || 1;
+  const season   = STATE.modifiers.seasonGrowMult || 1;
   const dayNight = window.RenderEnv?.getDayNightMult?.(seedId) ?? 1.0;
   let tile = 1.0;
   if (idx !== undefined) {
@@ -31,7 +32,11 @@ function getEffectiveSpeedMult(seedId, idx) {
     const rot = state.rotTiles?.[idx];
     if (rot?.infectedAt !== undefined && rot?.deadAt === undefined) tile *= 0.30;
   }
-  return gs * dayNight * tile;
+  let weather = 1.0;
+  const now = Date.now();
+  if (STATE.session.droughtEndsAt && now < STATE.session.droughtEndsAt) weather *= 0.75;
+  if (STATE.session.rainEndsAt    && now < STATE.session.rainEndsAt)    weather *= 1.20;
+  return gs * season * dayNight * tile * weather;
 }
 
 // Alias used by farm.js (which references getGrowMult but it was never defined).
@@ -182,6 +187,7 @@ function recalculateModifiers() {
 
   TimerManager.restart('sell');
   if (typeof applyArtifacts === 'function') applyArtifacts();
+  if (typeof Seasons !== 'undefined') Seasons.applySeasonEffects();
 }
 
 function applyUpgrade(id) {

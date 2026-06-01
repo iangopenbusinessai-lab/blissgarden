@@ -70,6 +70,7 @@ TimerManager.register('cosmicCrow',    { interval: 12000,  condition: _stage(5),
 TimerManager.register('realityStorm',  { interval: 360000, condition: _stage(5), fn: () => {} });
 TimerManager.register('save',          { interval: 10000,  condition: () => true, fn: () => {} });
 TimerManager.register('craftTick',     { interval: 50,     condition: () => true, fn: () => {} });
+TimerManager.register('seasonTick',    { interval: 50,     condition: () => true, fn: () => {} });
 
 // ══════════════════════════════
 // OFFLINE PROGRESS
@@ -270,6 +271,8 @@ function setupTimers() {
   TimerManager.timers['save'].condition = () => true;
   TimerManager.timers['craftTick'].fn        = window.craftTick;
   TimerManager.timers['craftTick'].condition = () => true;
+  TimerManager.timers['seasonTick'].fn        = () => { if (typeof Seasons !== 'undefined') Seasons.tick(); };
+  TimerManager.timers['seasonTick'].condition = () => true;
 
   TimerManager.register('mound',        { interval: 1000, condition: () => true, fn: Events.moundTick });
   TimerManager.register('rot',          { interval: 1000, condition: () => true, fn: Events.rotTick });
@@ -320,6 +323,7 @@ function setupTimers() {
       }
     }
     // Tick burnedSeconds for every growing tile (permanent — not undone by day/night shifts).
+    const _frostActive = typeof Seasons !== 'undefined' && Seasons.isFrostActive();
     for (let i = 0; i < tileCount(); i++) {
       const td = state.tiles[i];
       if (!td || !td.seed) continue;
@@ -334,6 +338,8 @@ function setupTimers() {
         td.burnedSeconds = Math.min(base, elapsed / gs);
       }
       if (td.burnedSeconds < base) {
+        // Frost freezes night-themed crops
+        if (_frostActive && typeof Seasons !== 'undefined' && Seasons.isNightSeed(td.seed)) continue;
         td.burnedSeconds += 0.05 * getEffectiveSpeedMult(td.seed, i);
         if (td.burnedSeconds > base) td.burnedSeconds = base;
       }

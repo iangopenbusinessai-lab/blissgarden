@@ -515,6 +515,62 @@ window.Audio = (() => {
       });
     },
 
+    // ── SEASONS ───────────────────────────────────────────────────────────────
+
+    playSeasonChange() {
+      _play(c => {
+        [392, 494, 587].forEach((freq, i) => {
+          const t = c.currentTime + i * 0.06;
+          const o = c.createOscillator(), g = c.createGain();
+          o.connect(g); g.connect(c.destination);
+          o.type = 'sine'; o.frequency.setValueAtTime(freq, t);
+          g.gain.setValueAtTime(0.18, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+          o.start(t); o.stop(t + 0.8);
+        });
+      });
+    },
+
+    playDrought() {
+      _play(c => {
+        const buf  = _noise(c, 0.3);
+        const src  = c.createBufferSource();
+        const filt = c.createBiquadFilter(), g = c.createGain();
+        src.buffer = buf; filt.type = 'highpass'; filt.frequency.value = 2500;
+        src.connect(filt); filt.connect(g); g.connect(c.destination);
+        g.gain.setValueAtTime(0.18, c.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.3);
+        src.start(); src.stop(c.currentTime + 0.3);
+      });
+    },
+
+    playRain() {
+      _play(c => {
+        const buf  = _noise(c, 1.0);
+        const src  = c.createBufferSource();
+        const filt = c.createBiquadFilter(), g = c.createGain();
+        src.buffer = buf; filt.type = 'bandpass'; filt.frequency.value = 800; filt.Q.value = 0.6;
+        src.connect(filt); filt.connect(g); g.connect(c.destination);
+        g.gain.setValueAtTime(0.001, c.currentTime);
+        g.gain.linearRampToValueAtTime(0.22, c.currentTime + 0.5);
+        g.gain.linearRampToValueAtTime(0.001, c.currentTime + 1.0);
+        src.start(); src.stop(c.currentTime + 1.0);
+      });
+    },
+
+    playFrost() {
+      _play(c => {
+        const o = c.createOscillator(), g = c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.type = 'sine';
+        o.frequency.setValueAtTime(2000, c.currentTime);
+        o.frequency.exponentialRampToValueAtTime(1000, c.currentTime + 0.2);
+        g.gain.setValueAtTime(0.22, c.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.2);
+        o.start(); o.stop(c.currentTime + 0.2);
+      });
+    },
+
     setupMute() {
       STATE.settings.muted = localStorage.getItem('bliss_muted') === '1';
       const muteBtn = document.getElementById('mute-btn');

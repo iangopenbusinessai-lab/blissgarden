@@ -7,6 +7,8 @@ window.STATE = {
     matureState: false,
     reputation: 0,
     farmName: 'Bliss Farm',
+    seasonIndex: 0,
+    seasonStartTime: Date.now(),
   },
   plots: Array(9).fill(null),
   fallenCrops: [],
@@ -26,6 +28,10 @@ window.STATE = {
     sellBoxCapacity: 1,
     craftSpeedMult: 1,
     craftSlots: 1,
+    seasonGrowMult: 1,
+    seasonSellMult: 1,
+    seasonWeedMult: 1,
+    seasonCrowMult: 1,
     eventResistance: {
       crow: 0, hawk: 0, mole: 0, thornedWeed: 0,
       rot: 0, locust: 0, blight: 0, fungal: 0,
@@ -66,6 +72,11 @@ window.STATE = {
     artifactDayBonus:   0,
     artifactNightSpeed: 0,
     artifactNoNightPen: false,
+    seasonDayMult:   1.15,
+    seasonNightMult: 0.85,
+    droughtEndsAt: 0,
+    rainEndsAt:    0,
+    frostEndsAt:   0,
   },
 };
 

@@ -5,7 +5,8 @@ function crowTick() {
   if (stage >= 3) return;
   const chance = (stage >= 2 ? 0.08 : 0.05)
     * (state.upgrades.scarecrowCoat  ? 0.70 : 1)
-    * (state.upgrades.ironGreenhouse ? 0.80 : 1);
+    * (state.upgrades.ironGreenhouse ? 0.80 : 1)
+    * (STATE.modifiers.seasonCrowMult || 1);
   if (Math.random() < chance) crowAttack();
 }
 
@@ -77,7 +78,8 @@ function hawkTick() {
   if (!state.mature || getCurrentStage().stage < 2) return;
   if (getCurrentStage().stage >= 5) return;
   const chance = (getCurrentStage().stage >= 3 ? 0.06 : 0.05)
-    * (state.upgrades.ironGreenhouse ? 0.80 : 1);
+    * (state.upgrades.ironGreenhouse ? 0.80 : 1)
+    * (STATE.modifiers.seasonCrowMult || 1);
   if (Math.random() < chance) hawkAttack();
 }
 

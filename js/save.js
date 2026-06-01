@@ -3,7 +3,7 @@ const KEY     = 'blissfarm10';
 const KEY_OLD = 'blissfarm9';
 
 window.save = function save() {
-  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode, dayOffset: STATE.meta.dayOffset, prestige: STATE.prestige, reputation: STATE.meta.reputation, artifacts: STATE.artifacts, blueprints: STATE.blueprints, recipeUnlocks: STATE.recipeUnlocks, farmName: STATE.meta.farmName }));
+  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode, dayOffset: STATE.meta.dayOffset, prestige: STATE.prestige, reputation: STATE.meta.reputation, artifacts: STATE.artifacts, blueprints: STATE.blueprints, recipeUnlocks: STATE.recipeUnlocks, farmName: STATE.meta.farmName, seasonIndex: STATE.meta.seasonIndex, seasonStartTime: STATE.meta.seasonStartTime }));
 };
 
 window.load = function load() {
@@ -114,7 +114,9 @@ window.load = function load() {
     STATE.blueprints   = d.blueprints   ?? {};
     STATE.recipeUnlocks = d.recipeUnlocks ?? {};
     state.craftQueue   = (d.craftQueue || []).filter(q => q && q.recipeId);
-    STATE.meta.farmName = d.farmName ?? 'Bliss Farm';
+    STATE.meta.farmName        = d.farmName        ?? 'Bliss Farm';
+    STATE.meta.seasonIndex     = d.seasonIndex     ?? 0;
+    STATE.meta.seasonStartTime = d.seasonStartTime ?? Date.now();
     return true;
   } catch (_) { return false; }
 };

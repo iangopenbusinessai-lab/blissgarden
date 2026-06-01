@@ -42,6 +42,15 @@ function setupEvents() {
   EventBus.on('bag:purchased',     () => Audio.playBagPurchase());
   EventBus.on('modal:open',        () => Audio.playModalOpen());
   EventBus.on('modal:close',       () => Audio.playModalClose());
+  EventBus.on('season:changed', ({ season }) => {
+    log(`${season.emoji} ${season.name} has begun.`);
+    showBanner(`${season.emoji} ${season.name} has arrived.`);
+    Audio.playSeasonChange();
+    DIRTY.hud = true;
+  });
+  EventBus.on('event:drought', () => Audio.playDrought());
+  EventBus.on('event:rain',    () => Audio.playRain());
+  EventBus.on('event:frost',   () => Audio.playFrost());
 
   EventBus.on('prestige:reset', () => {
     Audio.playPrestige();
@@ -342,6 +351,7 @@ function init() {
   setupEvents();
   setupUI();
   setupMobilePanel();
+  if (typeof Seasons !== 'undefined') Seasons.init();
   if (typeof Tooltip !== 'undefined') Tooltip.init();
   renderInitial();
   applyFarmScale();
