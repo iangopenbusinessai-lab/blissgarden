@@ -57,7 +57,7 @@ function renderLoose() {
     el.appendChild(makeSpriteDiv(item.seed, 'grown', 48));
     el.style.left = item.x + 'px'; el.style.top = item.y + 'px';
     el.dataset.id = item.id;
-    el.addEventListener('mousedown', e => {
+    DragSystem.touch(el, e => {
       e.stopPropagation();
       const i = state.loose.findIndex(g => g.id === item.id);
       if (i === -1) return;
@@ -556,7 +556,7 @@ window.RenderFarm = (() => {
     for (let i = 0; i < tileCount(); i++) {
       const el = document.createElement('div');
       el.className = 'tile'; el.dataset.idx = i;
-      el.addEventListener('mousedown', onTileDown);
+      DragSystem.touch(el, onTileDown);
       grid.appendChild(el);
       tileNodes.push(el);
     }

@@ -20,12 +20,12 @@ window.RenderUpgrades = (() => {
         } else {
           state.coins -= u.cost; state.upgrades[u.id] = true;
         }
-        if (u.type === 'expand')       { state.expanded = true;      RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); }
-        if (u.type === 'expandBottom') { state.expandedBottom = true; RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); }
-        if (u.type === 'expand2ndCol') { state.expand2ndCol = true;   RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); }
-        if (u.type === 'expand2ndRow') { state.expand2ndRow = true;   RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); }
-        if (u.type === 'expand3rdCol') { state.expand3rdCol = true;   RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); }
-        if (u.type === 'expand3rdRow') { state.expand3rdRow = true;   RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); }
+        if (u.type === 'expand')       { state.expanded = true;      RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); if (typeof applyFarmScale === 'function') applyFarmScale(); }
+        if (u.type === 'expandBottom') { state.expandedBottom = true; RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); if (typeof applyFarmScale === 'function') applyFarmScale(); }
+        if (u.type === 'expand2ndCol') { state.expand2ndCol = true;   RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); if (typeof applyFarmScale === 'function') applyFarmScale(); }
+        if (u.type === 'expand2ndRow') { state.expand2ndRow = true;   RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); if (typeof applyFarmScale === 'function') applyFarmScale(); }
+        if (u.type === 'expand3rdCol') { state.expand3rdCol = true;   RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); if (typeof applyFarmScale === 'function') applyFarmScale(); }
+        if (u.type === 'expand3rdRow') { state.expand3rdRow = true;   RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); if (typeof applyFarmScale === 'function') applyFarmScale(); }
         if (u.type === 'ironSellBox' || u.type === 'steelSellBox' || u.type === 'titaniumSellBox' || u.type === 'diamondSellBox') {
           RenderSellbox.updateBoxStyle(); showBanner(`⚙️ ${u.name} activated.`);
         }

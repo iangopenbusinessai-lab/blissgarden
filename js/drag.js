@@ -38,10 +38,12 @@ function moveGhost(x, y) {
 window.DragSystem = (() => {
   // handlers[sourceType][targetType] = fn(dragItem, targetEl, event)
   const handlers = {};
+  let _lastTX = 0, _lastTY = 0;
 
   function ghost() { return document.getElementById('ghost'); }
   function tileEls() { return RenderFarm.tileNodes; }
   function hit(x, y, el) {
+    if (!el) return false;
     const r = el.getBoundingClientRect();
     return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
   }
@@ -53,13 +55,13 @@ window.DragSystem = (() => {
     if (sellBox) sellBox.classList.remove('drop-hi');
   }
 
-  // ── Document events ──────────────────────────────────────────────────────
-  function onMove(e) {
+  // ── Shared move handler (used by both mousemove and touchmove) ─────────────
+  function onMove(clientX, clientY) {
     const item = STATE.session.dragItem;
     if (!item) return;
     const g = ghost();
-    g.style.left = e.clientX + 'px';
-    g.style.top  = e.clientY + 'px';
+    g.style.left = clientX + 'px';
+    g.style.top  = clientY + 'px';
     clearHighlights();
 
     const panel   = document.getElementById('panel');
@@ -75,13 +77,13 @@ window.DragSystem = (() => {
           && !(state.rotTiles     && state.rotTiles[i]     && state.rotTiles[i].deadAt !== undefined)
           && !(state.claimedTiles && state.claimedTiles[i])
           && !(state.voidRifts    && state.voidRifts[i]    !== undefined)
-          && hit(e.clientX, e.clientY, t))
+          && hit(clientX, clientY, t))
           t.classList.add('drop-hi');
       });
 
     } else if (item.source === 'inventory-item') {
       tileEls().forEach(t => {
-        if (!hit(e.clientX, e.clientY, t)) return;
+        if (!hit(clientX, clientY, t)) return;
         const i = parseInt(t.dataset.idx);
         const blocked = (state.weeds && state.weeds[i] !== undefined)
           || (state.thornedWeeds && state.thornedWeeds[i] !== undefined)
@@ -100,12 +102,13 @@ window.DragSystem = (() => {
       });
 
     } else {
-      if (hit(e.clientX, e.clientY, sellBox))                          sellBox.classList.add('drop-hi');
-      else if (panelExpanded && hit(e.clientX, e.clientY, panel))      panel.classList.add('drop-hi');
+      if (hit(clientX, clientY, sellBox))                          sellBox.classList.add('drop-hi');
+      else if (panelExpanded && hit(clientX, clientY, panel))      panel.classList.add('drop-hi');
     }
   }
 
-  document.addEventListener('mouseup', e => {
+  // ── Shared drop handler (used by both mouseup and touchend) ────────────────
+  function handleDrop(clientX, clientY) {
     const item = STATE.session.dragItem;
     if (!item) return;
 
@@ -113,37 +116,31 @@ window.DragSystem = (() => {
     const sellBox = document.getElementById('sell-box');
     const { seed, source, bonus, drowned } = item;
 
-    // ── Fire registered handler if any ──
     let handled = false;
     if (handlers[source]) {
       tileEls().forEach(t => {
         if (handled) return;
-        if (hit(e.clientX, e.clientY, t) && handlers[source].tile) {
-          handlers[source].tile(item, t, e);
+        if (hit(clientX, clientY, t) && handlers[source].tile) {
+          handlers[source].tile(item, t, { clientX, clientY });
           handled = true;
         }
       });
-      if (!handled && hit(e.clientX, e.clientY, sellBox) && handlers[source]['sell-box']) {
-        handlers[source]['sell-box'](item, sellBox, e);
+      if (!handled && hit(clientX, clientY, sellBox) && handlers[source]['sell-box']) {
+        handlers[source]['sell-box'](item, sellBox, { clientX, clientY });
         handled = true;
       }
-      if (!handled && panelExpanded && hit(e.clientX, e.clientY, panel) && handlers[source].panel) {
-        handlers[source].panel(item, panel, e);
+      if (!handled && panelExpanded && hit(clientX, clientY, panel) && handlers[source].panel) {
+        handlers[source].panel(item, panel, { clientX, clientY });
         handled = true;
       }
       if (!handled && handlers[source].body) {
-        handlers[source].body(item, null, e);
+        handlers[source].body(item, null, { clientX, clientY });
         handled = true;
       }
     }
 
-    // ── Built-in fallback logic (matches original index.html behaviour) ──
     if (!handled) {
       if (source === 'inventory-item') {
-        // Tile drops are handled by the registered DragSystem handler.
-        // This fallback only runs when the drop missed all targets — restore
-        // charges that were deducted on mousedown (water and cage only;
-        // fertilizer/uncommonFert are never deducted until the drop confirms).
         const it = item.itemType;
         if (it === 'water')     state.canCharges++;
         else if (it === 'cage') state.cageCount++;
@@ -161,7 +158,7 @@ window.DragSystem = (() => {
             && !(state.rotTiles     && state.rotTiles[i]     && state.rotTiles[i].deadAt !== undefined)
             && !(state.claimedTiles && state.claimedTiles[i])
             && !(state.voidRifts   && state.voidRifts[i]   !== undefined)
-            && hit(e.clientX, e.clientY, t)) {
+            && hit(clientX, clientY, t)) {
             state.tiles[i] = { seed, plantedAt: Date.now(), burnedSeconds: 0 };
             state.stats.totalPlanted = (state.stats.totalPlanted || 0) + 1;
             if (!state.stats.seedTypesPlanted) state.stats.seedTypesPlanted = {};
@@ -188,20 +185,47 @@ window.DragSystem = (() => {
         }
 
       } else {
-        if (hit(e.clientX, e.clientY, sellBox)) {
+        if (hit(clientX, clientY, sellBox)) {
           addToSellQueue(seed, bonus || 1.0, drowned || false, item.fungal || false);
-        } else if (panelExpanded && hit(e.clientX, e.clientY, panel)) {
+        } else if (panelExpanded && hit(clientX, clientY, panel)) {
           addInventory(seed); RenderPanel.renderInventory(); save();
         } else {
-          dropLoose(seed, e.clientX, e.clientY, bonus || 1.0, drowned || false, item.fungal || false);
+          dropLoose(seed, clientX, clientY, bonus || 1.0, drowned || false, item.fungal || false);
         }
       }
     }
+  }
 
+  // ── Document-level mouse events ────────────────────────────────────────────
+  document.addEventListener('mousemove', e => onMove(e.clientX, e.clientY));
+
+  document.addEventListener('mouseup', e => {
+    if (!STATE.session.dragItem) return;
+    handleDrop(e.clientX, e.clientY);
     DragSystem.end();
   });
 
-  // ── Public API ──────────────────────────────────────────────────────────
+  // ── Document-level touch events (registered dynamically in start/end) ──────
+  function onTouchMove(e) {
+    if (!STATE.session.dragItem) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    _lastTX = t.clientX;
+    _lastTY = t.clientY;
+    onMove(t.clientX, t.clientY);
+  }
+
+  function onTouchEnd(e) {
+    if (!STATE.session.dragItem) return;
+    e.preventDefault();
+    const t = e.changedTouches[0];
+    const cx = t ? t.clientX : _lastTX;
+    const cy = t ? t.clientY : _lastTY;
+    handleDrop(cx, cy);
+    DragSystem.end();
+  }
+
+  // ── Public API ──────────────────────────────────────────────────────────────
   return {
     start(dragItem, ghostContent) {
       STATE.session.dragItem = dragItem;
@@ -209,29 +233,44 @@ window.DragSystem = (() => {
       g.innerHTML = '';
       if (ghostContent) g.appendChild(ghostContent);
       g.style.display = 'block';
-      document.addEventListener('mousemove', onMove);
+      document.addEventListener('touchmove', onTouchMove, { passive: false });
+      document.addEventListener('touchend',  onTouchEnd,  { passive: false });
     },
 
     end() {
       STATE.session.dragItem = null;
       ghost().style.display = 'none';
       clearHighlights();
-      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend',  onTouchEnd);
     },
 
-    // register(sourceType, targetType, handler)
-    // handler(dragItem, targetEl, event) — return value ignored
     register(sourceType, targetType, handler) {
       if (!handlers[sourceType]) handlers[sourceType] = {};
       handlers[sourceType][targetType] = handler;
+    },
+
+    // Registers both mousedown and touchstart on el, normalising to {clientX, clientY, currentTarget, stopPropagation}
+    touch(el, fn) {
+      el.addEventListener('mousedown', fn);
+      el.addEventListener('touchstart', e => {
+        if (e.touches.length !== 1) return;
+        e.preventDefault();
+        const t = e.touches[0];
+        fn.call(e.currentTarget, {
+          clientX:        t.clientX,
+          clientY:        t.clientY,
+          currentTarget:  e.currentTarget,
+          target:         e.target,
+          stopPropagation() { e.stopPropagation(); },
+          preventDefault() {},
+        });
+      }, { passive: false });
     },
   };
 })();
 
 // ── Inventory-item → farm tile handler ──────────────────────────────────────
-// Handles ALL inventory-item drops on tiles.
-// Fertilizer charges are deducted HERE (not on mousedown) so a mere click
-// on the inventory icon never applies the item.
 DragSystem.register('inventory-item', 'tile', (item, tileEl) => {
   const it = item.itemType;
   const i  = parseInt(tileEl.dataset.idx);
@@ -323,7 +362,6 @@ DragSystem.register('inventory-item', 'tile', (item, tileEl) => {
     RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save();
 
   } else {
-    // Invalid drop — restore charges deducted on mousedown (water, cage, hiredHand only)
     if (it === 'water')          state.canCharges++;
     else if (it === 'cage')      state.cageCount++;
     else if (it === 'hiredHand') state.hiredHandCount++;

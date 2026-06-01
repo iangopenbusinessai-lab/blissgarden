@@ -28,6 +28,7 @@ function setupEvents() {
     DIRTY.sellbox = true;
     RenderFarm.buildGrid();
     RenderFarm.renderGrid();
+    if (typeof applyFarmScale === 'function') applyFarmScale();
     RenderSellbox.renderQueue();
     RenderSellbox.renderCrank();
     renderLoose();
@@ -227,6 +228,44 @@ function renderInitial() {
   }
 }
 
+// ── Mobile farm scaling ────────────────────────────────────────────────────
+function applyFarmScale() {
+  const grass = document.getElementById('grass');
+  if (!grass) return;
+  if (window.innerWidth > 768) { grass.style.transform = ''; return; }
+  const { cols } = getGridDims();
+  const farmPx = cols * 100 + (cols - 1) * 3 + 44; // tiles + gaps + grass padding
+  const available = window.innerWidth * 0.9;
+  const scale = Math.min(1, available / farmPx);
+  grass.style.transformOrigin = 'center center';
+  grass.style.transform = scale < 1 ? `scale(${scale})` : '';
+}
+window.addEventListener('resize', applyFarmScale);
+
+// ── Mobile panel (bottom sheet) toggle ────────────────────────────────────
+function setupMobilePanel() {
+  const toggle   = document.getElementById('panel-mobile-toggle');
+  const backdrop = document.getElementById('panel-mobile-backdrop');
+  const panel    = document.getElementById('panel');
+  if (!toggle || !panel) return;
+
+  function openMobilePanel() {
+    panel.classList.add('mobile-open');
+    backdrop.classList.add('mobile-backdrop-visible');
+    panelExpanded = true;
+  }
+  function closeMobilePanel() {
+    panel.classList.remove('mobile-open');
+    backdrop.classList.remove('mobile-backdrop-visible');
+    panelExpanded = false;
+  }
+
+  toggle.addEventListener('click',   e => { e.stopPropagation(); openMobilePanel(); });
+  toggle.addEventListener('touchend',e => { e.stopPropagation(); e.preventDefault(); openMobilePanel(); }, { passive: false });
+  backdrop.addEventListener('click',   closeMobilePanel);
+  backdrop.addEventListener('touchend', e => { e.preventDefault(); closeMobilePanel(); }, { passive: false });
+}
+
 function init() {
   load();
   recalculateModifiers();
@@ -236,7 +275,9 @@ function init() {
   setupTimers();
   setupEvents();
   setupUI();
+  setupMobilePanel();
   renderInitial();
+  applyFarmScale();
   RenderFarm.probeSprites();
 }
 

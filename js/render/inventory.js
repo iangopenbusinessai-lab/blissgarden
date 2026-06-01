@@ -30,7 +30,7 @@ window.RenderInventory = (() => {
     _wcInvIcon.appendChild(_wcInvIconSpan);
     _wcInvBadge = mk('span', 'inv-badge');
     _wcInvIcon.appendChild(_wcInvBadge);
-    _wcInvIcon.addEventListener('mousedown', e => {
+    DragSystem.touch(_wcInvIcon, e => {
       e.stopPropagation();
       if ((state.canCharges || 0) < 1) return;
       state.canCharges--;
@@ -66,7 +66,7 @@ window.RenderInventory = (() => {
     cageSpan.style.cssText = 'pointer-events:none;font-size:22px;line-height:1'; cageSpan.textContent = '🔒';
     _cageEl.appendChild(cageSpan);
     _cageBadge = mk('span', 'inv-badge'); _cageEl.appendChild(_cageBadge);
-    _cageEl.addEventListener('mousedown', e => {
+    DragSystem.touch(_cageEl, e => {
       e.stopPropagation();
       state.cageCount--; renderInventory(); RenderItems.renderItems();
       startItemDrag('cage'); moveGhost(e.clientX, e.clientY);
@@ -80,7 +80,7 @@ window.RenderInventory = (() => {
     fertSpan.style.cssText = 'pointer-events:none;font-size:22px;line-height:1'; fertSpan.textContent = '🌿';
     _fertEl.appendChild(fertSpan);
     _fertBadge = mk('span', 'inv-badge'); _fertEl.appendChild(_fertBadge);
-    _fertEl.addEventListener('mousedown', e => {
+    DragSystem.touch(_fertEl, e => {
       e.stopPropagation();
       if ((state.fertCharges || 0) < 1) return;
       startItemDrag('fertilizer'); moveGhost(e.clientX, e.clientY);
@@ -94,7 +94,7 @@ window.RenderInventory = (() => {
     ufertSpan.style.cssText = 'pointer-events:none;font-size:22px;line-height:1'; ufertSpan.textContent = '⚗️';
     _ufertEl.appendChild(ufertSpan);
     _ufertBadge = mk('span', 'inv-badge'); _ufertEl.appendChild(_ufertBadge);
-    _ufertEl.addEventListener('mousedown', e => {
+    DragSystem.touch(_ufertEl, e => {
       e.stopPropagation();
       if ((state.uncommonFertCharges || 0) < 1) return;
       startItemDrag('uncommonFert'); moveGhost(e.clientX, e.clientY);
@@ -108,7 +108,7 @@ window.RenderInventory = (() => {
     hhSpan.style.cssText = 'pointer-events:none;font-size:22px;line-height:1'; hhSpan.textContent = '👨‍🌾';
     _hhEl.appendChild(hhSpan);
     _hhBadge = mk('span', 'inv-badge'); _hhEl.appendChild(_hhBadge);
-    _hhEl.addEventListener('mousedown', e => {
+    DragSystem.touch(_hhEl, e => {
       e.stopPropagation();
       if ((state.hiredHandCount || 0) < 1) return;
       state.hiredHandCount--;
@@ -141,7 +141,7 @@ window.RenderInventory = (() => {
       icon.dataset.name = `${seed.name} seed — drag to plant`;
       icon.appendChild(makeSpriteDiv(key, 'seed', 40));
       const badge = mk('span', 'inv-badge'); icon.appendChild(badge);
-      icon.addEventListener('mousedown', e => {
+      DragSystem.touch(icon, e => {
         e.stopPropagation();
         if ((state.seedInventory[key] || 0) < 1) return;
         state.seedInventory[key]--;
@@ -173,7 +173,7 @@ window.RenderInventory = (() => {
       el.dataset.name = SEEDS[key].name;
       el.appendChild(makeSpriteDiv(key, 'grown', 40));
       const badge = mk('span', 'inv-badge'); el.appendChild(badge);
-      el.addEventListener('mousedown', e => {
+      DragSystem.touch(el, e => {
         e.stopPropagation();
         if ((state.inventory[key] || 0) < 1) return;
         state.inventory[key]--;

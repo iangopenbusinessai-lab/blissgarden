@@ -385,7 +385,7 @@ window.RenderCrafting = (() => {
       info.appendChild(nmEl); info.appendChild(mtEl);
 
       card.appendChild(emEl); card.appendChild(info);
-      card.addEventListener('mousedown', e => {
+      DragSystem.touch(card, e => {
         e.stopPropagation();
         if (!state.craftedInventory) state.craftedInventory = {};
         if ((state.craftedInventory[recipe.id] || 0) < 1) return;

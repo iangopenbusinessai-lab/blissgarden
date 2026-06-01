@@ -6,6 +6,7 @@ body {
   background: #87CEEB;
   font-family: system-ui, sans-serif;
   user-select: none; -webkit-user-select: none;
+  touch-action: manipulation;
 }
 
 #game-area {
@@ -17,4 +18,79 @@ body {
 #grass {
   background: #5A8A3C; border-radius: 10px; padding: 22px;
   position: relative; z-index: 2;
+}
+
+/* ── Mobile panel toggle button ── */
+#panel-mobile-toggle {
+  display: none;
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  z-index: 650;
+  background: #8B5E3C; border: 2px solid #5a3d20; border-bottom: none;
+  border-radius: 12px 12px 0 0;
+  width: 80px; height: 36px;
+  align-items: center; justify-content: center;
+  cursor: pointer; color: #fff; font-size: 18px;
+  touch-action: manipulation;
+}
+
+/* ── Mobile backdrop ── */
+#panel-mobile-backdrop {
+  display: none;
+  position: fixed; inset: 0; z-index: 590;
+  background: rgba(0,0,0,.4);
+}
+#panel-mobile-backdrop.mobile-backdrop-visible { display: block; }
+
+/* ══════════════════════════════
+   MOBILE LAYOUT (@media ≤ 768px)
+   ══════════════════════════════ */
+@media (max-width: 768px) {
+
+  #game-area {
+    right: 0;
+    bottom: 44px; /* above panel toggle */
+  }
+
+  #panel-mobile-toggle { display: flex; }
+
+  /* ── Panel becomes a bottom sheet ── */
+  #panel {
+    position: fixed;
+    left: 0; right: 0; bottom: 0; top: auto;
+    width: 100% !important;
+    height: 72vh;
+    max-height: calc(100vh - 60px);
+    border-radius: 16px 16px 0 0;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(.32,.72,0,1);
+    z-index: 600;
+    box-shadow: 0 -8px 32px rgba(0,0,0,.5);
+  }
+
+  #panel.mobile-open {
+    transform: translateY(0);
+  }
+
+  /* Hide the desktop resize handle on mobile */
+  #panel-resize-handle { display: none; }
+
+  /* Sell box: sits above the panel toggle */
+  #sell-box {
+    bottom: 44px;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    max-width: 90vw;
+  }
+
+  /* Crank box: position above sell box */
+  #crank-box { bottom: 44px; }
+
+  /* Well: stays bottom-right, above toggle */
+  #well { bottom: 52px; right: 12px; }
+
+  /* Log panel: hidden on mobile by default */
+  #log-panel { display: none; }
+
+  /* Top bar right buttons: flush to screen edge since no panel */
+  #topbar-right { right: 8px; }
 }
