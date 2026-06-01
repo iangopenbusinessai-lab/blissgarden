@@ -23,6 +23,8 @@ window.STATE = {
     crankMultiplier: 1,       // runtime accumulated crank boost (managed by crank logic)
     crankClickMultiplier: 1.015, // per-click factor; set by recalculateModifiers
     sellBoxCapacity: 1,
+    craftSpeedMult: 1,
+    craftSlots: 1,
     eventResistance: {
       crow: 0, hawk: 0, mole: 0, thornedWeed: 0,
       rot: 0, locust: 0, blight: 0, fungal: 0,
@@ -53,6 +55,8 @@ window.STATE = {
   },
   milestones: {},
   artifacts: {},
+  blueprints: {},
+  recipeUnlocks: {},
   session: {
     dragItem: null,
     debugCounts: { crow:0, hawk:0, weed:0, mole:0, rootRot:0, locust:0, blight:0, fungal:0 },
@@ -87,6 +91,7 @@ var state = {
     seedTypesPlanted: {}, recipesEverCrafted: {}, prestigeCount: 0,
   },
   sellQueue: [], sellNextAt: 0,
+  craftQueue: [],
   upgrades: {}, loose: [],
   expanded: false, expandedBottom: false,
   expand2ndCol: false, expand2ndRow: false,

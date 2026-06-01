@@ -69,6 +69,7 @@ TimerManager.register('voidRift',      { interval: 240000, condition: _stage(5),
 TimerManager.register('cosmicCrow',    { interval: 12000,  condition: _stage(5), fn: () => {} });
 TimerManager.register('realityStorm',  { interval: 360000, condition: _stage(5), fn: () => {} });
 TimerManager.register('save',          { interval: 10000,  condition: () => true, fn: () => {} });
+TimerManager.register('craftTick',     { interval: 50,     condition: () => true, fn: () => {} });
 
 // ══════════════════════════════
 // OFFLINE PROGRESS
@@ -267,6 +268,8 @@ function setupTimers() {
   TimerManager.timers['realityStorm'].condition = cond(5);
   TimerManager.timers['save'].fn        = save;
   TimerManager.timers['save'].condition = () => true;
+  TimerManager.timers['craftTick'].fn        = window.craftTick;
+  TimerManager.timers['craftTick'].condition = () => true;
 
   TimerManager.register('mound',        { interval: 1000, condition: () => true, fn: Events.moundTick });
   TimerManager.register('rot',          { interval: 1000, condition: () => true, fn: Events.rotTick });
@@ -335,6 +338,7 @@ function setupTimers() {
         if (td.burnedSeconds > base) td.burnedSeconds = base;
       }
     }
+    if (typeof RenderCrafting !== 'undefined') RenderCrafting.tickQueue();
     updateTimers();
     RenderSellbox.updateSellTimer();
     RenderSellbox.updateCrankLabel();

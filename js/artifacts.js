@@ -23,6 +23,17 @@ function applyArtifacts() {
   }
 }
 
+window.purchaseBlueprint = function purchaseBlueprint(blueprintId) {
+  const bp = (window.BLUEPRINTS || []).find(b => b.id === blueprintId);
+  if (!bp || bp.source !== 'shop') return;
+  if (STATE.blueprints[blueprintId]) return;
+  if (state.coins < bp.cost) return;
+  state.coins -= bp.cost;
+  STATE.blueprints[blueprintId] = true;
+  save();
+  DIRTY.panel = true;
+};
+
 window.craftArtifact = function craftArtifact(artifactId) {
   if (!STATE.upgrades.workshop) return;
   const art = (window.ARTIFACTS || []).find(a => a.id === artifactId);

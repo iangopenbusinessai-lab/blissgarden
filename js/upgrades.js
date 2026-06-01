@@ -169,6 +169,17 @@ function recalculateModifiers() {
     cosmicCrow:  (bought.cosmicRepellent ? 0.35 : 0),
   };
 
+  // ── craftSpeedMult: highest tier wins ────────────────────────────────────
+  if      (bought.masterWorkshop)  mods.craftSpeedMult = 1.60;
+  else if (bought.journeymanForge) mods.craftSpeedMult = 1.40;
+  else if (bought.apprenticeBench) mods.craftSpeedMult = 1.25;
+  else                             mods.craftSpeedMult = 1.0;
+
+  // ── craftSlots ────────────────────────────────────────────────────────────
+  if      (bought.tripleCraftSlot) mods.craftSlots = 3;
+  else if (bought.dualCraftSlot)   mods.craftSlots = 2;
+  else                             mods.craftSlots = 1;
+
   TimerManager.restart('sell');
   if (typeof applyArtifacts === 'function') applyArtifacts();
 }

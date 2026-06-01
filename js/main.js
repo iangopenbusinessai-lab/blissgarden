@@ -17,7 +17,11 @@ function setupEvents() {
     RenderHUD.renderReputation();
     RenderPanel.renderItems();
   });
+  EventBus.on('achievement:unlocked', ({ id }) => {
+    if (typeof checkAchievementUnlocks === 'function') checkAchievementUnlocks(id);
+  });
   EventBus.on('prestige:reset', () => {
+    if (typeof checkPrestigeUnlocks === 'function') checkPrestigeUnlocks();
     DIRTY.grid    = true;
     DIRTY.hud     = true;
     DIRTY.panel   = true;
@@ -226,6 +230,8 @@ function renderInitial() {
 function init() {
   load();
   recalculateModifiers();
+  if (typeof checkFreeRecipes === 'function') checkFreeRecipes();
+  if (typeof checkPrestigeUnlocks === 'function') checkPrestigeUnlocks();
   RenderFarm.buildGrid();
   setupTimers();
   setupEvents();

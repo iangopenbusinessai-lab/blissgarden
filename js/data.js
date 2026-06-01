@@ -218,7 +218,13 @@ window.UPGRADES = [
   { id:'voidSeal',       name:'Void Seal 🔒',               desc:'Maximum of 1 void rift can exist at a time.',              cost:600000000, type:'mitigation', stage5:true, chain:'riftStabilizer'},
   { id:'quantumCage',    name:'Quantum Cage 🔒',            desc:'Cages immune to reality storm stripping.',                 cost:600000000, type:'mitigation', stage5:true, chain:'realityAnchor'},
   // ── SPECIAL ──
-  { id:'workshop', name:'Workshop Area 🔨', desc:'Unlocks the crafting and artifact system', cost:5000, type:'special', chain:null },
+  { id:'workshop',         name:'Workshop Area 🔨',     desc:'Unlocks the crafting and artifact system',      cost:5000,     type:'special',       chain:null             },
+  // ── WORKSHOP SPEED CHAIN ──
+  { id:'apprenticeBench',  name:'Apprentice Bench 🪑',  desc:'Craft time -25%.',                              cost:50000,    type:'workshopSpeed', chain:'workshop'       },
+  { id:'journeymanForge',  name:'Journeyman Forge 🔥',  desc:'Craft time -40%.',                              cost:200000,   type:'workshopSpeed', chain:'apprenticeBench'},
+  { id:'masterWorkshop',   name:'Master Workshop ⚒️',   desc:'Craft time -60%.',                              cost:800000,   type:'workshopSpeed', chain:'journeymanForge'},
+  { id:'dualCraftSlot',    name:'Dual Craft Slot ⊕',    desc:'Craft up to 2 items simultaneously.',           cost:2000000,  type:'craftSlot',     chain:'masterWorkshop' },
+  { id:'tripleCraftSlot',  name:'Triple Craft Slot ⊕⊕', desc:'Craft up to 3 items simultaneously.',           cost:10000000, type:'craftSlot',     chain:'dualCraftSlot'  },
 ];
 
 window.SEED_BAGS = window.BAGS;
@@ -292,14 +298,52 @@ window.ACHIEVEMENTS = [
 ];
 
 window.RECIPES = [
-  { id: 'bread',        name: 'Bread',         emoji: '🍞', ingredients: { wheat: 3 },                    sellValue: 80,  unlocked: true },
-  { id: 'carrotStew',   name: 'Carrot Stew',   emoji: '🍲', ingredients: { carrot: 4, potato: 1 },        sellValue: 120, unlocked: true },
-  { id: 'sunflowerOil', name: 'Sunflower Oil',  emoji: '🫙', ingredients: { sunflower: 3 },                sellValue: 200, unlocked: true },
+  // ── TIER 1 — Common, free unlocks ─────────────────────────────────────────
+  { id:'bread',          name:'Bread',           emoji:'🍞', tier:1, ingredients:{ wheat:3 },               craftTime:30,   sellValue:80,    unlockType:'free' },
+  { id:'carrotStew',     name:'Carrot Stew',     emoji:'🍲', tier:1, ingredients:{ carrot:4, potato:1 },    craftTime:45,   sellValue:120,   unlockType:'free' },
+  { id:'sunflowerOil',   name:'Sunflower Oil',   emoji:'🫙', tier:1, ingredients:{ sunflower:3 },           craftTime:60,   sellValue:200,   unlockType:'free' },
+  { id:'wheatFlour',     name:'Wheat Flour',     emoji:'🌾', tier:1, ingredients:{ wheat:5 },               craftTime:20,   sellValue:60,    unlockType:'free' },
+  { id:'potatoMash',     name:'Potato Mash',     emoji:'🥔', tier:1, ingredients:{ potato:6 },              craftTime:25,   sellValue:90,    unlockType:'free' },
+  { id:'carrotJuice',    name:'Carrot Juice',    emoji:'🥕', tier:1, ingredients:{ carrot:5 },              craftTime:30,   sellValue:100,   unlockType:'free' },
+  // ── TIER 2 — Uncommon, purchased unlocks ──────────────────────────────────
+  { id:'harvestLoaf',    name:'Harvest Loaf',    emoji:'🍠', tier:2, ingredients:{ bread:2, wheatFlour:3 },              craftTime:120,  sellValue:800,   unlockType:'purchase', unlockCost:5000 },
+  { id:'farmersStew',    name:"Farmer's Stew",   emoji:'🫕', tier:2, ingredients:{ carrotStew:2, potatoMash:2 },         craftTime:150,  sellValue:1200,  unlockType:'purchase', unlockCost:8000 },
+  { id:'sunwickOil',     name:'Sunwick Oil',     emoji:'🕯️', tier:2, ingredients:{ sunflowerOil:3, carrotJuice:2 },      craftTime:180,  sellValue:2000,  unlockType:'purchase', unlockCost:12000 },
+  { id:'pumpkinPie',     name:'Pumpkin Pie',     emoji:'🥧', tier:2, ingredients:{ pumpkin:4, wheatFlour:3 },            craftTime:200,  sellValue:3500,  unlockType:'purchase', unlockCost:20000 },
+  { id:'moonwineElixir', name:'Moonwine Elixir', emoji:'🍷', tier:2, ingredients:{ moonbloom:3, carrotJuice:4 },         craftTime:300,  sellValue:8000,  unlockType:'purchase', unlockCost:35000 },
+  // ── TIER 3 — Rare, prestige / achievement unlocks ─────────────────────────
+  { id:'celestialBread', name:'Celestial Bread', emoji:'🌟', tier:3, ingredients:{ harvestLoaf:3, starfruit:2 },         craftTime:600,  sellValue:50000, unlockType:'prestige',     unlockPrestige:1 },
+  { id:'voidEssence',    name:'Void Essence',    emoji:'🌑', tier:3, ingredients:{ moonwineElixir:2, voidbloom:3 },      craftTime:900,  sellValue:120000,unlockType:'prestige',     unlockPrestige:1 },
+  { id:'thornExtract',   name:'Thorn Extract',   emoji:'🌿', tier:3, ingredients:{ thornvine:5, sunwickOil:3 },          craftTime:800,  sellValue:90000, unlockType:'achievement',  unlockAchievementId:'survive10Crows' },
+  { id:'glowPotion',     name:'Glow Potion',     emoji:'🍄', tier:3, ingredients:{ glowshroom:6, moonwineElixir:2 },     craftTime:1200, sellValue:200000,unlockType:'purchase',     unlockCost:500000 },
+  { id:'aetherDraught',  name:'Aether Draught',  emoji:'🌀', tier:3, ingredients:{ aetherfern:4, voidEssence:2 },        craftTime:1800, sellValue:500000,unlockType:'prestige',     unlockPrestige:2 },
+  // ── TIER 4 — Epic, high prestige / achievement ─────────────────────────────
+  { id:'solarAmbrosia',  name:'Solar Ambrosia',  emoji:'☀️', tier:4, ingredients:{ solarspike:3, celestialBread:3 },     craftTime:3600, sellValue:3000000,  unlockType:'prestige',    unlockPrestige:3 },
+  { id:'cosmicElixir',   name:'Cosmic Elixir',   emoji:'🌌', tier:4, ingredients:{ aetherDraught:2, glowPotion:3 },      craftTime:5400, sellValue:8000000,  unlockType:'prestige',    unlockPrestige:4 },
+  { id:'netharbrew',     name:'Nethar Brew',      emoji:'🖤', tier:4, ingredients:{ netherfruit:8, voidEssence:4 },       craftTime:4800, sellValue:5000000,  unlockType:'achievement', unlockAchievementId:'stage3' },
+  { id:'eclipseWine',    name:'Eclipse Wine',     emoji:'🌘', tier:4, ingredients:{ eclipseLotus:4, cosmicElixir:1 },    craftTime:7200, sellValue:20000000, unlockType:'prestige',    unlockPrestige:5 },
+  // ── TIER 5 — Legendary, deep prestige ─────────────────────────────────────
+  { id:'divineCraft',    name:'Divine Crafting',  emoji:'✨', tier:5, ingredients:{ eclipseWine:2, solarAmbrosia:2, cosmicElixir:2 }, craftTime:14400, sellValue:150000000, unlockType:'prestige', unlockPrestige:7 },
+  { id:'genesisElixir',  name:'Genesis Elixir',   emoji:'🌱', tier:5, ingredients:{ genesisSeed:1, divineCraft:1 },                  craftTime:28800, sellValue:800000000, unlockType:'prestige', unlockPrestige:10 },
 ];
 
 // ══════════════════════════════
 // PRESTIGE PERKS
 // ══════════════════════════════
+// ══════════════════════════════
+// BLUEPRINTS
+// ══════════════════════════════
+window.BLUEPRINTS = [
+  { id:'bp_breadTotem',   name:'Bread Totem Blueprint',   artifactId:'breadTotem',   cost:2000,   source:'shop' },
+  { id:'bp_stewCauldron', name:'Stew Cauldron Blueprint', artifactId:'stewCauldron', cost:5000,   source:'shop' },
+  { id:'bp_sunObelisk',   name:'Sun Obelisk Blueprint',   artifactId:'sunObelisk',   cost:15000,  source:'shop' },
+  { id:'bp_moonShrine',   name:'Moon Shrine Blueprint',   artifactId:'moonShrine',   cost:25000,  source:'achievement', achievementId:'harvest1000' },
+  { id:'bp_harvestIdol',  name:'Harvest Idol Blueprint',  artifactId:'harvestIdol',  cost:50000,  source:'shop' },
+  { id:'bp_goldSigil',    name:'Gold Sigil Blueprint',    artifactId:'goldSigil',    cost:150000, source:'achievement', achievementId:'first1m' },
+  { id:'bp_voidRelic',    name:'Void Relic Blueprint',    artifactId:'voidRelic',    cost:500000, source:'shop' },
+  { id:'bp_cosmicAnvil',  name:'Cosmic Anvil Blueprint',  artifactId:'cosmicAnvil',  cost:0,      source:'achievement', achievementId:'allArtifacts' },
+];
+
 window.PRESTIGE_PERKS = [
   { id:'fertileLegacy',  name:'Fertile Legacy',   desc:'Crops grow 15% faster per stack',      cost:1, maxStack:10, type:'growSpeed',      valuePerStack:0.15 },
   { id:'goldenMemory',   name:'Golden Memory',     desc:'Crops sell for 20% more per stack',     cost:1, maxStack:10, type:'sellValue',       valuePerStack:0.20 },

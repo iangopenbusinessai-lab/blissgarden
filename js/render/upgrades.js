@@ -31,6 +31,7 @@ window.RenderUpgrades = (() => {
         }
         if (u.type === 'crank' || u.type === 'crankUp') RenderSellbox.renderCrank();
         if (u.type === 'sellSpeed') TimerManager.restart('sell');
+        if (u.id === 'workshop' && typeof checkFreeRecipes === 'function') checkFreeRecipes();
         sfx.upgrade();
         log(`⬆️ ${u.name} purchased`);
         updateCoins(); RenderFarm.renderGrid();
