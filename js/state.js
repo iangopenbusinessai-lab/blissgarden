@@ -6,6 +6,7 @@ window.STATE = {
     stage: 0,
     matureState: false,
     reputation: 0,
+    farmName: 'Bliss Farm',
   },
   plots: Array(9).fill(null),
   fallenCrops: [],

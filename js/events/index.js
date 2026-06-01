@@ -21,7 +21,7 @@ function checkMilestones() {
   MILESTONE_VALS.forEach(m => {
     if (state.coinsEarned >= m && !state.milestones[m]) {
       state.milestones[m] = true;
-      log(`⏱️ Reached ${coinHTML()}${formatNumber(m)} — ${fmtElapsed(Date.now() - state.gameStartTime)}`);
+      log(`⏱️ ${STATE.meta.farmName || 'Bliss Farm'} reached ${coinHTML()}${formatNumber(m)}!`);
     }
   });
 }

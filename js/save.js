@@ -3,7 +3,7 @@ const KEY     = 'blissfarm10';
 const KEY_OLD = 'blissfarm9';
 
 window.save = function save() {
-  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode, dayOffset: STATE.meta.dayOffset, prestige: STATE.prestige, reputation: STATE.meta.reputation, artifacts: STATE.artifacts, blueprints: STATE.blueprints, recipeUnlocks: STATE.recipeUnlocks }));
+  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode, dayOffset: STATE.meta.dayOffset, prestige: STATE.prestige, reputation: STATE.meta.reputation, artifacts: STATE.artifacts, blueprints: STATE.blueprints, recipeUnlocks: STATE.recipeUnlocks, farmName: STATE.meta.farmName }));
 };
 
 window.load = function load() {
@@ -11,7 +11,7 @@ window.load = function load() {
     let raw = localStorage.getItem(KEY);
     if (!raw) raw = localStorage.getItem(KEY_OLD);
     const d = JSON.parse(raw || 'null');
-    if (!d) return;
+    if (!d) return false;
     state.coins           = d.coins           ?? 10;
     state.coinsEarned     = d.coinsEarned     ?? 0;
     state.gameStartTime       = d.gameStartTime       ?? Date.now();
@@ -114,7 +114,9 @@ window.load = function load() {
     STATE.blueprints   = d.blueprints   ?? {};
     STATE.recipeUnlocks = d.recipeUnlocks ?? {};
     state.craftQueue   = (d.craftQueue || []).filter(q => q && q.recipeId);
-  } catch (_) {}
+    STATE.meta.farmName = d.farmName ?? 'Bliss Farm';
+    return true;
+  } catch (_) { return false; }
 };
 
 // ── LEGACY SAVE CONSTANTS (kept for migrate() below) ─────────────────────

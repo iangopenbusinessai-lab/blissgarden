@@ -83,13 +83,27 @@ function setupUI() {
     const resetBtn         = document.getElementById('reset-btn');
     const hideBoughtToggle = document.getElementById('hide-bought-toggle');
     const debugModeToggle  = document.getElementById('debug-mode-toggle');
+    const farmNameInput    = document.getElementById('farm-name-input');
     let confirmed = false;
+
+    function applyFarmName() {
+      const name = (farmNameInput ? farmNameInput.value.trim() : '') || 'Bliss Farm';
+      STATE.meta.farmName = name;
+      document.title = `${name} — Bliss Farm`;
+      RenderHUD.renderStage();
+      save();
+    }
+    if (farmNameInput) {
+      farmNameInput.addEventListener('blur',    applyFarmName);
+      farmNameInput.addEventListener('keydown', e => { if (e.key === 'Enter') { applyFarmName(); farmNameInput.blur(); } });
+    }
 
     function openSettings() {
       confirmed = false;
       resetBtn.textContent = 'Reset Data';
       hideBoughtToggle.checked = !!state.hideBoughtUpgrades;
       debugModeToggle.checked  = !!STATE.settings.debugMode;
+      if (farmNameInput) farmNameInput.value = STATE.meta.farmName || 'Bliss Farm';
       backdrop.style.display = 'block';
       panel.style.display = 'block';
     }
@@ -266,8 +280,28 @@ function setupMobilePanel() {
   backdrop.addEventListener('touchend', e => { e.preventDefault(); closeMobilePanel(); }, { passive: false });
 }
 
+function showFarmNameOverlay() {
+  const overlay = document.getElementById('name-overlay');
+  const input   = document.getElementById('name-overlay-input');
+  const btn     = document.getElementById('name-overlay-btn');
+  if (!overlay) return;
+  overlay.style.display = 'flex';
+  if (input) { input.focus(); input.select(); }
+
+  function confirm() {
+    const name = (input ? input.value.trim() : '') || 'Bliss Farm';
+    STATE.meta.farmName = name;
+    document.title = `${name} — Bliss Farm`;
+    overlay.style.display = 'none';
+    RenderHUD.renderStage();
+    save();
+  }
+  if (btn)   btn.addEventListener('click', confirm, { once: true });
+  if (input) input.addEventListener('keydown', e => { if (e.key === 'Enter') confirm(); });
+}
+
 function init() {
-  load();
+  const hadSave = load();
   recalculateModifiers();
   if (typeof checkFreeRecipes === 'function') checkFreeRecipes();
   if (typeof checkPrestigeUnlocks === 'function') checkPrestigeUnlocks();
@@ -279,6 +313,8 @@ function init() {
   renderInitial();
   applyFarmScale();
   RenderFarm.probeSprites();
+  document.title = `${STATE.meta.farmName || 'Bliss Farm'} — Bliss Farm`;
+  if (!hadSave) showFarmNameOverlay();
 }
 
 init();

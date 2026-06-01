@@ -134,7 +134,8 @@ function prestige() {
 
   const pLabel = points === 1 ? 'point' : 'points';
   EventBus.emit('prestige:reset', { count: pr.count, pointsEarned: points });
-  showBanner(`✨ Prestige ${pr.count} — The farm is reborn. +${points} ${pLabel} earned.`);
+  const _fn = STATE.meta.farmName || 'Bliss Farm';
+  showBanner(`✨ ${_fn} — Prestige ${pr.count}. The farm is reborn. +${points} ${pLabel} earned.`);
   log(`✨ Prestige ${pr.count} complete. Earned ${points} prestige ${pLabel}.`);
 }
 

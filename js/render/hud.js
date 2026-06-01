@@ -16,8 +16,12 @@ window.RenderHUD = (() => {
   }
 
   function renderStage() {
-    const s = getCurrentStage();
-    document.getElementById('stage-display').textContent = `Stage ${s.stage}: ${s.name}`;
+    const s    = getCurrentStage();
+    const name = STATE.meta.farmName || 'Bliss Farm';
+    const el   = document.getElementById('stage-display');
+    el.innerHTML =
+      `<span style="font-size:10px;font-weight:700;opacity:.65;letter-spacing:.5px">${name}</span>` +
+      `<span style="font-size:12px;font-weight:600;letter-spacing:.3px">Stage ${s.stage}: ${s.name}</span>`;
   }
 
   function renderTimeOfDay() {
