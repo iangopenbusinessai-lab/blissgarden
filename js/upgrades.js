@@ -88,57 +88,57 @@ function recalculateModifiers() {
 
   // ── growSpeed: highest tier value wins, no stacking ───────────────────────
   const SPEED_TIERS = [
-    ['quickRoots',     1.10],
-    ['fertilizerI',    1.18],
-    ['fertilizerII',   1.26],
-    ['fertilizerIII',  1.34],
-    ['fertilizerIV',   1.42],
-    ['fertilizerV',    1.50],
-    ['fertilizerVI',   1.56],
-    ['fertilizerVII',  1.62],
-    ['fertilizerVIII', 1.67],
-    ['fertilizerIX',   1.72],
-    ['fertilizerX',    1.76],
+    ['quickRoots',     1.15],
+    ['fertilizerI',    1.30],
+    ['fertilizerII',   1.50],
+    ['fertilizerIII',  1.75],
+    ['fertilizerIV',   2.10],
+    ['fertilizerV',    2.60],
+    ['fertilizerVI',   3.20],
+    ['fertilizerVII',  4.00],
+    ['fertilizerVIII', 5.00],
+    ['fertilizerIX',   6.50],
+    ['fertilizerX',    8.50],
   ];
   let growSpeed = 1;
   for (const [id, val] of SPEED_TIERS) { if (bought[id]) growSpeed = val; }
-  mods.growSpeed = growSpeed * (1 + 0.15 * (prestige.fertileLegacy || 0));
+  mods.growSpeed = growSpeed * (1 + 0.25 * (prestige.fertileLegacy || 0));
 
   // ── sellValue: highest tier value wins, no stacking ───────────────────────
   const VALUE_TIERS = [
-    ['goldenHarvest',    1.20],
-    ['marketEye',        1.40],
-    ['merchantTouch',    1.65],
-    ['marketMastery',    1.95],
-    ['marketPinnacle',   2.30],
-    ['goldenEmpire',     2.75],
-    ['diamondTrade',     3.30],
-    ['platinumExchange', 4.00],
-    ['celestialMarket',  4.80],
-    ['infiniteHarvest',  5.80],
-    ['godlyYield',       7.00],
+    ['goldenHarvest',    1.30],
+    ['marketEye',        1.70],
+    ['merchantTouch',    2.20],
+    ['marketMastery',    3.00],
+    ['marketPinnacle',   4.00],
+    ['goldenEmpire',     5.50],
+    ['diamondTrade',     7.50],
+    ['platinumExchange', 10.00],
+    ['celestialMarket',  14.00],
+    ['infiniteHarvest',  20.00],
+    ['godlyYield',       30.00],
   ];
   let sellValue = 1;
   for (const [id, val] of VALUE_TIERS) { if (bought[id]) sellValue = val; }
-  mods.sellValue = sellValue * (1 + 0.20 * (prestige.goldenMemory || 0));
+  mods.sellValue = sellValue * (1 + 0.30 * (prestige.goldenMemory || 0));
 
   // ── sellInterval: highest tier (lowest multiplier) wins, then prestige ─────
   const SELL_SPEED_TIERS = [
-    ['swiftMarketI',    0.88],
-    ['swiftMarketII',   0.78],
-    ['swiftMarketIII',  0.68],
-    ['swiftMarketIV',   0.60],
-    ['swiftMarketV',    0.52],
-    ['swiftMarketVI',   0.46],
-    ['swiftMarketVII',  0.40],
-    ['swiftMarketVIII', 0.35],
-    ['swiftMarketIX',   0.31],
-    ['swiftMarketX',    0.27],
+    ['swiftMarketI',    0.80],
+    ['swiftMarketII',   0.65],
+    ['swiftMarketIII',  0.52],
+    ['swiftMarketIV',   0.42],
+    ['swiftMarketV',    0.33],
+    ['swiftMarketVI',   0.26],
+    ['swiftMarketVII',  0.20],
+    ['swiftMarketVIII', 0.15],
+    ['swiftMarketIX',   0.11],
+    ['swiftMarketX',    0.08],
   ];
   let sellSpeedMult = 1;
   for (const [id, val] of SELL_SPEED_TIERS) { if (bought[id]) sellSpeedMult = val; }
-  // Swift Return: each stack shaves 10% off the interval (additive, no floor).
-  const swiftReturnFactor = 1 - 0.10 * (prestige.swiftReturn || 0);
+  // Swift Return: each stack shaves 15% off the interval (additive, no floor).
+  const swiftReturnFactor = 1 - 0.15 * (prestige.swiftReturn || 0);
   mods.sellInterval = 10000 * sellSpeedMult * swiftReturnFactor;
 
   // ── sellBoxCapacity ────────────────────────────────────────────────────────
@@ -159,7 +159,7 @@ function recalculateModifiers() {
   // ── eventResistance: additive resistance per event type ───────────────────
   // hawkNet and herbicideII are flag-only (reduce quantity/spread, not spawn chance).
   const gh  = bought.ironGreenhouse  ? 0.20 : 0;  // global all-event reduction
-  const tsk = 0.05 * (prestige.thickSkin || 0);   // per prestige stack
+  const tsk = 0.08 * (prestige.thickSkin || 0);   // per prestige stack
   mods.eventResistance = {
     crow:        (bought.scarecrowCoat   ? 0.30 : 0) + gh + tsk,
     hawk:                                               gh + tsk,
