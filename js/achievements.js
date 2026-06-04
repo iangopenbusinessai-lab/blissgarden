@@ -66,6 +66,13 @@ window.checkAchievements = function checkAchievements() {
     stage5:         () => stageReached(5),
     expandPlot:     () => !!(s.expanded),
     buyBag:         () => (s.stats.bagsBought       || 0) >= 1,
+    // MINIGAMES
+    soilMixerEasy10:   () => (STATE.minigames?.soilMixer?.playsEasy   || 0) >= 10,
+    soilMixerMedium10: () => (STATE.minigames?.soilMixer?.playsMedium || 0) >= 10,
+    waterFlowEasy10:   () => (STATE.minigames?.waterFlow?.playsEasy   || 0) >= 10,
+    waterFlowMedium10: () => (STATE.minigames?.waterFlow?.playsMedium || 0) >= 10,
+    minigame50:  () => ((STATE.minigames?.soilMixer?.totalPlays || 0) + (STATE.minigames?.waterFlow?.totalPlays || 0)) >= 50,
+    minigame200: () => ((STATE.minigames?.soilMixer?.totalPlays || 0) + (STATE.minigames?.waterFlow?.totalPlays || 0)) >= 200,
   };
 
   let anyNew = false;

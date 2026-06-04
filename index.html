@@ -32,6 +32,7 @@
 <div id="stage-display"></div><span id="tod-icon" style="position:fixed;top:38px;left:50%;transform:translateX(-50%);font-size:16px;pointer-events:none;z-index:10"></span>
 
 <div id="topbar-right">
+  <button id="mg-btn" class="topbar-btn" title="Minigames">🎮</button>
   <button id="tp-btn" class="topbar-btn" title="Trading Post">🛖</button>
   <button id="artifacts-btn" class="topbar-btn" title="Artifacts">🏺</button>
   <button id="crafting-btn" class="topbar-btn" title="Crafting">⚒️</button>
@@ -39,6 +40,14 @@
   <button id="ach-btn" class="topbar-btn" title="Achievements">🏆</button>
   <button id="mute-btn" class="topbar-btn" title="Toggle sound">🔊</button>
   <button id="settings-btn" class="topbar-btn" title="Settings">⚙️</button>
+</div>
+<div id="mg-backdrop"></div>
+<div id="mg-modal">
+  <div id="mg-modal-header">
+    <span>🎮 Minigames</span>
+    <button id="mg-close-btn">✕</button>
+  </div>
+  <div id="mg-modal-body"></div>
 </div>
 <div id="tp-backdrop"></div>
 <div id="tp-modal">
@@ -254,6 +263,7 @@
 <script src="js/debug.js"></script>
 <script src="js/seasons.js"></script>
 <script src="js/tooltip.js"></script>
+<script src="js/minigames.js"></script>
 <script src="js/tradingPost.js"></script>
 <script src="js/tutorial.js"></script>
 <script src="js/main.js"></script>

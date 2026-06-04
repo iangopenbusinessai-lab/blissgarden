@@ -295,6 +295,13 @@ window.ACHIEVEMENTS = [
   { id:'stage5',          name:'Transcendence',        desc:'Reach Stage 5',                                  category:'exploration', stars:5 },
   { id:'expandPlot',      name:'More Room',            desc:'Expand your farm for the first time',            category:'exploration', stars:2 },
   { id:'buyBag',          name:'Mystery Box',          desc:'Purchase your first seed bag',                   category:'exploration', stars:1 },
+  // MINIGAMES
+  { id:'soilMixerEasy10',   name:'Muddy Hands',      desc:'Play Soil Mixer on Easy 10 times',   category:'exploration', stars:1 },
+  { id:'soilMixerMedium10', name:'Soil Sculptor',    desc:'Play Soil Mixer on Medium 10 times', category:'exploration', stars:2 },
+  { id:'waterFlowEasy10',   name:'Pipe Dreamer',     desc:'Play Water Flow on Easy 10 times',   category:'exploration', stars:1 },
+  { id:'waterFlowMedium10', name:'Master Plumber',   desc:'Play Water Flow on Medium 10 times', category:'exploration', stars:2 },
+  { id:'minigame50',        name:'Taking a Break',   desc:'Play any minigame 50 times total',   category:'exploration', stars:2 },
+  { id:'minigame200',       name:'Procrastinator',   desc:'Play any minigame 200 times total',  category:'exploration', stars:3 },
 ];
 
 // ══════════════════════════════

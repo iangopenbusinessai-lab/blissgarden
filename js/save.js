@@ -3,7 +3,7 @@ const KEY     = 'blissfarm10';
 const KEY_OLD = 'blissfarm9';
 
 window.save = function save() {
-  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode, reducedMotion: STATE.settings.reducedMotion, showBanners: STATE.settings.showBanners, dayOffset: STATE.meta.dayOffset, prestige: STATE.prestige, reputation: STATE.meta.reputation, artifacts: STATE.artifacts, blueprints: STATE.blueprints, recipeUnlocks: STATE.recipeUnlocks, farmName: STATE.meta.farmName, seasonIndex: STATE.meta.seasonIndex, seasonStartTime: STATE.meta.seasonStartTime, tutorialDone: STATE.meta.tutorialDone, tradingPost: STATE.tradingPost, logFilters: STATE.settings.logFilters }));
+  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode, reducedMotion: STATE.settings.reducedMotion, showBanners: STATE.settings.showBanners, dayOffset: STATE.meta.dayOffset, prestige: STATE.prestige, reputation: STATE.meta.reputation, artifacts: STATE.artifacts, blueprints: STATE.blueprints, recipeUnlocks: STATE.recipeUnlocks, farmName: STATE.meta.farmName, seasonIndex: STATE.meta.seasonIndex, seasonStartTime: STATE.meta.seasonStartTime, tutorialDone: STATE.meta.tutorialDone, tradingPost: STATE.tradingPost, logFilters: STATE.settings.logFilters, minigames: { soilMixer: STATE.minigames.soilMixer, waterFlow: STATE.minigames.waterFlow } }));
 };
 
 window.load = function load() {
@@ -121,6 +121,11 @@ window.load = function load() {
     STATE.settings.logFilters    = d.logFilters      ?? {};
     STATE.settings.reducedMotion = d.reducedMotion  ?? false;
     STATE.settings.showBanners   = d.showBanners    ?? true;
+    if (d.minigames) {
+      ['soilMixer','waterFlow'].forEach(g => {
+        if (d.minigames[g]) Object.assign(STATE.minigames[g], d.minigames[g]);
+      });
+    }
     if (d.tradingPost) {
       STATE.tradingPost.lastReset   = d.tradingPost.lastReset   ?? 0;
       STATE.tradingPost.deals       = d.tradingPost.deals       ?? [];

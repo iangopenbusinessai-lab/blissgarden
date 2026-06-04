@@ -3,6 +3,19 @@ function setupEvents() {
   EventBus.on('crop:sold',      () => {});
   EventBus.on('crop:planted',     () => { if (typeof Tutorial !== 'undefined') Tutorial.onPlanted(); });
   EventBus.on('crop:sold',        () => { if (typeof Tutorial !== 'undefined') Tutorial.onSold(); });
+  EventBus.on('minigame:complete', ({ gameId, difficulty, won }) => {
+    const reward = calcMinigameReward(gameId, difficulty, won);
+    if (won && reward > 0) {
+      addCoins(reward);
+      log(`🎮 ${gameId === 'soilMixer' ? 'Soil Mixer' : 'Water Flow'} — won ${coinHTML()}${formatNumber(reward)}!`, 'earnings');
+      if (typeof Particles !== 'undefined') Particles.coinBurst(window.innerWidth / 2, window.innerHeight / 2);
+    }
+    const key = `plays${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`;
+    STATE.minigames[gameId][key]++;
+    STATE.minigames[gameId].totalPlays++;
+    if (typeof checkAchievements === 'function') checkAchievements();
+    save();
+  });
   EventBus.on('tradingpost:open', () => Audio.playTradingPostOpen());
   EventBus.on('deal:purchased',   () => Audio.playDealPurchase());
   EventBus.on('mystery:revealed', ({ outcome }) => {
@@ -197,6 +210,17 @@ function setupUI() {
       if (!confirmed) { confirmed = true; resetBtn.textContent = 'Are you sure?'; }
       else { localStorage.clear(); location.reload(); }
     });
+  }());
+
+  (function () {
+    const mgBtn     = document.getElementById('mg-btn');
+    const mgClose   = document.getElementById('mg-close-btn');
+    const mgBackdrop = document.getElementById('mg-backdrop');
+    const mgModal   = document.getElementById('mg-modal');
+    if (mgBtn)     mgBtn.addEventListener('click', e => { e.stopPropagation(); if (mgModal?.style.display === 'flex') Minigames.close(); else Minigames.open(); });
+    if (mgClose)   mgClose.addEventListener('click', () => Minigames.close());
+    if (mgBackdrop)mgBackdrop.addEventListener('click', () => Minigames.close());
+    if (mgModal)   mgModal.addEventListener('click', e => e.stopPropagation());
   }());
 
   (function () {

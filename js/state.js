@@ -77,6 +77,10 @@ window.STATE = {
     purchased: {},
     merchantIdx: 0,
   },
+  minigames: {
+    soilMixer: { playsEasy:0, playsMedium:0, playsHard:0, totalPlays:0 },
+    waterFlow:  { playsEasy:0, playsMedium:0, playsHard:0, totalPlays:0 },
+  },
   session: {
     dragItem: null,
     log: [],
