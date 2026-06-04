@@ -34,7 +34,7 @@ function weedSpawn() {
       state.firstThornedEver = true;
       showBanner('🌵 Thorned weeds are appearing!');
     }
-    log('🌵 A thorned weed sprouted! (50 clicks to clear)');
+    log('🌵 A thorned weed sprouted! (50 clicks to clear)', 'event');
     RenderFarm.renderTile(idx); save();
   } else {
     const idx = empty[Math.floor(Math.random() * empty.length)];
@@ -45,7 +45,7 @@ function weedSpawn() {
       state.firstWeedEver = true;
       showBanner('🌿 Weeds are beginning to appear.');
     }
-    log('🌿 A weed sprouted!');
+    log('🌿 A weed sprouted!', 'event');
     RenderFarm.renderTile(idx); save();
   }
 }
@@ -83,7 +83,7 @@ function thornedWeedTick() {
       const target = adj[Math.floor(Math.random() * adj.length)];
       if (!state.weeds) state.weeds = {};
       state.weeds[target] = { clicks: 0 };
-      log('🌿 A thorned weed spread to an adjacent tile!');
+      log('🌿 A thorned weed spread to an adjacent tile!', 'event');
       RenderFarm.renderTile(target);
     }
   });

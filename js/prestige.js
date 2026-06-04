@@ -136,7 +136,7 @@ function prestige() {
   EventBus.emit('prestige:reset', { count: pr.count, pointsEarned: points });
   const _fn = STATE.meta.farmName || 'Bliss Farm';
   showBanner(`✨ ${_fn} — Prestige ${pr.count}. The farm is reborn. +${points} ${pLabel} earned.`);
-  log(`✨ Prestige ${pr.count} complete. Earned ${points} prestige ${pLabel}.`);
+  log(`✨ Prestige ${pr.count} complete. Earned ${points} prestige ${pLabel}.`, 'prestige');
 }
 
 function buyPerk(perkId) {

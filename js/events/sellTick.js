@@ -19,16 +19,16 @@ function tickSellBox() {
       const recipe = window.RECIPES && window.RECIPES.find(r => r.id === item.seed);
       coins = recipe ? recipe.sellValue : 0;
       state.stats.craftedSold = (state.stats.craftedSold || 0) + 1;
-      log(`${recipe ? recipe.emoji : '?'} ${recipe ? recipe.name : item.seed} sold for ${coinHTML()}${formatNumber(coins)}`);
+      log(`${recipe ? recipe.emoji : '?'} ${recipe ? recipe.name : item.seed} sold for ${coinHTML()}${formatNumber(coins)}`, 'earnings');
     } else if (item.fungal) {
       coins = 0;
-      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${formatNumber(coins)} (fungal)`);
+      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${formatNumber(coins)} (fungal)`, 'earnings');
     } else if (item.drowned) {
       coins = Math.round(SEEDS[item.seed].sell * (item.bonus || 1));
-      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${formatNumber(coins)}`);
+      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${formatNumber(coins)}`, 'earnings');
     } else {
       coins = Math.round(SEEDS[item.seed].sell * STATE.modifiers.sellValue * (STATE.modifiers.seasonSellMult || 1) * (item.bonus || 1));
-      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${formatNumber(coins)}`);
+      log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${formatNumber(coins)}`, 'earnings');
     }
     totalCoins += coins; sold++;
   }

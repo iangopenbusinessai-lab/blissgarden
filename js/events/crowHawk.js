@@ -59,7 +59,7 @@ function crowAttack() {
   sfx.attack();
   state.stats.crowsSurvived = (state.stats.crowsSurvived || 0) + 1;
   if (typeof checkAchievements === 'function') checkAchievements();
-  log(`🐦 A crow snatched a ${cropName}!`);
+  log(`🐦 A crow snatched a ${cropName}!`, 'attack');
   animateCrow();
   save();
 }
@@ -109,10 +109,10 @@ function hawkAttack() {
   toSteal.forEach(t => {
     if (t.type === 'loose') {
       const i = state.loose.findIndex(l => l.id === t.item.id);
-      if (i !== -1) { log(`🦅 A hawk snatched a ${SEEDS[t.item.seed].name}!`); state.loose.splice(i, 1); stolen++; }
+      if (i !== -1) { log(`🦅 A hawk snatched a ${SEEDS[t.item.seed].name}!`, 'attack'); state.loose.splice(i, 1); stolen++; }
     } else {
       if (state.tiles[t.idx]) {
-        log(`🦅 A hawk snatched a ${SEEDS[state.tiles[t.idx].seed].name}!`);
+        log(`🦅 A hawk snatched a ${SEEDS[state.tiles[t.idx].seed].name}!`, 'attack');
         state.tiles[t.idx] = null;
         if (state.tilesWatered) delete state.tilesWatered[t.idx];
         if (state.rotTiles)     delete state.rotTiles[t.idx];

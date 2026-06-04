@@ -3,7 +3,7 @@ const KEY     = 'blissfarm10';
 const KEY_OLD = 'blissfarm9';
 
 window.save = function save() {
-  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode, dayOffset: STATE.meta.dayOffset, prestige: STATE.prestige, reputation: STATE.meta.reputation, artifacts: STATE.artifacts, blueprints: STATE.blueprints, recipeUnlocks: STATE.recipeUnlocks, farmName: STATE.meta.farmName, seasonIndex: STATE.meta.seasonIndex, seasonStartTime: STATE.meta.seasonStartTime, tutorialDone: STATE.meta.tutorialDone, tradingPost: STATE.tradingPost }));
+  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode, dayOffset: STATE.meta.dayOffset, prestige: STATE.prestige, reputation: STATE.meta.reputation, artifacts: STATE.artifacts, blueprints: STATE.blueprints, recipeUnlocks: STATE.recipeUnlocks, farmName: STATE.meta.farmName, seasonIndex: STATE.meta.seasonIndex, seasonStartTime: STATE.meta.seasonStartTime, tutorialDone: STATE.meta.tutorialDone, tradingPost: STATE.tradingPost, logFilters: STATE.settings.logFilters }));
 };
 
 window.load = function load() {
@@ -118,6 +118,7 @@ window.load = function load() {
     STATE.meta.seasonIndex     = d.seasonIndex     ?? 0;
     STATE.meta.seasonStartTime = d.seasonStartTime ?? Date.now();
     STATE.meta.tutorialDone    = d.tutorialDone    ?? false;
+    STATE.settings.logFilters  = d.logFilters      ?? {};
     if (d.tradingPost) {
       STATE.tradingPost.lastReset   = d.tradingPost.lastReset   ?? 0;
       STATE.tradingPost.deals       = d.tradingPost.deals       ?? [];

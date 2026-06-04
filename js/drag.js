@@ -171,10 +171,10 @@ window.DragSystem = (() => {
               if (!state.rotTiles) state.rotTiles = {};
               state.rotTiles[i] = { infectedAt: Date.now() };
               delete state.diseasedTiles[i];
-              log(`🐀 Diseased soil infected the ${SEEDS[seed].name}!`);
+              log(`🐀 Diseased soil infected the ${SEEDS[seed].name}!`, 'event');
             }
             RenderFarm.renderTile(i); save();
-            log(`🌱 Planted ${SEEDS[seed].name}`);
+            log(`🌱 Planted ${SEEDS[seed].name}`, 'growth');
             EventBus.emit('crop:planted', { idx: i, seed });
             planted = true;
           }
@@ -301,7 +301,7 @@ DragSystem.register('inventory-item', 'tile', (item, tileEl) => {
         if (!state.tilesWatered) state.tilesWatered = {};
         state.tilesWatered[ai] = true;
         RenderFarm.renderTile(ai);
-        log(`💫 Cosmic well watered ${SEEDS[atd.seed].name}`);
+        log(`💫 Cosmic well watered ${SEEDS[atd.seed].name}`, 'growth');
         extra++;
       }
       if (extra > 0) save();
@@ -311,12 +311,12 @@ DragSystem.register('inventory-item', 'tile', (item, tileEl) => {
     if (!state.hiredHandAssignments) state.hiredHandAssignments = {};
     state.hiredHandAssignments[i] = true;
     state.hiredHandCount = Math.max(0, (state.hiredHandCount || 0) - 1);
-    log(`👨‍🌾 Hired hand assigned to plot ${i + 1}`);
+    log(`👨‍🌾 Hired hand assigned to plot ${i + 1}`, 'system');
     RenderFarm.renderTile(i); RenderPanel.renderInventory(); save();
 
   } else if (it === 'cage' && !state.cages.includes(i) && !blocked) {
     state.cages.push(i);
-    log('🔒 Cage placed on tile');
+    log('🔒 Cage placed on tile', 'system');
     EventBus.emit('cage:placed');
     RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save();
 
@@ -339,7 +339,7 @@ DragSystem.register('inventory-item', 'tile', (item, tileEl) => {
         td.plantedAt  = Date.now() - (newGT - newRem) * 1000;
       }
     }
-    log('🌿 Plot fertilized — crops grow 25% faster here');
+    log('🌿 Plot fertilized — crops grow 25% faster here', 'growth');
     EventBus.emit('tile:fertilized');
     RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save();
 
@@ -361,7 +361,7 @@ DragSystem.register('inventory-item', 'tile', (item, tileEl) => {
         td.plantedAt  = Date.now() - (newGT - newRem) * 1000;
       }
     }
-    log('⚗️ Plot uncommon fertilized — crops grow 40% faster here');
+    log('⚗️ Plot uncommon fertilized — crops grow 40% faster here', 'growth');
     EventBus.emit('tile:fertilized');
     RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save();
 

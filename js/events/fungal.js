@@ -19,7 +19,7 @@ function showFungalCureMenu(idx, cost, x, y) {
       if (state.tilesWatered) delete state.tilesWatered[idx];
       if (state.rotTiles)     delete state.rotTiles[idx];
     }
-    log('✅ Fungal tile cleared.');
+    log('✅ Fungal tile cleared.', 'event');
     updateCoins(); RenderFarm.renderTile(idx); save(); hideTileMenu();
   });
   menu.appendChild(btn);
@@ -56,7 +56,7 @@ function fungalBloom() {
   if (!state.fungalTiles) state.fungalTiles = {};
   const idx = cands[Math.floor(Math.random() * cands.length)];
   state.fungalTiles[idx] = { spawnedAt: Date.now() };
-  log('🍄 Fungal bloom appeared!');
+  log('🍄 Fungal bloom appeared!', 'event');
   EventBus.emit('event:fungal');
   RenderFarm.renderTile(idx); save();
 }
@@ -93,6 +93,6 @@ function fungalSpread() {
   const adjArr = [...adjSet];
   const target = adjArr[Math.floor(Math.random() * adjArr.length)];
   state.fungalTiles[target] = { spawnedAt: Date.now() };
-  log('🍄 Fungal bloom spread.');
+  log('🍄 Fungal bloom spread.', 'event');
   RenderFarm.renderTile(target); save();
 }

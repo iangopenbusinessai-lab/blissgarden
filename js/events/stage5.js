@@ -43,7 +43,7 @@ function voidRiftOpen() {
   const idx = cands[Math.floor(Math.random() * cands.length)];
   if (!state.voidRifts) state.voidRifts = {};
   state.voidRifts[idx] = { openedAt: Date.now(), clicks: 0 };
-  log('🌀 A void rift opened!');
+  log('🌀 A void rift opened!', 'event');
   EventBus.emit('event:voidRift');
   RenderFarm.renderTile(idx); save();
 }
@@ -101,12 +101,12 @@ function cosmicCrowAttack() {
     if (t.type === 'loose') {
       const i = state.loose.findIndex(l => l.id === t.item.id);
       if (i !== -1) {
-        log(`👾 A cosmic crow snatched a ${SEEDS[t.item.seed].name}!`);
+        log(`👾 A cosmic crow snatched a ${SEEDS[t.item.seed].name}!`, 'attack');
         state.loose.splice(i, 1); stolen++;
       }
     } else {
       if (state.tiles[t.idx]) {
-        log(`👾 A cosmic crow snatched a ${SEEDS[state.tiles[t.idx].seed].name}!`);
+        log(`👾 A cosmic crow snatched a ${SEEDS[state.tiles[t.idx].seed].name}!`, 'attack');
         state.tiles[t.idx] = null;
         if (state.tilesWatered) delete state.tilesWatered[t.idx];
         if (state.rotTiles)     delete state.rotTiles[t.idx];
@@ -174,7 +174,7 @@ function realityStormAttack() {
       }
     }
   }
-  log('🌌 A reality storm tore through the farm!');
+  log('🌌 A reality storm tore through the farm!', 'event');
   EventBus.emit('event:realityStorm');
   RenderFarm.renderGrid();
   animateRealityStorm();

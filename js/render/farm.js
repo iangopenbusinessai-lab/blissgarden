@@ -14,7 +14,7 @@ function applyWater(idx) {
   if (!state.tilesWatered) state.tilesWatered = {};
   state.tilesWatered[idx] = true;
   RenderFarm.renderTile(idx); RenderPanel.renderInventory(); RenderPanel.renderItems();
-  log(`💧 ${SEEDS[td.seed].name} watered (+25% value, +25% speed)`);
+  log(`💧 ${SEEDS[td.seed].name} watered (+25% value, +25% speed)`, 'growth');
   EventBus.emit('crop:watered');
   save();
 }
@@ -32,7 +32,7 @@ function drownTile(idx) {
   td.drowned      = true; td.sellBonus = 0.25;
   delete state.tilesWatered[idx];
   RenderFarm.renderTile(idx); RenderPanel.renderInventory(); RenderPanel.renderItems();
-  log(`💀 ${SEEDS[td.seed].name} was drowned! Value severely reduced.`);
+  log(`💀 ${SEEDS[td.seed].name} was drowned! Value severely reduced.`, 'growth');
   save();
 }
 
@@ -92,7 +92,7 @@ function showTileMenu(idx, x, y) {
       e.stopPropagation();
       const ci = state.cages.indexOf(idx);
       if (ci !== -1) { state.cages.splice(ci, 1); state.cageCount = (state.cageCount||0) + 1; }
-      RenderFarm.renderTile(idx); RenderPanel.renderItems(); log('🔒 Cage removed, returned to inventory'); save(); hideTileMenu();
+      RenderFarm.renderTile(idx); RenderPanel.renderItems(); log('🔒 Cage removed, returned to inventory', 'system'); save(); hideTileMenu();
     });
     menu.appendChild(btn);
   }
@@ -147,7 +147,7 @@ function showRotCureMenu(idx, cost, x, y) {
         td.plantedAt = Date.now() - (newGT - oldRem * (newGT / oldGT)) * 1000;
       }
     }
-    log('💊 Root rot cured.');
+    log('💊 Root rot cured.', 'event');
     updateCoins(); RenderFarm.renderTile(idx); save(); hideTileMenu();
   });
   menu.appendChild(btn);
@@ -176,7 +176,7 @@ function showFungalCureMenu(idx, cost, x, y) {
       if (state.tilesWatered) delete state.tilesWatered[idx];
       if (state.rotTiles)     delete state.rotTiles[idx];
     }
-    log('✅ Fungal tile cleared.');
+    log('✅ Fungal tile cleared.', 'event');
     updateCoins(); RenderFarm.renderTile(idx); save(); hideTileMenu();
   });
   menu.appendChild(btn);
@@ -196,7 +196,7 @@ function onTileDown(e) {
     state.voidRifts[idx].clicks++;
     if (state.voidRifts[idx].clicks >= VOID_RIFT_CLICKS) {
       delete state.voidRifts[idx];
-      log('🌀 Void rift sealed!');
+      log('🌀 Void rift sealed!', 'event');
       RenderFarm.renderTile(idx);
     } else {
       e.currentTarget.classList.add('tile-rift-hit');
@@ -222,7 +222,7 @@ function onTileDown(e) {
     state.thornedWeeds[idx].clicks++;
     if (state.thornedWeeds[idx].clicks >= THORNED_WEED_CLICKS) {
       delete state.thornedWeeds[idx];
-      log('✅ Thorned weed cleared!');
+      log('✅ Thorned weed cleared!', 'event');
       EventBus.emit('weed:cleared');
       RenderFarm.renderTile(idx);
     } else {
@@ -237,7 +237,7 @@ function onTileDown(e) {
     state.weeds[idx].clicks++;
     if (state.weeds[idx].clicks >= WEED_CLICKS) {
       delete state.weeds[idx];
-      log('✅ Weed cleared!');
+      log('✅ Weed cleared!', 'event');
       EventBus.emit('weed:cleared');
       RenderFarm.renderTile(idx);
     } else {
@@ -274,8 +274,8 @@ function onTileDown(e) {
     state.tiles[idx] = null;
     if (state.tilesWatered) delete state.tilesWatered[idx];
     RenderFarm.renderTile(idx); save();
-    log(`${SEEDS[seed].icon} ${SEEDS[seed].name} harvested${_isFungal ? ' (fungal — 0 coins)' : ''}`);
-    if (rotInf) log('🍂 Infected — sells for 50% base value');
+    log(`${SEEDS[seed].icon} ${SEEDS[seed].name} harvested${_isFungal ? ' (fungal — 0 coins)' : ''}`, 'growth');
+    if (rotInf) log('🍂 Infected — sells for 50% base value', 'event');
     EventBus.emit('crop:harvested', { seed, idx });
     startDrag(seed, 'tile', bonus, drowned, _isFungal); moveGhost(e.clientX, e.clientY);
     return;
@@ -303,10 +303,10 @@ function onTileDown(e) {
             td.plantedAt  = Date.now() - (newGT - oldRem * (newGT / oldGT)) * 1000;
           }
         }
-        log('💊 Root rot cured.');
+        log('💊 Root rot cured.', 'event');
         updateCoins(); RenderFarm.renderTile(idx); save();
       } else {
-        log(`💊 Need ${coinHTML()}${formatNumber(cureCost)} to cure root rot.`);
+        log(`💊 Need ${coinHTML()}${formatNumber(cureCost)} to cure root rot.`, 'event');
       }
     } else {
       showRotCureMenu(idx, cureCost, e.clientX + 4, e.clientY + 4);
@@ -519,7 +519,7 @@ window.RenderFarm = (() => {
             e.stopPropagation();
             const ci = state.cages.indexOf(idx);
             if (ci !== -1) { state.cages.splice(ci, 1); state.cageCount = (state.cageCount||0) + 1; }
-            renderTile(idx); RenderPanel.renderItems(); log('🔒 Cage removed, returned to inventory'); save();
+            renderTile(idx); RenderPanel.renderItems(); log('🔒 Cage removed, returned to inventory', 'system'); save();
           });
           el.appendChild(cb);
         }

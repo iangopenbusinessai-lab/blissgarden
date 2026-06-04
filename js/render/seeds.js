@@ -15,7 +15,7 @@ function openBag(bag) {
     state.seedInventory[chosen] = (state.seedInventory[chosen] || 0) + 1;
     received.push((SEEDS[chosen].seedIcon || SEEDS[chosen].icon || '🌱') + ' ' + SEEDS[chosen].name);
   }
-  log(`🎒 ${bag.name} opened: ${received.join(', ')}`);
+  log(`🎒 ${bag.name} opened: ${received.join(', ')}`, 'growth');
   RenderInventory.renderInventory(); save();
 }
 
@@ -46,7 +46,7 @@ window.RenderSeeds = (() => {
         state.seedInventory[key] = (state.seedInventory[key] || 0) + 1;
         EventBus.emit('seed:purchased', { seed: key });
         updateCoins(); RenderInventory.renderInventory(); save();
-        log(`🌱 Bought ${seed.name} seed`);
+        log(`🌱 Bought ${seed.name} seed`, 'growth');
       });
       row.appendChild(iconSpan); row.appendChild(infoDiv); row.appendChild(btn);
       _seedsEl.appendChild(row);
@@ -88,7 +88,7 @@ window.RenderSeeds = (() => {
         if (typeof checkAchievements === 'function') checkAchievements();
         EventBus.emit('bag:purchased', { bag: bag.id });
         updateCoins(); RenderInventory.renderInventory(); save();
-        log(`🎒 Bought ${bag.name}`);
+        log(`🎒 Bought ${bag.name}`, 'growth');
       });
       if (typeof Tooltip !== 'undefined') card.dataset.tooltip = Tooltip.bagTip(bag);
       _bagsEl.appendChild(card);

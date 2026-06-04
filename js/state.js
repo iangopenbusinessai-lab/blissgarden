@@ -52,6 +52,7 @@ window.STATE = {
     muted: false,
     hidePurchased: true,
     debugMode: false,
+    logFilters: {},
   },
   prestige: {
     count: 0,
@@ -73,6 +74,7 @@ window.STATE = {
   },
   session: {
     dragItem: null,
+    log: [],
     debugCounts: { crow:0, hawk:0, weed:0, mole:0, rootRot:0, locust:0, blight:0, fungal:0 },
     crankMultiplier: 1,
     timeOfDay: 'day',

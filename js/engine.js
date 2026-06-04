@@ -223,9 +223,9 @@ function applyOfflineProgress(elapsedMs) {
   setTimeout(() => {
     if (typeof window.log === 'function') {
       const goldPart = coinsEarned > 0 ? ` Earned 🪙${formatNumber(coinsEarned)} while away.` : '';
-      window.log(`💤 Returned after ${logTime}.${goldPart}`);
-      milestonesHit.forEach(m => window.log(`⏱️ Reached 🪙${formatNumber(m)} while you were away.`));
-      stagesHit.forEach(s => { if (s.log) window.log(s.log); });
+      window.log(`💤 Returned after ${logTime}.${goldPart}`, 'system');
+      milestonesHit.forEach(m => window.log(`⏱️ Reached 🪙${formatNumber(m)} while you were away.`, 'earnings'));
+      stagesHit.forEach(s => { if (s.log) window.log(s.log, 'prestige'); });
     }
     _showOfflineModal(elapsedMs, coinsEarned, cropsFinished, milestonesHit, stagesHit);
   }, 0);
@@ -299,7 +299,7 @@ function setupTimers() {
       state.tiles[idx] = null;
       if (state.tilesWatered) delete state.tilesWatered[idx];
       RenderFarm.renderTile(idx);
-      log(`👨‍🌾 Hired hand harvested a ${SEEDS[td.seed].name}!`);
+      log(`👨‍🌾 Hired hand harvested a ${SEEDS[td.seed].name}!`, 'growth');
       changed = true;
     });
     if (changed) { renderLoose(); save(); }

@@ -32,7 +32,7 @@ function moleAttack() {
   if (state.rotTiles)     delete state.rotTiles[idx];
   if (!state.mounds) state.mounds = {};
   state.mounds[idx] = Date.now() + (state.upgrades.quickSoil ? 5000 : 20000);
-  log(`🐭 A mole uprooted a ${SEEDS[td.seed].name}! It fell loose nearby.`);
+  log(`🐭 A mole uprooted a ${SEEDS[td.seed].name}! It fell loose nearby.`, 'attack');
   EventBus.emit('event:mole');
   RenderFarm.renderTile(idx); save();
 }

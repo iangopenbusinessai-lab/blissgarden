@@ -235,26 +235,26 @@ window.TradingPost = (() => {
       case 'seeds':
         if (!state.seedInventory) state.seedInventory = {};
         state.seedInventory[deal.seedId] = (state.seedInventory[deal.seedId] || 0) + deal.qty;
-        log(`🌱 Purchased ${deal.qty}× ${window.SEEDS[deal.seedId].name} seeds from trading post`);
+        log(`🌱 Purchased ${deal.qty}× ${window.SEEDS[deal.seedId].name} seeds from trading post`, 'growth');
         break;
 
       case 'bag':
         if (!state.bagInventory) state.bagInventory = {};
         state.bagInventory[deal.bagId] = (state.bagInventory[deal.bagId] || 0) + 1;
-        log(`🎒 Purchased ${deal.name} from trading post`);
+        log(`🎒 Purchased ${deal.name} from trading post`, 'growth');
         break;
 
       case 'blueprint':
         if (STATE.blueprints[deal.blueprintId]) break;
         STATE.blueprints[deal.blueprintId] = true;
         EventBus.emit('blueprint:unlocked', { blueprintId: deal.blueprintId });
-        log(`📜 Blueprint unlocked: ${deal.name}`);
+        log(`📜 Blueprint unlocked: ${deal.name}`, 'unlock');
         break;
 
       case 'rareSeedBundle':
         if (!state.seedInventory) state.seedInventory = {};
         state.seedInventory[deal.seedId] = (state.seedInventory[deal.seedId] || 0) + deal.qty;
-        log(`🌱 Received ${deal.qty}× ${window.SEEDS[deal.seedId].name} seeds from trading post`);
+        log(`🌱 Received ${deal.qty}× ${window.SEEDS[deal.seedId].name} seeds from trading post`, 'growth');
         break;
 
       case 'merchantBag': {
@@ -266,14 +266,14 @@ window.TradingPost = (() => {
           state.seedInventory[sid] = (state.seedInventory[sid] || 0) + 1;
           received.push(window.SEEDS[sid].name);
         }
-        log(`🎁 Merchant's Bag opened: ${received.join(', ')}`);
+        log(`🎁 Merchant's Bag opened: ${received.join(', ')}`, 'growth');
         break;
       }
 
       case 'ancientBlueprint': {
         STATE.recipeUnlocks[deal.recipeId] = true;
         const r = (window.RECIPES || []).find(r => r.id === deal.recipeId);
-        log(`📜 Ancient Blueprint: ${r ? r.emoji + ' ' + r.name : deal.recipeId} unlocked!`);
+        log(`📜 Ancient Blueprint: ${r ? r.emoji + ' ' + r.name : deal.recipeId} unlocked!`, 'unlock');
         if (typeof RenderCrafting !== 'undefined') RenderCrafting.renderCraftingPanel();
         break;
       }
@@ -281,7 +281,7 @@ window.TradingPost = (() => {
       case 'ingredientBundle':
         if (!state.craftedInventory) state.craftedInventory = {};
         state.craftedInventory[deal.recipeId] = (state.craftedInventory[deal.recipeId] || 0) + deal.qty;
-        log(`🎁 Received ${deal.qty}× ${deal.name.replace(` ×${deal.qty}`,'')} from trading post`);
+        log(`🎁 Received ${deal.qty}× ${deal.name.replace(` ×${deal.qty}`,'')} from trading post`, 'unlock');
         break;
 
       case 'directArtifact':
@@ -289,12 +289,12 @@ window.TradingPost = (() => {
         STATE.artifacts[deal.artifactId] = true;
         recalculateModifiers();
         EventBus.emit('artifact:crafted', { artifactId: deal.artifactId });
-        log(`🏺 Artifact unlocked: ${deal.name}!`);
+        log(`🏺 Artifact unlocked: ${deal.name}!`, 'unlock');
         break;
 
       case 'prestigePoint':
         STATE.prestige.points = (STATE.prestige.points || 0) + 1;
-        log('✨ Gained 1 prestige point from trading post');
+        log('✨ Gained 1 prestige point from trading post', 'prestige');
         if (typeof RenderPanel !== 'undefined') RenderPanel.renderPrestige();
         break;
 
@@ -317,21 +317,21 @@ window.TradingPost = (() => {
       coins = Math.floor(cost * 0.5);
       addCoins(coins);
       emoji = '😢'; text = `Lost half… got back ${coinHTML()}${formatNumber(coins)}`;
-      log(`🎁 Mystery Box: lost half, returned ${coinHTML()}${formatNumber(coins)}`);
+      log(`🎁 Mystery Box: lost half, returned ${coinHTML()}${formatNumber(coins)}`, 'earnings');
       EventBus.emit('mystery:revealed', { outcome: 'loss' });
 
     } else if (outcome === 'smallWin') {
       coins = Math.floor(cost * 1.5);
       addCoins(coins);
       emoji = '😊'; text = `Small win! +${coinHTML()}${formatNumber(coins)}`;
-      log(`🎁 Mystery Box: small win! +${coinHTML()}${formatNumber(coins)}`);
+      log(`🎁 Mystery Box: small win! +${coinHTML()}${formatNumber(coins)}`, 'earnings');
       EventBus.emit('mystery:revealed', { outcome: 'win', coins });
 
     } else if (outcome === 'bigWin') {
       coins = Math.floor(cost * 3);
       addCoins(coins);
       emoji = '🎉'; text = `Big win! +${coinHTML()}${formatNumber(coins)}`;
-      log(`🎁 Mystery Box: big win! +${coinHTML()}${formatNumber(coins)}`);
+      log(`🎁 Mystery Box: big win! +${coinHTML()}${formatNumber(coins)}`, 'earnings');
       EventBus.emit('mystery:revealed', { outcome: 'bigWin', coins });
       if (typeof Particles !== 'undefined') Particles.coinBurst(window.innerWidth / 2, window.innerHeight / 2);
 
@@ -341,7 +341,7 @@ window.TradingPost = (() => {
         if (!state.bagInventory) state.bagInventory = {};
         state.bagInventory[bag.id] = (state.bagInventory[bag.id] || 0) + 1;
         emoji = bag.icon; text = `Got a ${bag.name}!`;
-        log(`🎁 Mystery Box: received a ${bag.name}!`);
+        log(`🎁 Mystery Box: received a ${bag.name}!`, 'growth');
       }
       EventBus.emit('mystery:revealed', { outcome: 'bag' });
 
@@ -352,7 +352,7 @@ window.TradingPost = (() => {
         STATE.blueprints[bp.id] = true;
         EventBus.emit('blueprint:unlocked', { blueprintId: bp.id });
         emoji = '📜'; text = `Blueprint unlocked: ${bp.name}!`;
-        log(`🎁 Mystery Box: blueprint ${bp.name} unlocked!`);
+        log(`🎁 Mystery Box: blueprint ${bp.name} unlocked!`, 'unlock');
       } else {
         coins = cost * 2;
         addCoins(coins);
@@ -363,7 +363,7 @@ window.TradingPost = (() => {
     } else if (outcome === 'prestige') {
       STATE.prestige.points = (STATE.prestige.points || 0) + 1;
       emoji = '✨'; text = 'Prestige point gained!';
-      log('🎁 Mystery Box: gained a prestige point!');
+      log('🎁 Mystery Box: gained a prestige point!', 'prestige');
       EventBus.emit('mystery:revealed', { outcome: 'prestige' });
       if (typeof RenderPanel !== 'undefined') RenderPanel.renderPrestige();
 
@@ -375,7 +375,7 @@ window.TradingPost = (() => {
         recalculateModifiers();
         EventBus.emit('artifact:crafted', { artifactId: art.id });
         emoji = art.emoji; text = `Artifact unlocked: ${art.name}!`;
-        log(`🎁 Mystery Box: artifact ${art.name} unlocked!`);
+        log(`🎁 Mystery Box: artifact ${art.name} unlocked!`, 'unlock');
       } else {
         coins = cost * 5;
         addCoins(coins);

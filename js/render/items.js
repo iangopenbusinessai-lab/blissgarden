@@ -42,7 +42,7 @@ window.RenderItems = (() => {
       state.coins -= 800;
       if (!state.upgrades) state.upgrades = {};
       state.upgrades.copperSpout = true;
-      log(`${coinHTML()} Copper Spout installed — fill time 8s, capacity 2`);
+      log(`${coinHTML()} Copper Spout installed — fill time 8s, capacity 2`, 'unlock');
       updateCoins(); RenderInventory.renderInventory(); save();
     });
     _itemsEl.appendChild(_spoutCard);
@@ -99,7 +99,7 @@ window.RenderItems = (() => {
       STATE.meta.reputation -= 5;
       state.hiredHandCount = (state.hiredHandCount || 0) + 1;
       RenderInventory.renderInventory(); RenderItems.renderItems(); RenderHUD.renderReputation(); save();
-      log('👨‍🌾 Hired hand hired!');
+      log('👨‍🌾 Hired hand hired!', 'system');
     });
     hhBotDiv.appendChild(_hhBtn); _hhCard.appendChild(hhBotDiv);
     _itemsEl.appendChild(_hhCard);

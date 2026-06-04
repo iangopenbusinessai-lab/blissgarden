@@ -172,7 +172,7 @@ window.RenderPanel = (() => {
         if (!state.seedInventory) state.seedInventory = {};
         state.seedInventory[key] = (state.seedInventory[key] || 0) + 1;
         RenderInventory.renderInventory(); renderAscension(); save();
-        log(`✨ Bought ${seed.name} seed for ${seed.ppCost} prestige points`);
+        log(`✨ Bought ${seed.name} seed for ${seed.ppCost} prestige points`, 'prestige');
       });
       botDiv.appendChild(costSpan); botDiv.appendChild(btn);
       card.appendChild(nameDiv); card.appendChild(descDiv); card.appendChild(botDiv);

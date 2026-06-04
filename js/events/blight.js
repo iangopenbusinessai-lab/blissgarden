@@ -28,7 +28,7 @@ function showRotCureMenu(idx, cost, x, y) {
     }
     state.stats.rotCured = (state.stats.rotCured || 0) + 1;
     if (typeof checkAchievements === 'function') checkAchievements();
-    log('💊 Root rot cured.');
+    log('💊 Root rot cured.', 'event');
     updateCoins(); RenderFarm.renderTile(idx); save(); hideTileMenu();
   });
   menu.appendChild(btn);
@@ -56,7 +56,7 @@ function rotTick() {
         state.tiles[idx] = null;
         if (state.tilesWatered) delete state.tilesWatered[idx];
         state.rotTiles[idx] = { deadAt: now + 30000 };
-        log(`💀 ${cropName} died from root rot.`);
+        log(`💀 ${cropName} died from root rot.`, 'event');
         RenderFarm.renderTile(idx); changed = true;
       }
     }
@@ -101,7 +101,7 @@ function rootRotInfect() {
   STATE.session.debugCounts.rootRot++;
   if (!state.rotTiles) state.rotTiles = {};
   state.rotTiles[idx] = { infectedAt: Date.now() };
-  log(`🍂 Root rot infected your ${SEEDS[td.seed].name}!`);
+  log(`🍂 Root rot infected your ${SEEDS[td.seed].name}!`, 'event');
   EventBus.emit('event:rootRot');
   RenderFarm.renderTile(idx); save();
 }
@@ -139,7 +139,7 @@ function locustAttack() {
   sfx.locust();
   state.stats.locustsSurvived = (state.stats.locustsSurvived || 0) + 1;
   if (typeof checkAchievements === 'function') checkAchievements();
-  log('🪲 A locust swarm devastated the farm!');
+  log('🪲 A locust swarm devastated the farm!', 'event');
   RenderFarm.renderGrid();
   animateLocust();
 }
@@ -182,7 +182,7 @@ function blightAttack() {
   }
   state.stats.blightsSurvived = (state.stats.blightsSurvived || 0) + 1;
   if (typeof checkAchievements === 'function') checkAchievements();
-  log('🌪️ A blight storm stripped your soil!');
+  log('🌪️ A blight storm stripped your soil!', 'event');
   EventBus.emit('event:blight');
   RenderFarm.renderGrid();
   animateBlight();

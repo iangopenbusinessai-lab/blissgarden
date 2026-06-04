@@ -33,7 +33,7 @@ window.RenderUpgrades = (() => {
         if (u.type === 'sellSpeed') TimerManager.restart('sell');
         if (u.id === 'workshop' && typeof checkFreeRecipes === 'function') checkFreeRecipes();
         sfx.upgrade();
-        log(`⬆️ ${u.name} purchased`);
+        log(`⬆️ ${u.name} purchased`, 'unlock');
         updateCoins(); RenderFarm.renderGrid();
         if (typeof checkAchievements === 'function') checkAchievements();
         save();

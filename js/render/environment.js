@@ -157,7 +157,7 @@ window.RenderEnv = (() => {
     const tod = _fracToTod(frac);
     if (tod !== prevTod) {
       STATE.session.timeOfDay = tod;
-      if (prevTod !== null && typeof log === 'function') log(TOD_MSGS[tod]);
+      if (prevTod !== null && typeof log === 'function') log(TOD_MSGS[tod], 'season');
       prevTod = tod;
       const iconEl = document.getElementById('tod-icon');
       if (iconEl) iconEl.textContent = TOD_ICONS[tod];

@@ -49,11 +49,11 @@ window.RenderInventory = (() => {
       if (state.upgrades.cosmicWell) {
         state.canCharges = Math.min(canCapacity(), (state.canCharges || 0) + 1);
         renderInventory(); RenderItems.renderItems(); save();
-        log('💫 Cosmic well filled the can instantly!');
+        log('💫 Cosmic well filled the can instantly!', 'growth');
       } else {
         state.canRefillAt = Date.now() + canFillTime();
         renderInventory(); RenderItems.renderItems(); save();
-        log('💧 Watering can filling…');
+        log('💧 Watering can filling…', 'growth');
       }
     });
     _wcSlot.appendChild(_wcFillBtn);
@@ -159,7 +159,7 @@ window.RenderInventory = (() => {
         state.seedInventory[key]--;
         if (state.seedInventory[key] <= 0) delete state.seedInventory[key];
         addCoins(price);
-        log(`🌱 Sold ${seed.name} seed for ${coinHTML()}${price}`);
+        log(`🌱 Sold ${seed.name} seed for ${coinHTML()}${price}`, 'earnings');
         renderInventory(); save();
       });
       slot.appendChild(icon); slot.appendChild(sellBtn);

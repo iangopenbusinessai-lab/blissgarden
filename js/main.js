@@ -15,7 +15,7 @@ function setupEvents() {
     const art = (window.ARTIFACTS || []).find(a => a.id === artifactId);
     const name = art ? art.name : artifactId;
     DIRTY.panel = true;
-    log(`🏺 ${name} artifact activated!`);
+    log(`🏺 ${name} artifact activated!`, 'unlock');
     showBanner(`🏺 ${name} is now active.`);
     Audio.playArtifactCraft();
     if (typeof checkAchievements === 'function') checkAchievements();
@@ -52,7 +52,7 @@ function setupEvents() {
   EventBus.on('modal:open',        () => Audio.playModalOpen());
   EventBus.on('modal:close',       () => Audio.playModalClose());
   EventBus.on('season:changed', ({ season }) => {
-    log(`${season.emoji} ${season.name} has begun.`);
+    log(`${season.emoji} ${season.name} has begun.`, 'season');
     showBanner(`${season.emoji} ${season.name} has arrived.`);
     Audio.playSeasonChange();
     DIRTY.hud = true;
@@ -285,6 +285,7 @@ function setupUI() {
 }
 
 function renderInitial() {
+  RenderLog.init();
   RenderFarm.renderGrid();
   RenderPanel.renderInventory();
   try { RenderPanel.renderSeeds(); } catch (e) { console.error('renderSeeds failed:', e); }

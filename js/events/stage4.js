@@ -20,7 +20,7 @@ function showReclaimMenu(idx, cost, x, y) {
     state.coins -= cost;
     delete state.claimedTiles[idx];
     updateCoins(); RenderFarm.renderTile(idx); save(); hideTileMenu();
-    log('💰 Tile reclaimed from developers.');
+    log('💰 Tile reclaimed from developers.', 'event');
   });
   menu.appendChild(btn);
   menu.style.left = Math.min(x, window.innerWidth  - 200) + 'px';
@@ -58,7 +58,7 @@ function landDeveloperAttack() {
   const cost = 500 + (getCurrentStage().stage || 4) * 100;
   if (!state.claimedTiles) state.claimedTiles = {};
   state.claimedTiles[idx] = { claimedAt: Date.now(), deadlineAt: Date.now() + 60000, reclaimCost: cost };
-  log(`🏗️ Developers claimed plot ${idx + 1}! Pay ${coinHTML()}${formatNumber(cost)} within 60s or lose it.`);
+  log(`🏗️ Developers claimed plot ${idx + 1}! Pay ${coinHTML()}${formatNumber(cost)} within 60s or lose it.`, 'event');
   RenderFarm.renderTile(idx); save();
 }
 
@@ -84,7 +84,7 @@ function claimedTileTick() {
           if (state.rotTiles)     delete state.rotTiles[idx];
         }
         state.claimedTiles[idx] = { lockedAt: now, releasesAt: now + 120000 };
-        log(`🏗️ Developers seized plot ${idx + 1}! Locked for 120s.`);
+        log(`🏗️ Developers seized plot ${idx + 1}! Locked for 120s.`, 'event');
         RenderFarm.renderTile(idx); changed = true;
       }
     }
@@ -127,7 +127,7 @@ function plagueRatAttack() {
   state.mounds[idx] = Date.now() + (state.upgrades.quickSoil ? 5000 : 20000);
   if (!state.diseasedTiles) state.diseasedTiles = {};
   state.diseasedTiles[idx] = Date.now() + 60000;
-  log(`🐀 Plague rats uprooted a ${SEEDS[td.seed].name} and diseased the soil!`);
+  log(`🐀 Plague rats uprooted a ${SEEDS[td.seed].name} and diseased the soil!`, 'attack');
   RenderFarm.renderTile(idx); save();
 }
 
@@ -173,7 +173,7 @@ function acidRainAttack() {
     if (!td || !td.seed || isReady(td, i)) continue;
     if (td.burnedSeconds !== undefined) td.burnedSeconds = Math.max(0, td.burnedSeconds * setbackFactor);
   }
-  log('☠️ Acid rain stripped your soil and set back your crops!');
+  log('☠️ Acid rain stripped your soil and set back your crops!', 'event');
   EventBus.emit('event:acidRain');
   RenderFarm.renderGrid();
   animateAcidRain();

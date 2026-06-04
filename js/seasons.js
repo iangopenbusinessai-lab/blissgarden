@@ -71,32 +71,32 @@ window.Seasons = (() => {
   function _startDrought() {
     STATE.session.droughtEndsAt = Date.now() + 60000;
     if (!_firstDrought) { _firstDrought = true; showBanner('☀️ The summer heat is intense.'); }
-    log('☀️ A drought has struck the farm!');
+    log('☀️ A drought has struck the farm!', 'season');
     EventBus.emit('event:drought');
     _showWeatherOverlay('drought');
   }
   function _endDrought() {
     STATE.session.droughtEndsAt = 0;
     _hideWeatherOverlay();
-    log('☀️ The drought has passed.');
+    log('☀️ The drought has passed.', 'season');
   }
 
   function _startRain() {
     STATE.session.rainEndsAt = Date.now() + 90000;
     if (!_firstRain) { _firstRain = true; showBanner('🌧️ The rains have come.'); }
-    log('🌧️ Rain is falling — crops thrive!');
+    log('🌧️ Rain is falling — crops thrive!', 'season');
     EventBus.emit('event:rain');
     _showWeatherOverlay('rain');
   }
   function _endRain() {
     STATE.session.rainEndsAt = 0;
     _hideWeatherOverlay();
-    log('🌧️ The rain has stopped.');
+    log('🌧️ The rain has stopped.', 'season');
   }
 
   function _startFrost() {
     STATE.session.frostEndsAt = Date.now() + 30000;
-    log('❄️ Frost struck the farm!');
+    log('❄️ Frost struck the farm!', 'season');
     EventBus.emit('event:frost');
     _showWeatherOverlay('frost');
   }
