@@ -119,13 +119,16 @@ function setupUI() {
   Audio.setupMute();
 
   (function () {
-    const btn              = document.getElementById('settings-btn');
-    const backdrop         = document.getElementById('settings-backdrop');
-    const panel            = document.getElementById('settings-panel');
-    const resetBtn         = document.getElementById('reset-btn');
-    const hideBoughtToggle = document.getElementById('hide-bought-toggle');
-    const debugModeToggle  = document.getElementById('debug-mode-toggle');
-    const farmNameInput    = document.getElementById('farm-name-input');
+    const btn                 = document.getElementById('settings-btn');
+    const backdrop            = document.getElementById('settings-backdrop');
+    const panel               = document.getElementById('settings-panel');
+    const resetBtn            = document.getElementById('reset-btn');
+    const hideBoughtToggle    = document.getElementById('hide-bought-toggle');
+    const debugModeToggle     = document.getElementById('debug-mode-toggle');
+    const reducedMotionToggle = document.getElementById('reduced-motion-toggle');
+    const showBannersToggle   = document.getElementById('show-banners-toggle');
+    const muteSettingsToggle  = document.getElementById('mute-settings-toggle');
+    const farmNameInput       = document.getElementById('farm-name-input');
     let confirmed = false;
 
     function applyFarmName() {
@@ -143,9 +146,12 @@ function setupUI() {
     function openSettings() {
       confirmed = false;
       resetBtn.textContent = 'Reset Data';
-      hideBoughtToggle.checked = !!state.hideBoughtUpgrades;
-      debugModeToggle.checked  = !!STATE.settings.debugMode;
       if (farmNameInput) farmNameInput.value = STATE.meta.farmName || 'Bliss Farm';
+      hideBoughtToggle.checked    = !!state.hideBoughtUpgrades;
+      debugModeToggle.checked     = !!STATE.settings.debugMode;
+      reducedMotionToggle.checked = !!STATE.settings.reducedMotion;
+      showBannersToggle.checked   = STATE.settings.showBanners !== false;
+      muteSettingsToggle.checked  = !!STATE.settings.muted;
       backdrop.style.display = 'block';
       panel.style.display = 'block';
       EventBus.emit('modal:open');
@@ -167,6 +173,21 @@ function setupUI() {
       STATE.settings.debugMode = debugModeToggle.checked;
       DebugPanel.applyDebugMode();
       save();
+    });
+    reducedMotionToggle.addEventListener('change', () => {
+      STATE.settings.reducedMotion = reducedMotionToggle.checked;
+      applyReducedMotion();
+      save();
+    });
+    showBannersToggle.addEventListener('change', () => {
+      STATE.settings.showBanners = showBannersToggle.checked;
+      save();
+    });
+    muteSettingsToggle.addEventListener('change', () => {
+      STATE.settings.muted = muteSettingsToggle.checked;
+      localStorage.setItem('bliss_muted', muteSettingsToggle.checked ? '1' : '0');
+      const muteBtn = document.getElementById('mute-btn');
+      if (muteBtn) muteBtn.textContent = muteSettingsToggle.checked ? '🔇' : '🔊';
     });
     btn.addEventListener('click',      e => { e.stopPropagation(); openSettings(); });
     backdrop.addEventListener('click', closeSettings);
@@ -371,6 +392,7 @@ function showFarmNameOverlay() {
 
 function init() {
   const hadSave = load();
+  applyReducedMotion();
   recalculateModifiers();
   if (typeof checkFreeRecipes === 'function') checkFreeRecipes();
   if (typeof checkPrestigeUnlocks === 'function') checkPrestigeUnlocks();

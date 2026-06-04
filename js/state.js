@@ -52,7 +52,12 @@ window.STATE = {
     muted: false,
     hidePurchased: true,
     debugMode: false,
-    logFilters: {},
+    reducedMotion: false,
+    showBanners: true,
+    logFilters: {
+      attack: true, earnings: true, growth: true, event: true,
+      unlock: true, prestige: true, season: true, system: true,
+    },
   },
   prestige: {
     count: 0,

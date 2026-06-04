@@ -215,8 +215,20 @@
 #name-overlay-input:focus { border-color: rgba(240,208,128,.6) !important; }
 #name-overlay-btn:hover { background: #4a7a2c !important; }
 #settings-backdrop { position: fixed; inset: 0; z-index: 950; background: rgba(0,0,0,.55); display: none; }
-#settings-panel { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 951; background: #6B4432; border: 2px solid #3d2010; border-radius: 10px; padding: 22px 26px 20px; min-width: 220px; color: #fff; display: none; }
-#settings-panel h2 { font-size: 15px; font-weight: 700; margin-bottom: 18px; letter-spacing: .5px; }
+#settings-panel { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 951; background: #6B4432; border: 2px solid #3d2010; border-radius: 10px; padding: 20px 24px 18px; width: 300px; max-width: 92vw; max-height: 82vh; overflow-y: auto; color: #fff; display: none; }
+#settings-panel h2 { font-size: 15px; font-weight: 700; margin-bottom: 16px; letter-spacing: .5px; }
+#settings-panel::-webkit-scrollbar { width: 4px; }
+#settings-panel::-webkit-scrollbar-thumb { background: rgba(0,0,0,.3); border-radius: 3px; }
+.stg-section { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.stg-section-last { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.stg-section-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,.38); margin-bottom: 10px; }
+.stg-field { margin-bottom: 10px; }
+.stg-field-label { display: block; font-size: 11px; color: rgba(255,255,255,.55); margin-bottom: 5px; }
+.stg-text-input { width: 100%; background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.18); border-radius: 5px; color: #fff; font-size: 13px; padding: 6px 10px; outline: none; font-weight: 600; box-sizing: border-box; }
+.stg-text-input:focus { border-color: rgba(240,208,128,.5); }
+.stg-row { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; cursor: pointer; font-size: 13px; font-weight: 500; color: rgba(255,255,255,.85); }
+.stg-row:last-child { margin-bottom: 0; }
+.stg-check { width: 14px; height: 14px; cursor: pointer; flex-shrink: 0; accent-color: #5a8a3c; }
 #reset-btn { width: 100%; background: #b03020; color: #fff; border: none; border-radius: 6px; padding: 9px 0; font-size: 13px; font-weight: 700; cursor: pointer; }
 #reset-btn:hover { background: #922010; }
 

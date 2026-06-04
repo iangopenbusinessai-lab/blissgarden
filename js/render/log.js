@@ -148,6 +148,7 @@ function log(msg, category = 'system') {
 }
 
 function showBanner(text) {
+  if (!STATE.settings.showBanners) return;
   const existing = document.querySelector('.world-banner');
   if (existing) existing.remove();
   const el = document.createElement('div');
@@ -156,4 +157,8 @@ function showBanner(text) {
   document.body.appendChild(el);
   el.addEventListener('animationend', () => el.remove());
   setTimeout(() => el.remove(), 4200);
+}
+
+function applyReducedMotion() {
+  document.body.classList.toggle('reduced-motion', !!STATE.settings.reducedMotion);
 }

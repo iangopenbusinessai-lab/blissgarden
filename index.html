@@ -89,21 +89,48 @@
 </div>
 <div id="settings-backdrop"></div>
 <div id="settings-panel">
-  <h2>Settings</h2>
-  <div style="margin-bottom:18px">
-    <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Farm Name</label>
-    <input id="farm-name-input" type="text" maxlength="24"
-      style="width:100%;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.18);border-radius:5px;color:#fff;font-size:14px;padding:7px 10px;outline:none;font-weight:600" />
+  <h2>⚙️ Settings</h2>
+
+  <div class="stg-section">
+    <div class="stg-section-label">Game</div>
+    <div class="stg-field">
+      <label class="stg-field-label">Farm Name</label>
+      <input id="farm-name-input" type="text" maxlength="24" class="stg-text-input" />
+    </div>
+    <label class="stg-row">
+      <input type="checkbox" id="debug-mode-toggle" class="stg-check">
+      <span>Debug Mode</span>
+    </label>
   </div>
-  <label style="display:flex;align-items:center;gap:8px;margin-bottom:16px;cursor:pointer;font-size:13px;font-weight:600">
-    <input type="checkbox" id="hide-bought-toggle" style="width:15px;height:15px;cursor:pointer">
-    Hide purchased upgrades
-  </label>
-  <label style="display:flex;align-items:center;gap:8px;margin-bottom:16px;cursor:pointer;font-size:13px;font-weight:600">
-    <input type="checkbox" id="debug-mode-toggle" style="width:15px;height:15px;cursor:pointer">
-    Debug Mode
-  </label>
-  <button id="reset-btn">Reset Data</button>
+
+  <div class="stg-section">
+    <div class="stg-section-label">Display</div>
+    <label class="stg-row">
+      <input type="checkbox" id="hide-bought-toggle" class="stg-check">
+      <span>Hide purchased upgrades</span>
+    </label>
+    <label class="stg-row">
+      <input type="checkbox" id="reduced-motion-toggle" class="stg-check">
+      <span>Reduced Motion</span>
+    </label>
+    <label class="stg-row">
+      <input type="checkbox" id="show-banners-toggle" class="stg-check">
+      <span>Show Banners</span>
+    </label>
+  </div>
+
+  <div class="stg-section">
+    <div class="stg-section-label">Audio</div>
+    <label class="stg-row">
+      <input type="checkbox" id="mute-settings-toggle" class="stg-check">
+      <span>Mute Sound</span>
+    </label>
+  </div>
+
+  <div class="stg-section stg-section-last">
+    <div class="stg-section-label">Data</div>
+    <button id="reset-btn">Reset Data</button>
+  </div>
 </div>
 
 <button id="panel-mobile-toggle" aria-label="Toggle panel">🌾</button>
