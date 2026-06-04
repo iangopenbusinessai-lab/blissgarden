@@ -571,6 +571,89 @@ window.Audio = (() => {
       });
     },
 
+    // ── TRADING POST ──────────────────────────────────────────────────────────
+
+    playTradingPostOpen() {
+      _play(c => {
+        [300, 400, 500].forEach((freq, i) => {
+          const t = c.currentTime + i * 0.04;
+          const o = c.createOscillator(), g = c.createGain();
+          o.connect(g); g.connect(c.destination);
+          o.type = 'sine'; o.frequency.setValueAtTime(freq, t);
+          g.gain.setValueAtTime(0.14, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+          o.start(t); o.stop(t + 0.4);
+        });
+      });
+    },
+
+    playDealPurchase() {
+      _play(c => {
+        const o = c.createOscillator(), g = c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.type = 'sine';
+        o.frequency.setValueAtTime(800, c.currentTime);
+        o.frequency.exponentialRampToValueAtTime(1200, c.currentTime + 0.15);
+        g.gain.setValueAtTime(0.30, c.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.15);
+        o.start(); o.stop(c.currentTime + 0.15);
+      });
+    },
+
+    playMysteryReveal() {
+      _play(c => {
+        // Rapid noise bursts (drum-roll simulation)
+        for (let i = 0; i < 8; i++) {
+          const t   = c.currentTime + i * 0.045;
+          const buf = _noise(c, 0.03);
+          const src = c.createBufferSource(), ng = c.createGain();
+          const filt = c.createBiquadFilter();
+          src.buffer = buf; filt.type = 'bandpass'; filt.frequency.value = 1800; filt.Q.value = 2;
+          src.connect(filt); filt.connect(ng); ng.connect(c.destination);
+          ng.gain.setValueAtTime(0.18 + i * 0.015, t);
+          ng.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+          src.start(t); src.stop(t + 0.03);
+        }
+        // Resolution chord
+        [330, 415, 494].forEach((freq, i) => {
+          const t = c.currentTime + 0.42 + i * 0.02;
+          const o = c.createOscillator(), g = c.createGain();
+          o.connect(g); g.connect(c.destination);
+          o.type = 'sine'; o.frequency.setValueAtTime(freq, t);
+          g.gain.setValueAtTime(0.22, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+          o.start(t); o.stop(t + 0.35);
+        });
+      });
+    },
+
+    playMysteryWin() {
+      _play(c => {
+        [523, 659, 784, 1047].forEach((freq, i) => {
+          const t = c.currentTime + i * 0.07;
+          const o = c.createOscillator(), g = c.createGain();
+          o.connect(g); g.connect(c.destination);
+          o.type = 'sine'; o.frequency.setValueAtTime(freq, t);
+          g.gain.setValueAtTime(0.25, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+          o.start(t); o.stop(t + 0.25);
+        });
+      });
+    },
+
+    playMysteryLoss() {
+      _play(c => {
+        const o = c.createOscillator(), g = c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.type = 'sine';
+        o.frequency.setValueAtTime(300, c.currentTime);
+        o.frequency.exponentialRampToValueAtTime(150, c.currentTime + 0.4);
+        g.gain.setValueAtTime(0.28, c.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.4);
+        o.start(); o.stop(c.currentTime + 0.4);
+      });
+    },
+
     setupMute() {
       STATE.settings.muted = localStorage.getItem('bliss_muted') === '1';
       const muteBtn = document.getElementById('mute-btn');

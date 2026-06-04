@@ -1,8 +1,15 @@
 function setupEvents() {
   EventBus.on('crop:harvested', () => {});
   EventBus.on('crop:sold',      () => {});
-  EventBus.on('crop:planted',   () => { if (typeof Tutorial !== 'undefined') Tutorial.onPlanted(); });
-  EventBus.on('crop:sold',      () => { if (typeof Tutorial !== 'undefined') Tutorial.onSold(); });
+  EventBus.on('crop:planted',     () => { if (typeof Tutorial !== 'undefined') Tutorial.onPlanted(); });
+  EventBus.on('crop:sold',        () => { if (typeof Tutorial !== 'undefined') Tutorial.onSold(); });
+  EventBus.on('tradingpost:open', () => Audio.playTradingPostOpen());
+  EventBus.on('deal:purchased',   () => Audio.playDealPurchase());
+  EventBus.on('mystery:revealed', ({ outcome }) => {
+    if (outcome === 'loss') Audio.playMysteryLoss();
+    else Audio.playMysteryReveal();
+    if (outcome === 'bigWin' || outcome === 'artifact' || outcome === 'prestige') Audio.playMysteryWin();
+  });
   EventBus.on('upgrade:purchased', () => { RenderPanel.renderUpgrades(); sfx.upgrade(); });
   EventBus.on('artifact:crafted', ({ artifactId }) => {
     const art = (window.ARTIFACTS || []).find(a => a.id === artifactId);
@@ -169,6 +176,24 @@ function setupUI() {
       if (!confirmed) { confirmed = true; resetBtn.textContent = 'Are you sure?'; }
       else { localStorage.clear(); location.reload(); }
     });
+  }());
+
+  (function () {
+    const tpBtn = document.getElementById('tp-btn');
+    if (tpBtn) {
+      tpBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        const modal = document.getElementById('tp-modal');
+        if (modal && modal.style.display === 'flex') TradingPost.close();
+        else TradingPost.open();
+      });
+    }
+    const tpBackdrop = document.getElementById('tp-backdrop');
+    if (tpBackdrop) tpBackdrop.addEventListener('click', () => TradingPost.close());
+    const tpClose = document.getElementById('tp-close-btn');
+    if (tpClose) tpClose.addEventListener('click', () => TradingPost.close());
+    const tpModal = document.getElementById('tp-modal');
+    if (tpModal) tpModal.addEventListener('click', e => e.stopPropagation());
   }());
 
   (function () {
@@ -360,6 +385,7 @@ function init() {
   RenderFarm.probeSprites();
   document.title = `${STATE.meta.farmName || 'Bliss Farm'} — Bliss Farm`;
   if (!hadSave) showFarmNameOverlay();
+  if (typeof TradingPost !== 'undefined') TradingPost.init();
   if (typeof Tutorial !== 'undefined') Tutorial.init();
 }
 

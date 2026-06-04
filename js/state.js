@@ -65,6 +65,12 @@ window.STATE = {
   artifacts: {},
   blueprints: {},
   recipeUnlocks: {},
+  tradingPost: {
+    lastReset: 0,
+    deals: [],
+    purchased: {},
+    merchantIdx: 0,
+  },
   session: {
     dragItem: null,
     debugCounts: { crow:0, hawk:0, weed:0, mole:0, rootRot:0, locust:0, blight:0, fungal:0 },
