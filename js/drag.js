@@ -175,6 +175,7 @@ window.DragSystem = (() => {
             }
             RenderFarm.renderTile(i); save();
             log(`🌱 Planted ${SEEDS[seed].name}`);
+            EventBus.emit('crop:planted', { idx: i, seed });
             planted = true;
           }
         });

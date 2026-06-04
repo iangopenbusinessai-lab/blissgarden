@@ -9,6 +9,7 @@ window.STATE = {
     farmName: 'Bliss Farm',
     seasonIndex: 0,
     seasonStartTime: Date.now(),
+    tutorialDone: false,
   },
   plots: Array(9).fill(null),
   fallenCrops: [],

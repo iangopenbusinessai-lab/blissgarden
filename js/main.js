@@ -1,6 +1,8 @@
 function setupEvents() {
   EventBus.on('crop:harvested', () => {});
   EventBus.on('crop:sold',      () => {});
+  EventBus.on('crop:planted',   () => { if (typeof Tutorial !== 'undefined') Tutorial.onPlanted(); });
+  EventBus.on('crop:sold',      () => { if (typeof Tutorial !== 'undefined') Tutorial.onSold(); });
   EventBus.on('upgrade:purchased', () => { RenderPanel.renderUpgrades(); sfx.upgrade(); });
   EventBus.on('artifact:crafted', ({ artifactId }) => {
     const art = (window.ARTIFACTS || []).find(a => a.id === artifactId);
@@ -358,6 +360,7 @@ function init() {
   RenderFarm.probeSprites();
   document.title = `${STATE.meta.farmName || 'Bliss Farm'} — Bliss Farm`;
   if (!hadSave) showFarmNameOverlay();
+  if (typeof Tutorial !== 'undefined') Tutorial.init();
 }
 
 init();

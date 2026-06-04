@@ -3,7 +3,7 @@ const KEY     = 'blissfarm10';
 const KEY_OLD = 'blissfarm9';
 
 window.save = function save() {
-  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode, dayOffset: STATE.meta.dayOffset, prestige: STATE.prestige, reputation: STATE.meta.reputation, artifacts: STATE.artifacts, blueprints: STATE.blueprints, recipeUnlocks: STATE.recipeUnlocks, farmName: STATE.meta.farmName, seasonIndex: STATE.meta.seasonIndex, seasonStartTime: STATE.meta.seasonStartTime }));
+  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode, dayOffset: STATE.meta.dayOffset, prestige: STATE.prestige, reputation: STATE.meta.reputation, artifacts: STATE.artifacts, blueprints: STATE.blueprints, recipeUnlocks: STATE.recipeUnlocks, farmName: STATE.meta.farmName, seasonIndex: STATE.meta.seasonIndex, seasonStartTime: STATE.meta.seasonStartTime, tutorialDone: STATE.meta.tutorialDone }));
 };
 
 window.load = function load() {
@@ -117,6 +117,7 @@ window.load = function load() {
     STATE.meta.farmName        = d.farmName        ?? 'Bliss Farm';
     STATE.meta.seasonIndex     = d.seasonIndex     ?? 0;
     STATE.meta.seasonStartTime = d.seasonStartTime ?? Date.now();
+    STATE.meta.tutorialDone    = d.tutorialDone    ?? false;
     return true;
   } catch (_) { return false; }
 };
