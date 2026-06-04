@@ -13,7 +13,8 @@
       "Bash(Remove-Item \"C:\\\\Users\\\\iango\\\\OneDrive\\\\Desktop\\\\blissgarden\\\\js\\\\events\\\\sellbox.js\")",
       "Bash(cp \"C:/Users/iango/OneDrive/Desktop/blissgarden/js/events/sellbox.js\" \"C:/Users/iango/OneDrive/Desktop/blissgarden/js/events/sellTick.js\")",
       "Bash(rm \"C:/Users/iango/OneDrive/Desktop/blissgarden/js/events/sellbox.js\")",
-      "Bash(grep *)"
+      "Bash(grep *)",
+      "Bash(node *)"
     ]
   }
 }
